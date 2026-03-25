@@ -1,6 +1,7 @@
-function subtract(a, b) {
-    return a - b;
+// file2.js
+
+function printMessage2() {
+    console.log('This is message from file2.js');
 }
 
-// 测试 subtract 函数
-console.log(subtract(5, 3));
+printMessage2();

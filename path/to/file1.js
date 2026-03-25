@@ -1,6 +1,7 @@
-function add(a, b) {
-    return a + b;
+// file1.js
+
+function printMessage1() {
+    console.log('This is message from file1.js');
 }
 
-// 测试 add 函数
-console.log(add(5, 3));
+printMessage1();
