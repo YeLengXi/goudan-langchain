@@ -1,13 +1,19 @@
-#!/usr/bin/env node
+const codeFormatter = require('./code-formatter-v3.cjs');
 
-const fs = require('fs');
-const path = require('path');
-const { formatCode } = require('./code-formatter-v3.cjs');
+// Test arrow function formatting
+const es5Function = function(a, b) { return a + b; };
+const arrowFunction = (a, b) => a + b;
 
-const testFile = path.join(__dirname, 'test-input.js');
-const outputTestFile = path.join(__dirname, 'test-output.js');
+console.log('ES5 Function:', codeFormatter.formatCode(es5Function.toString()));
+console.log('Arrow Function:', codeFormatter.formatCode(arrowFunction.toString()));
 
-const testCode = fs.readFileSync(testFile, 'utf8');
-const formattedCode = formatCode(testCode, { indentSize: 2 });
+// Test object method arrow functionization
+const es5Object = {
+  method: function(a, b) { return a + b; }
+};
+const arrowObject = {
+  method: (a, b) => a + b
+};
 
-fs.writeFileSync(outputTestFile, formattedCode, 'utf8');
+console.log('ES5 Object Method:', codeFormatter.formatCode(JSON.stringify(es5Object, null, 2)));
+console.log('Arrow Object Method:', codeFormatter.formatCode(JSON.stringify(arrowObject, null, 2)));

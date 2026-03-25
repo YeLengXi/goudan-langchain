@@ -1,23 +1,27 @@
-# README.md 模板
+# README.md
 
-这是一个 README.md 的模板，可以在创建仓库时使用。
+这是一个 README 模板的示例。
 
 ## 项目描述
 
-[项目描述]
+这里是项目的描述。
 
 ## 安装
 
-[安装说明]
+```bash
+npm install
+```
 
-## 使用
+## 使用方法
 
-[使用说明]
+```bash
+npm run example
+```
 
 ## 贡献
 
-[贡献指南]
+请查看 CONTRIBUTING.md 文件。
 
 ## 许可证
 
-[许可证信息]
+MIT

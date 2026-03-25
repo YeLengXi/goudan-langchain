@@ -1,50 +1,42 @@
-// Main program of the API tester
-class APITester {
-  constructor() {
-    this.commands = {
-      "get": this.handleGet,
-      "post": this.handlePost,
-      "put": this.handlePut,
-      "delete": this.handleDelete,
-      "patch": this.handlePatch
-    }
-  }
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const { parse } = require('minimist');
 
-  async execute(command, url, options) {
-    const method = command.toLowerCase();
-    const handler = this.commands[method];
-    if (handler) {
-      try {
-        const response = await handler(url, options);
-        console.log(response);
-      } catch (error) {
-        console.error(error);
+const DEFAULT_CONFIG_PATH = './config.json';
+
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
+    }
+
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
       }
-    } else {
-      console.error(`Unknown command: ${command}`);
     }
-  }
 
-  async handleGet(url, options) {
-    // Implementation for GET
-  }
-
-  async handlePost(url, options) {
-    // Implementation for POST
-  }
-
-  async handlePut(url, options) {
-    // Implementation for PUT
-  }
-
-  async handleDelete(url, options) {
-    // Implementation for DELETE
-  }
-
-  async handlePatch(url, options) {
-    // Implementation for PATCH
-  }
+    https.get(url, response => {
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: JSON.parse(data)
+        });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
+  });
 }
 
-const tester = new APITester();
-module.exports = tester;
+module.exports = {
+  fetchApi
+};

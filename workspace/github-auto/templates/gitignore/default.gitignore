@@ -1,0 +1,19 @@
+# .gitignore
+
+Dockerfile
+
+.git
+
+## 其他语言模板
+
+# Python
+venv/
+
+# Java
+build/
+
+# Go
+target/
+
+# Rust
+target/
