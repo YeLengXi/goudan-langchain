@@ -1,13 +1,24 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { parse } = require('minimist');
 
-const parseArgs = require('minimist');
-const { JSDOM } = require('jsdom');
+const API_TESTER_DIR = path.join(__dirname, '../');
+const CONFIG_FILE = path.join(API_TESTER_DIR, 'config.json');
 
-const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
+function readConfig() {
+  if (!fs.existsSync(CONFIG_FILE)) {
+    return {};
+  }
+  const content = fs.readFileSync(CONFIG_FILE, 'utf-8');
+  return JSON.parse(content);
+}
 
-function fetchApi(url, method, headers, body) {
+function saveConfig(config) {
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2), 'utf-8');
+}
+
+function sendRequest(method, url, headers, body) {
   return new Promise((resolve, reject) => {
     const options = {
       method,
@@ -22,60 +33,23 @@ function fetchApi(url, method, headers, body) {
     }
 
     https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
+      const { statusCode, headers } = response;
+      const chunks = [];
+      response.on('data', chunk => chunks.push(chunk));
       response.on('end', () => {
+        const body = Buffer.concat(chunks).toString();
         resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: JSON.parse(data)
+          statusCode,
+          headers,
+          body
         });
       });
-    }).on('error', err => {
-      reject(err);
-    });
+    }).on('error', error => reject(error));
   });
 }
 
-function parseRequestFile(filePath) {
-  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  return requests.map(request => {
-    return fetchApi(request.url, request.method, request.headers, request.body);
-  });
+module.exports = {
+  readConfig,
+  saveConfig,
+  sendRequest
 }
-
-function run() {
-  const args = parseArgs(process.argv.slice(2));
-  if (args._[0]) {
-    const method = args._[0].toUpperCase();
-    const url = args._[1];
-    let headers = {};
-    let body = null;
-
-    if (args.h) {
-      headers = args.h;
-    }
-    if (args.d) {
-      body = JSON.parse(args.d);
-    }
-
-    fetchApi(url, method, headers, body).then(response => {
-      console.log(JSON.stringify(response, null, 2));
-    }).catch(error => {
-      console.error(error);
-    });
-  } else if (args['request-file']) {
-    const filePath = args['request-file'];
-    parseRequestFile(filePath).then(results => {
-      results.forEach(result => {
-        console.log(JSON.stringify(result, null, 2));
-      });
-    }).catch(error => {
-      console.error(error);
-    });
-  }
-}
-
-run();

@@ -1,20 +1,21 @@
-const read_file = require('fs').readFileSync;
-const write_file = require('fs').writeFileSync;
-const exec_command = require('child_process').exec;
+const fs = require('fs');
 
-// 报告生成器
-function generateReport(logContent, errors, searchResults) {
-  const report = `Total Errors: ${errors.totalErrors}
+const exportToJson = (logs) => {
+  const data = JSON.stringify(logs, null, 2);
+  fs.writeFileSync('exported_logs.json', data);
+};
 
-Error Types:
-${errors.errorTypes.join('\n')}
-
-Search Results:
-${searchResults.join('\n')}
-`;
-  return report;
-}
+const exportToCsv = (logs) => {
+  const headers = Object.keys(logs[0]).join(',
+');
+  const rows = logs.map(log => Object.values(log).join(',')).join('
+');
+  const csvData = headers + '
+' + rows;
+  fs.writeFileSync('exported_logs.csv', csvData);
+};
 
 module.exports = {
-  generateReport
+  exportToJson,
+  exportToCsv
 }

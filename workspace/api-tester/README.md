@@ -1,10 +1,10 @@
-# api-tester
+# API Tester
 
 A command-line API testing tool.
 
 ## Installation
 
-To install api-tester, run:
+To install the tool, run:
 
 ```bash
 npm install -g api-tester
@@ -12,35 +12,20 @@ npm install -g api-tester
 
 ## Usage
 
+To test an API, run:
+
 ```bash
 api-tester GET https://api.example.com/users
-api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
-api-tester --request-file requests.json
 ```
 
-## Options
+To send a POST request with JSON body:
 
-- `GET`, `POST`, `PUT`, `DELETE`, `PATCH` - The HTTP method to use.
-- `-d, --data` - The request data in JSON format.
-- `-H, --header` - Set a custom header.
-- `--request-file` - Load requests from a file.
+```bash
+api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
+```
 
-## Examples
+To use a request file:
 
-Save the following requests in a file named `requests.json`:
-
-```json
-[
-  {
-    "method": "GET",
-    "url": "https://api.example.com/users"
-  },
-  {
-    "method": "POST",
-    "url": "https://api.example.com/users",
-    "data": {
-      "name": "John"
-    }
-  }
-]
+```bash
+api-tester --request-file requests.json
 ```
