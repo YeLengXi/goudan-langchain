@@ -1,28 +1,22 @@
 {
   "name": "John Doe",
-  "position": "Software Developer",
-  "bio": "I am a passionate software developer with 5 years of experience in web development. I enjoy building scalable and efficient web applications.",
-  "skills": [
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "React",
-    "Node.js"
-  ],
+  "position": "Frontend Developer",
+  "bio": "I am a frontend developer with 5 years of experience. I am passionate about creating beautiful and responsive websites.",
+  "skills": ["HTML", "CSS", "JavaScript", "React", "Vue"],
   "projects": [
     {
-      "name": "Portfolio Website",
-      "description": "A personal portfolio website to showcase my work.",n      "link": "https://john-doe-portfolio.com"
+      "name": "Project 1",
+      "description": "A project to showcase my skills in HTML, CSS, and JavaScript.",n      "link": "https://example.com/project1"
     },
     {
-      "name": "E-commerce Website",
-      "description": "An e-commerce website built with React and Node.js.",
-      "link": "https://john-doe-ecommerce.com"
+      "name": "Project 2",
+      "description": "A project to showcase my skills in React and Vue.",
+      "link": "https://example.com/project2"
     }
   ],
   "social_links": {
-    "GitHub": "https://github.com/john-doe",
-    "LinkedIn": "https://linkedin.com/in/john-doe",
-    "Email": "john.doe@example.com"
+    "GitHub": "https://github.com/johndoe",
+    "LinkedIn": "https://linkedin.com/in/johndoe",
+    "Email": "johndoe@example.com"
   }
 }

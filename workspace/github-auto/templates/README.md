@@ -1,23 +1,19 @@
-# README.md 模板
+# README.md
 
-这是一个 README.md 的模板，用于初始化 GitHub 仓库。
+Welcome to the project!
 
-## 项目描述
+## Project Information
 
-[项目描述]
+- Author: [Your Name]
+- Description: [Project Description]
+- License: [License Type]
 
-## 安装
+## Getting Started
 
-[安装说明]
+- Clone the repository: `git clone [Repository URL]`
+- Install dependencies: `npm install`
+- Run the project: `node index.js`
 
-## 使用
+## License
 
-[使用说明]
-
-## 贡献
-
-[贡献指南]
-
-## 许可证
-
-[许可证信息]
+[MIT License](https://github.com/nodejs/node/blob/master/LICENSE)

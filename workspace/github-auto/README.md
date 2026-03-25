@@ -5,28 +5,37 @@
 ## 安装
 
 ```bash
-npm install
+npm install -g github-auto
 ```
 
 ## 使用
 
-- `github-auto create <name> [description] --public` - 创建公开仓库
-- `github-auto create <name> [description] --private` - 创建私有仓库
-- `github-auto init [template]` - 初始化本地项目
-- `github-auto push` - 推送到 GitHub
-
-## 示例
+### 创建仓库
 
 ```bash
-# 创建公开仓库
-github-auto create my-project
+github-auto create my-project --public
+```
 
-# 创建私有仓库
-github-auto create my-project --private
+创建一个公开的仓库，仓库名为 my-project。
 
-# 初始化本地项目
-github-auto init nodejs
+```bash
+github-auto create my-project --private --description "My awesome project"
+```
 
-# 推送到 GitHub
+创建一个私有的仓库，仓库名为 my-project，并添加描述。
+
+### 初始化本地项目
+
+```bash
+github-auto init --template nodejs
+```
+
+使用 nodejs 模板初始化本地项目。
+
+### 推送到 GitHub
+
+```bash
 github-auto push
 ```
+
+将本地项目推送到 GitHub。
