@@ -1,6 +1,3 @@
-function subtract(a, b) {
-    return a - b;
-}
+const multiply = (a, b) => a * b;
 
-// 测试 subtract 函数
-console.log(subtract(5, 3)); // 应该输出 2
+console.log(multiply(3, 4));
