@@ -1,22 +1,58 @@
-# 正则表达式测试器
+# Regex Tester
 
-## 功能
+This tool allows you to test and debug regular expressions.
 
-- 测试正则表达式
-- 显示匹配结果
-- 提取捕获组
-- 正则替换
-- 常用正则库
-- 错误处理
+## Installation
 
-## 使用方法
-
-1. 运行 tester.js 文件
-2. 按照提示输入正则表达式和文本
-3. 查看结果
-
-## 示例
+To use this tool, make sure you have Node.js installed. Then, run the following command in your terminal:
 
 ```bash
-node tester.js "/\d+/" --text "hello 123 world"
+npm install
+```
+
+## Usage
+
+- To test a regex pattern against some text:
+  
+  ```bash
+  node tester.js <pattern> --text <text>
+  ```
+  
+- To validate an email address:
+  
+  ```bash
+  node tester.js --email <email>
+  ```
+  
+- To validate a phone number:
+  
+  ```bash
+  node tester.js --phone <phone>
+  ```
+  
+- To validate a URL:
+  
+  ```bash
+  node tester.js --url <url>
+  ```
+  
+- To replace text using a regex pattern:
+  
+  ```bash
+  node tester.js replace <pattern> --text <text> --with <replacement>
+  ```
+
+## Examples
+
+```bash
+$ node tester.js "/\d+/" --text "hello 123 world"
+Pattern: /\d+/
+Text: hello 123 world
+Match: 123
+Position: 6-9
+
+$ node tester.js --email "test@example.com"
+Pattern: ^[\^\s@]+@[\^\s@]+\.[\^\s@]+$
+Input: test@example.com
+Valid: ✅ true
 ```
