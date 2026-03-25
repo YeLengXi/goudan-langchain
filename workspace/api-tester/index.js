@@ -1,71 +1,77 @@
-const https = require('https');
+const axios = require('axios');
+const dotenv = require('dotenv');
+const inquirer = require('inquirer');
 const fs = require('fs');
 const path = require('path');
 
-const parseArgs = require('minimist');
-const axios = require('axios');
+dotenv.config();
 
-const BASE_PATH = path.join(__dirname, '../');
-const CONFIG_PATH = path.join(BASE_PATH, 'config.json');
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const contentType = ['application/json', 'multipart/form-data'];
 
-// 读取配置文件
-const readConfig = async () => {
+async function main() {
   try {
-    const data = await fs.promises.readFile(CONFIG_PATH, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return {};
-  }
-};
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'method',
+        message: 'Enter HTTP method (GET, POST, PUT, DELETE, PATCH): ',
+        validate: (value) => methods.includes(value) || 'Invalid method'
+      },
+      {
+        type: 'input',
+        name: 'url',
+        message: 'Enter URL: '
+      },
+      {
+        type: 'list',
+        name: 'contentType',
+        message: 'Select content type (application/json, multipart/form-data): ',
+        choices: contentType
+      },
+      {
+        type: 'input',
+        name: 'body',
+        message: 'Enter request body (leave blank for empty body):
+        ',
+        when: (answers) => answers.contentType === 'application/json'
+      },
+      {
+        type: 'input',
+        name: 'formData',
+        message: 'Enter form data (leave blank for empty form data):
+        ',
+        when: (answers) => answers.contentType === 'multipart/form-data'
+      }
+    ]);
 
-// 写入配置文件
-const writeConfig = async (config) => {
-  try {
-    await fs.promises.writeFile(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error writing config file:', error);
-  }
-};
+    const { method, url, contentType, body, formData } = answers;
 
-// 处理请求
-const handleRequest = async (method, url, data, headers) => {
-  try {
-    const response = await axios({
-      method,
-      url,
-      data,
-      headers
-    });
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
+    let options = {
+      method: method,
+      url: url
+    }
 
-// 主程序
-const main = async () => {
-  const args = parseArgs(process.argv.slice(2));
+    if (contentType === 'application/json') {
+      options.headers = {
+        'Content-Type': 'application/json'
+      }
+      options.data = JSON.parse(body);
+    } else if (contentType === 'multipart/form-data') {
+      options.headers = {
+        'Content-Type': 'multipart/form-data'
+      }
+      options.data = formData;
+    }
 
-  // 解析命令
-  let { method, url, data, headers } = args;
-  if (args.d) {
-    data = JSON.parse(args.d);
-  }
-  if (args.h) {
-    headers = JSON.parse(args.h);
-  }
-
-  // 读取配置
-  const config = await readConfig();
-
-  // 发送请求
-  try {
-    const response = await handleRequest(method, url, data, headers);
+    const response = await axios(options);
+    console.log('Status Code:', response.status);
+    console.log('Headers:', response.headers);
+    console.log('Response Time:', response.duration);
     console.log('Response:', response.data);
   } catch (error) {
     console.error('Error:', error);
   }
-};
+}
 
-// 运行主程序
 main();
