@@ -4,7 +4,7 @@ A CLI tool for testing REST APIs
 
 ## Installation
 
-To use this tool, you need to install it globally:
+To install the tool, run:
 
 ```bash
 npm install -g api-tester
@@ -12,25 +12,31 @@ npm install -g api-tester
 
 ## Usage
 
+### Basic Usage
+
 To test an API, you can use the following commands:
 
 ```bash
 api-tester GET https://api.example.com/users
 api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
+```
+
+### Advanced Usage
+
+You can also use the --request-file option to load requests from a file:
+
+```bash
 api-tester --request-file requests.json
 ```
 
-## Options
+## Configuration
 
-- `GET`, `POST`, `PUT`, `DELETE`, `PATCH`: Specify the HTTP method.
-- `-d`, `--data`: Provide the request body in JSON format.
-- `--request-file`: Specify a file containing a request to be executed.
+You can configure the tool by editing the package.json file.
 
-## Examples
+## Contributing
 
-```json
-{
-  "method": "GET",
-  "url": "https://api.example.com/users"
-}
-```
+Contributions are welcome!
+
+## License
+
+MIT

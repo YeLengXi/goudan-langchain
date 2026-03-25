@@ -1,12 +1,16 @@
-const scraper = require('./scraper');
+const scraper = require('./scraper.js');
 
-module.exports = {
-  run: async (url) => {
-    try {
-      const result = await scraper.scrape(url);
-      console.log(JSON.stringify(result, null, 2));
-    } catch (error) {
-      console.error(error);
-    }
-  }
+const args = process.argv.slice(2);
+
+if (args.length === 0) {
+  console.log('Usage: node scraper.js <URL>');
+  process.exit(1);
 }
+
+const url = args[0];
+
+scraper(url).then(data => {
+  console.log(JSON.stringify(data, null, 2));
+}).catch(error => {
+  console.error('Error:', error);
+});

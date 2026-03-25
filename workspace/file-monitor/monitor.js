@@ -1,27 +1,40 @@
 const fs = require('fs');
+const path = require('path');
+const { exec } = require('child_process');
 
-const configPath = process.argv[2];
+const parseConfig = (configPath) => {
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  return config;
+};
 
-if (!configPath) {
-  console.error('No config file provided.');
-  process.exit(1);
-}
-
-const config = require(configPath);
-
-const watchDir = config.watchDir;
-const events = config.events;
-
-fs.watch(watchDir, (eventType, filename) => {
-  if (eventType === 'rename') {
-    const action = events[filename.includes('create') ? 'create' : filename.includes('delete') ? 'delete' : 'modify'];
-    if (action) {
-      exec_command(action.replace('{file}', filename));
+const executeCommand = (command, file) => {
+  const replacedCommand = command.replace(\{file\}, file);
+  console.log(`Executing: ${replacedCommand}`);
+  exec(replacedCommand, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error: ${error}`);
+      console.error(`Stderr: ${stderr}`);
     }
-  }
-});
+  });
+};
 
-process.on('SIGINT', () => {
-  console.log('Exiting...');
-  process.exit(0);
-});
+const monitorDirectory = (directoryPath) => {
+  fs.watch(directoryPath, (eventType, filename) => {
+    if (eventType === 'rename' && filename) {
+      const config = parseConfig(path.join(directoryPath, 'config.json'));
+      const command = config.events[eventType];
+      if (command) {
+        executeCommand(command, filename);
+      }
+    }
+  });
+};
+
+const main = () => {
+  const args = process.argv.slice(2);
+  const configPath = args.find(arg => arg.startsWith('--config '))?.split('--config ')[1] || 'config.json';
+  const config = parseConfig(configPath);
+  monitorDirectory(config.watchDir);
+};
+
+main();

@@ -1,17 +1,18 @@
-# JSON Tools
+# README.md
 
-This repository contains a set of JSON processing tools that can format, sort, and filter JSON data.
+Welcome to json-tools!
+
+This tool provides functionality to format, sort, and filter JSON data.
 
 ## Features
-- Format JSON output
-- Sort by key (alphabetical or numeric)
-- Filter data by condition expressions
-- Deep merge objects
-- Error handling for invalid JSON
+
+- Format JSON
+- Sort JSON by key
+- Filter JSON based on conditions
 
 ## Usage
 
-To use the tools, run the following commands in the terminal:
+To use the tool, run the following commands:
 
 ```bash
 node json-tools.js format input.json

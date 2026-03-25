@@ -1,25 +1,26 @@
 {
   "name": "John Doe",
-  "position": "Frontend Developer",
-  "bio": "I am a frontend developer with 5 years of experience in building web applications. I am proficient in HTML, CSS, and JavaScript, and have a strong understanding of React and Angular.",
+  "position": "Software Engineer",
+  "bio": "I am a passionate software engineer with 5 years of experience in building web applications.",
   "skills": [
-    "HTML",
-    "CSS",
+    "HTML/CSS",
     "JavaScript",
     "React",
-    "Angular"
+    "Node.js"
   ],
   "projects": [
     {
       "name": "Project 1",
-      "description": "A web application for managing tasks.",n      "url": "https://example.com/project1"
+      "description": "A web application for managing tasks.",n
+      "link": "https://example.com/project1"
     },
     {
       "name": "Project 2",
-      "description": "A web application for e-commerce.",n      "url": "https://example.com/project2"
+      "description": "A responsive website for a startup.",
+      "link": "https://example.com/project2"
     }
   ],
-  "social": {
+  "social_links": {
     "GitHub": "https://github.com/johndoe",
     "LinkedIn": "https://linkedin.com/in/johndoe",
     "Email": "johndoe@example.com"

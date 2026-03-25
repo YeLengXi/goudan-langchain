@@ -1,42 +1,45 @@
-# Cron Scheduler
+const { parse } = require('cron-parser');
 
-This is a simple cron scheduler that can execute tasks based on cron expressions.
+class Scheduler {
+  constructor(configPath) {
+    this.configPath = configPath;
+    this.tasks = [];
+    this.parser = parse;
+  }
 
-## Features
+  async loadConfig() {
+    const config = await read_file(this.configPath);
+    this.tasks = config.tasks.map(task => ({
+      ...task,
+      nextRun: this.parser.parse(task.cron)
+    }));
+  }
 
-- Parse cron expressions
-- Schedule and execute tasks
-- Support multiple tasks
-- Task execution history
-- Error handling and retry
+  async addTask(task) {
+    const nextRun = this.parser.parse(task.cron);
+    this.tasks.push({
+      ...task,
+      nextRun
+    });
+  }
 
-## Configuration
+  async removeTask(taskName) {
+    this.tasks = this.tasks.filter(task => task.name !== taskName);
+  }
 
-The scheduler reads tasks from a JSON configuration file named `tasks.json`. The file should have the following format:
-
-```json
-{
-  "tasks": [
-    {
-      "name": "task_name",
-      "cron": "cron_expression",
-      "command": "command_to_execute"
-    },
-    // Add more tasks here
-  ]
+  async run() {
+    while (true) {
+      const now = new Date();
+      const task = this.tasks.find(task => now >= task.nextRun);
+      if (task) {
+        console.log(`Running task ${task.name} at ${now.toISOString()}`);
+        await exec_command(task.command);
+        task.nextRun = this.parser.parse(task.cron);
+      }
+      const delay = task ? Math.max(0, task.nextRun - now) : 1000 * 60 * 60;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
 }
-```
 
-Each task has the following properties:
-
-- `name`: The name of the task.
-- `cron`: The cron expression that defines when the task should be executed.
-- `command`: The command to execute.
-
-## Usage
-
-To run the scheduler, execute the following command:
-
-```bash
-node scheduler.js --config tasks.json
-```
+module.exports = Scheduler;
