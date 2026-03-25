@@ -1,21 +1,20 @@
-const { exec_command } = require('./utils.js'); 
+const { program } = require('commander');
+const { createRepository } = require('../index');
+const dotenv = require('dotenv');
+dotenv.config();
 
-const { createRepo } = require('./github-api.js'); 
+program
+  .command('create <repoName>')
+  .option('--public', 'Create a public repository', false)
+  .option('--private', 'Create a private repository', false)
+  .option('--description <description>', 'Repository description', '')
+  .action(async (repoName, options) => {
+    try {
+      const repository = await createRepository(repoName, !options.private, options.description);
+      console.log(`Repository created: ${repository.html_url}`);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  });
 
-async function create(args, description, isPrivate) { 
-  const repoName = args; 
-  const repo = await createRepo(repoName, isPrivate); 
-  const repoUrl = repo.html_url; 
-
-  exec_command(`mkdir -p ${repoName} && cd ${repoName} && git init && git add . && git commit -m 'Initial commit' && git remote add origin ${repoUrl} && git push -u origin main`); 
-
-  if (description) { 
-    write_file(`${repoName}/README.md`, description); 
-  } 
-
-  write_file(`${repoName}/.gitignore`, 'node_modules/
-Dockerfile'); 
-  write_file(`${repoName}/LICENSE`, 'MIT'); 
-
-  console.log(`Repository created: ${repoUrl}`); 
-}
+program.parse(process.argv);
