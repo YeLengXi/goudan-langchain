@@ -12,14 +12,18 @@ npm install workspace-test-framework
 
 ## Usage
 
-You can use the framework by requiring it in your test files.
+### Basic Usage
 
 ```javascript
-const { describe, it, expect } = require('workspace-test-framework/test.js');
+const { describe, it, expect } = require('workspace-test-framework');
 
 describe('Math operations', () => {
   it('should add numbers', () => {
     expect(add(1, 2)).toBe(3);
+  });
+
+  it('should subtract numbers', () => {
+    expect(subtract(5, 2)).toBe(3);
   });
 });
 ```

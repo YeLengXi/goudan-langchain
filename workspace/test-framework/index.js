@@ -3,46 +3,29 @@ const path = require('path');
 const { describe, it, before, after } = require('./test.js');
 const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
 
-const testFiles = fs.readdirSync('tests').filter(file => file.endsWith('.test.js'));
+const testsDirectory = path.join(__dirname, 'tests');
+const testFiles = fs.readdirSync(testsDirectory);
 const tests = [];
 
 testFiles.forEach(file => {
-  const testSpecs = require(path.join('tests', file));
-  tests.push(...Object.values(testSpecs));
+  if (file.endsWith('.test.js')) {
+    const testModule = require(path.join(testsDirectory, file));
+    const testCases = testModule.default || testModule;
+    tests.push(...Object.values(testCases));
+  }
 });
 
 const runTests = () => {
-  tests.forEach(testSpec => {
-    describe(testSpec.name, () => {
-      before(() => {
-        if (testSpec.before) {
-          testSpec.before();
-        }
-      });
-
-      it(testSpec.test, () => {
-        if (testSpec.async) {
-          testSpec.test();
-        } else {
-          try {
-            testSpec.test();
-          } catch (error) {
-            throw new Error(`Test failed: ${testSpec.test}
-              Error: ${error.message}`);
-          }
-        }
-      });
-
-      after(() => {
-        if (testSpec.after) {
-          testSpec.after();
-        }
-      });
-    });
+  tests.forEach(testCase => {
+    before(testCase.before); 
+    testCase.test();
+    after(testCase.after);
   });
+  console.log(`
+${tests.length} tests passed (${tests.filter(test => test.failed).length} failures)`);
 };
 
 module.exports = {
   runTests,
-  watchTests
+  watch
 };

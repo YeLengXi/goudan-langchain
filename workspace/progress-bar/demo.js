@@ -1,26 +1,29 @@
 const ProgressBar = require('./progress.js');
 
-const cliProgress = require('cli-progress');
+// Create a single progress bar
+const bar = new ProgressBar({
+  total: 100,
+  width: 40,
+  complete: '█',
+  incomplete: '░'
+});
 
-const bar = new cliProgress.SingleBar({ total: 100, width: 40, complete: '█', incomplete: ' ' }, 'progress');
-
-const multiBar = new cliProgress.MultiBar({ total: 100, width: 40, complete: '█', incomplete: ' ' }, true);
-
-const downloadBar = multiBar.create('Download', 100);
-const uploadBar = multiBar.create('Upload', 100);
-
-const total = 100;
-let completed = 0;
-
-function updateProgress() {
-  bar.update(completed);
-  downloadBar.update(completed);
-  uploadBar.update(completed);
-  completed += 10;
-  if (completed >= total) {
-    bar.finish();
-    multiBar.finish();
-  }
+// Update the progress bar
+for (let i = 0; i <= 100; i++) {
+  bar.update(i);
+  // Do some work here
 }
 
-setInterval(updateProgress, 100);
+// Create a multi-progress bar
+const multi = new ProgressBar({
+  multi: true
+});
+
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
+
+// Update the progress bars
+for (let i = 0; i <= 100; i++) {
+  bar1.update(i);
+  bar2.update(i);
+}

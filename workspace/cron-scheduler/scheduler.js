@@ -1,45 +1,58 @@
-const { parse } = require('cron');
+const { parse } = require('cron-parser');
 
 class Scheduler {
-  constructor() {
+  constructor(configPath) {
+    this.configPath = configPath;
     this.tasks = [];
+    this.parser = parse;
+    this.loadConfig();
   }
 
-  addTask(name, cron, command) {
-    const parsedCron = parse(cron);
-    this.tasks.push({
-      name,
-      cron: parsedCron,
-      command,
-      lastRun: null
-    });
+  loadConfig() {
+    const config = require(this.configPath);
+    this.tasks = config.tasks.map(task => ({
+      ...task,
+      nextRun: this.parser.parse(task.cron, { utc: true })
+    }));
   }
 
-  removeTask(name) {
-    this.tasks = this.tasks.filter(task => task.name !== name);
-  }
-
-  run() {
+  schedule() {
     const now = new Date();
-    this.tasks.forEach(task => {
-      if (task.lastRun === null || now - task.lastRun >= this.getCronDuration(task.cron)) {
-        this.executeTask(task);
+    const task = this.tasks.find(task => task.nextRun <= now && !task.completed);
+    if (task) {
+      this.execTask(task);
+    }
+  }
+
+  execTask(task) {
+    console.log(`Executing task: ${task.name}`);
+    require('child_process').exec(task.command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error executing task: ${task.name}`, error);
+        task.retryCount += 1;
+        if (task.retryCount < 3) {
+          task.nextRun = this.parser.parse(task.cron, { utc: true });
+          this.saveConfig();
+        } else {
+          console.error(`Task failed after 3 retries: ${task.name}`);
+        }
+      } else {
+        console.log(`Task completed: ${task.name}`, stdout);
+        task.completed = true;
+        task.nextRun = this.parser.parse(task.cron, { utc: true });
+        this.saveConfig();
       }
     });
-    setTimeout(() => this.run(), 1000);
   }
 
-  executeTask(task) {
-    console.log(`Running task: ${task.name} at ${new Date().toLocaleTimeString()}`);
-    exec_command(task.command);
-    task.lastRun = new Date();
-  }
-
-  getCronDuration(cron) {
-    // This is a simplified version of getting the next run time duration.
-    // It is not a complete implementation.
-    const nextRun = cron.next();
-    return nextRun - new Date();
+  saveConfig() {
+    const config = {
+      tasks: this.tasks.map(task => ({
+        ...task,
+        completed: false
+      }))
+    }
+    require('fs').writeFileSync(this.configPath, JSON.stringify(config, null, 2));
   }
 }
 

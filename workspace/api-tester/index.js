@@ -1,74 +1,53 @@
-const https = require('https');
+// Main program of the API tester.
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
 
-const DEFAULT_REQUEST_FILE = 'examples/requests.json';
+const parseArgs = require('minimist');
+const { read_file, write_file, exec_command, list_directory } = require('./utils');
 
-function makeRequest(method, url, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method,
-      headers
-    }
+const API_TESTER_PATH = path.join(__dirname, 'examples');
 
-    if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
-      }
-    }
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
 
-    https.request(url, options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
+  if (args._[0] === 'GET' || args._[0] === 'POST' || args._[0] === 'PUT' || args._[0] === 'DELETE' || args._[0] === 'PATCH') {
+    const method = args._[0];
+    const url = args._[1];
+    const headers = args.headers || {};
+    const body = args.body ? JSON.parse(args.body) : null;
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(body) : null
       });
-      res.on('end', () => {
-        resolve({
-          statusCode: res.statusCode,
-          headers: res.headers,
-          body: JSON.parse(data)
-        });
-      });
-    }).on('error', (err) => {
-      reject(err);
-    });
-  });
-}
 
-function parseRequestFile(filePath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(JSON.parse(data.toString()));
+      const data = await response.json();
+      console.log(JSON.stringify(data, null, 2));
+      console.log(`Response time: ${Date.now() - start}ms`);
+      console.log(`Status code: ${response.status}`);
+      console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
+
+      if (args.save) {
+        const filePath = path.join(API_TESTER_PATH, `${method}-${url}.json`);
+        write_file(filePath, JSON.stringify(data, null, 2));
       }
-    });
-  });
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  } else if (args._[0] === '--request-file') {
+    const requestFilePath = args._[1];
+    const requests = await read_file(requestFilePath);
+    const requestsData = JSON.parse(requests);
+
+    for (const request of requestsData) {
+      await main(request);
+    }
+  } else {
+    console.log('Unknown command');
+  }
 }
 
-function run() {
-  const args = parse(process.argv.slice(2));
-
-  if (args._[0] === 'GET') {
-    makeRequest('GET', args.url, {}, {}).then(response => {
-      console.log(response);
-    }).catch(error => {
-      console.error(error);
-    });
-  }
-
-  if (args._[0] === 'POST') {
-    makeRequest('POST', args.url, {}, args.body).then(response => {
-      console.log(response);
-    }).catch(error => {
-      console.error(error);
-    });
-  }
-
-  // Add more methods as needed
-}
-
-run();
+main();

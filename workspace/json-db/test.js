@@ -1,41 +1,21 @@
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const mkdir = util.promisify(fs.mkdir);
+const DB = require('./database');
 
-class Test {
-  constructor(db) {
-    this.db = db;
-  }
+const db = new DB('./data.json');
 
-  async testCreateTable() {
-    await this.db.createTable('users');
-    const usersTable = await this.db.find('users', {});
-    console.log('Test Create Table:', usersTable.length > 0 ? 'Passed' : 'Failed');
-  }
+// 创建表
+db.createTable('users');
 
-  async testInsert() {
-    await this.db.insert('users', { name: 'Alice', age: 30 });
-    const usersTable = await this.db.find('users', {});
-    console.log('Test Insert:', usersTable.length === 1 ? 'Passed' : 'Failed');
-  }
+// 插入
+db.insert('users', { name: 'Alice', age: 30 });
 
-  async testFind() {
-    const usersTable = await this.db.find('users', { name: 'Alice' });
-    console.log('Test Find:', usersTable.length === 1 ? 'Passed' : 'Failed');
-  }
+// 查询
+const users = db.find('users', { age: 30 });
 
-  async testUpdate() {
-    await this.db.update('users', 1, { age: 31 });
-    const usersTable = await this.db.find('users', { age: 31 });
-    console.log('Test Update:', usersTable.length === 1 ? 'Passed' : 'Failed');
-  }
+// 更新
+db.update('users', 1, { age: 31 });
 
-  async testDelete() {
-    await this.db.delete('users', 1);
-    const usersTable = await this.db.find('users', {});
-    console.log('Test Delete:', usersTable.length === 0 ? 'Passed' : 'Failed');
-  }
-}
+// 删除
+db.delete('users', 1);
+
+// 保存
+db.save();

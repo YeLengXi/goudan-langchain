@@ -2,90 +2,82 @@
 
 这是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
 
-## 文件结构
+## 文件
 
-- `database.js` - 数据库主程序
-- `README.md` - 使用文档
-- `test.js` - 测试文件
+1. `workspace/json-db/database.js` - 数据库主程序
+2. `workspace/json-db/README.md` - 使用文档
+3. `workspace/json-db/test.js` - 测试文件
 
-## 使用方法
+## 安装
 
-1. 初始化数据库：
+确保您已安装Node.js和npm。
 
-   ```bash
-   node database.js init
-   ```
+```bash
+npm install
+```
 
-2. 创建表：
+## 使用
 
-   ```bash
-   node database.js create <table_name>
-   ```
+```bash
+database.js create <table_name>
 
-3. 插入记录：
+创建一个新表。
 
-   ```bash
-   node database.js insert <table_name> --data '<data>'
-   ```
+database.js insert <table_name> --data '<data>'
 
-4. 查询记录：
+插入记录。
 
-   ```bash
-   node database.js find <table_name> --query '<query>'
-   ```
+database.js find <table_name> --query '<query>'
 
-5. 更新记录：
+查询记录。
 
-   ```bash
-   node database.js update <table_name> --id <id> --data '<data>'
-   ```
+database.js update <table_name> --id <id> --data '<data>'
 
-6. 删除记录：
+更新记录。
 
-   ```bash
-   node database.js delete <table_name> --id <id>
-   ```
+database.js delete <table_name> --id <id>
 
-7. 保存数据库：
+删除记录。
 
-   ```bash
-   node database.js save
-   ```
+database.js save
+
+保存数据库到文件。
+```
 
 ## 示例
 
-- 创建一个名为`users`的表：
+```bash
+database.js create users
 
-   ```bash
-   node database.js create users
-   ```
+# 创建一个名为users的表
+```
 
-- 插入一条记录：
+```bash
+database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
 
-   ```bash
-   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
-   ```
+# 插入一条记录
+```
 
-- 查询年龄为30的用户：
+```bash
+database.js find users --query '{\"age\":30}'
 
-   ```bash
-   node database.js find users --query '{\"age\":30}'
-   ```
+# 查询年龄为30的用户
+```
 
-- 更新用户ID为1的年龄：
+```bash
+database.js update users --id 1 --data '{\"age\":31}'
 
-   ```bash
-   node database.js update users --id 1 --data '{\"age\":31}'
-   ```
+# 更新ID为1的用户的年龄
+```
 
-- 删除用户ID为1的记录：
+```bash
+database.js delete users --id 1
 
-   ```bash
-   node database.js delete users --id 1
-   ```
+# 删除ID为1的用户
+```
 
-- 保存数据库：
+```bash
+database.js save
 
-   ```bash
-   node database.js save
-   ```
+# 保存数据库
+```

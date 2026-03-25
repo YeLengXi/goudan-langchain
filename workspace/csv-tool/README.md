@@ -1,50 +1,48 @@
-# CSV数据处理工具
+# CSV Tool
 
-这是一个简单的CSV数据处理工具，它可以读取、解析、转换和导出CSV文件。
+This tool provides a set of functions to read, parse, convert, and export CSV files.
 
-## 安装
+## Installation
 
-首先，确保你已经安装了Node.js。
+To use this tool, make sure you have Node.js installed.
 
-然后，将以下命令添加到你的项目中：
+## Usage
 
-```bash
-npm install csv-tool
-```
-
-## 使用
-
-以下是一些使用示例：
-
-- 转换CSV到JSON
+### Convert CSV to JSON
 
 ```bash
 node csv-tool.js convert input.csv --format json
 ```
 
-- 过滤CSV文件
+### Filter CSV by Column
 
 ```bash
 node csv-tool.js filter input.csv --column "status" --value "active"
 ```
 
-- 排序CSV文件
+### Sort CSV by Column
 
 ```bash
 node csv-tool.js sort input.csv --column "date"
 ```
 
-- 将CSV转换为Markdown表格
+### Convert CSV to Markdown Table
 
 ```bash
 node csv-tool.js to-table input.csv --format markdown
 ```
 
-## 功能
+## Functions
 
-- 读取CSV文件
-- 解析复杂CSV（引号、转义）
-- 转换多种格式
-- 数据过滤和排序
-- 导出功能
-- 错误处理
+- `readFileSync`
+- `writeFileSync`
+- `execSync`
+- `listDirectory`
+- `parseCSV`
+- `generateCSV`
+- `convertCSVToJson`
+- `convertJsonToCSV`
+- `filterCSV`
+- `sortCSV`
+- `convertCSVToMarkdown`
+- `convertCSVToHTML`

@@ -1,60 +1,53 @@
-# progress-bar
+# CLI Progress Bar Tool
 
-This module provides a CLI progress bar utility.
+This tool provides a command line progress bar for displaying the progress of long-running tasks.
+
+## Features
+
+- Dynamic updates
+- Percentage display
+- ETA calculation
+- Multiple styles (standard, circular, dots, arrows)
+- Multi-progress bars
+- Colorful output
 
 ## Installation
 
-To use this module, you need to install it via npm:
+To use this tool, clone the repository and install the dependencies:
 
 ```bash
-npm install progress-bar
+npm install
 ```
 
 ## Usage
 
-To create a progress bar, you can do the following:
+To use the progress bar, require the `progress.js` module and create a new instance of `ProgressBar`. You can specify the total number of items, width of the progress bar, and other options.
 
 ```javascript
-const ProgressBar = require('progress-bar');
+const ProgressBar = require('./progress.js');
 
-const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
+const bar = new ProgressBar({
+  total: 100,
+  width: 40,
+  complete: '█',
+  incomplete: '░'
+});
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
   // Do some work here
 }
 
-bar.finish();
-```
+// For multi-progress bars, use the `multi` option
+const multi = new ProgressBar({
+  multi: true
+});
 
-## API
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
 
-- `new ProgressBar(options)` creates a new progress bar.
-  - `options.total` (number) - The total number of steps (default is 100).
-  - `options.width` (number) - The width of the progress bar (default is 20).
-  - `options.complete` (string) - The character to use for the completed part of the progress bar (default is '█').
-  - `options.incomplete` (string) - The character to use for the incomplete part of the progress bar (default is ' ').
-
-- `update(percentage)` updates the progress bar to the specified percentage.
-
-- `finish()` finishes the progress bar.
-
-## Examples
-
-### Standard Progress Bar
-
-```bash
-node demo.js --style standard
-```
-
-### Dots Progress Bar
-
-```bash
-node demo.js --style dots
-```
-
-### Multi Progress Bar
-
-```bash
-node demo.js --multi
+for (let i = 0; i <= 100; i++) {
+  bar1.update(i);
+  bar2.update(i);
+}
 ```

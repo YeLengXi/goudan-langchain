@@ -1,44 +1,56 @@
-const assert = require('./test.js');
-
 const equal = (actual, expected) => {
-  if (actual !== expected) {
-    throw new Error(`Expected ${expected}, but got ${actual}`);
+  if (actual === expected) {
+    return true;
   }
+  throw new Error(`Expected ${expected}, but got ${actual}`);
 };
 
 const deepEqual = (actual, expected) => {
-  if (!JSON.stringify(actual) === JSON.stringify(expected)) {
-    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+  if (actual === expected) {
+    return true;
   }
+  if (typeof actual !== 'object' || actual === null || typeof expected !== 'object' || expected === null) {
+    return equal(actual, expected);
+  }
+  if (Object.keys(actual).length !== Object.keys(expected).length) {
+    return false;
+  }
+  for (const key in actual) {
+    if (!expected.hasOwnProperty(key) || !deepEqual(actual[key], expected[key])) {
+      return false;
+    }
+  }
+  return true;
 };
 
 const truthy = (value) => {
-  if (!value) {
-    throw new Error('Expected truthy value, but got falsy');
+  if (value) {
+    return true;
   }
+  throw new Error('Expected truthy value, but got falsey');
 };
 
 const falsy = (value) => {
-  if (value) {
-    throw new Error('Expected falsy value, but got truthy');
+  if (!value) {
+    return true;
   }
+  throw new Error('Expected falsy value, but got truthy');
 };
 
-const throws = (fn, expectedError) => {
+const throws = (fn, error) => {
   try {
     fn();
-    throw new Error('Expected to throw an error');
-  } catch (error) {
-    if (error.message !== expectedError) {
-      throw new Error(`Expected ${expectedError}, but got ${error.message}`);
-    }
+    throw new Error('Expected function to throw');
+  } catch (e) {
+    return equal(e, error);
   }
 };
 
 const contains = (actual, expected) => {
-  if (!actual.includes(expected)) {
-    throw new Error(`Expected ${expected} to be contained in ${actual}`);
+  if (actual.includes(expected)) {
+    return true;
   }
+  throw new Error(`Expected ${expected} to be contained in ${actual}`);
 };
 
 module.exports = { equal, deepEqual, truthy, falsy, throws, contains };

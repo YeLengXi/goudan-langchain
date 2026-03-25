@@ -1,15 +1,16 @@
 {
   "name": "api-tester",
   "version": "1.0.0",
-  "description": "A CLI tool for testing REST APIs",
+  "description": "A command-line API testing tool.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1
   },
-  "bin": {
-    "api-tester": "./index.js"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0"
-  }
+  "keywords": [
+    "api",
+    "tester",
+    "cli"
+  ],
+  "author": "Your Name",
+  "license": "ISC"
 }

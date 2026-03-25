@@ -11,7 +11,7 @@ const it = (name, callback) => {
     console.log('  ✓');
   } catch (error) {
     console.error(`  ✗ ${name}
-    ${error}`);
+    ${error}
   }
 };
 
