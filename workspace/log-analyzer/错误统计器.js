@@ -1,23 +1,22 @@
-const { parseLog } = require('./log-analyzer.cjs');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
 
-const countErrors = (logData) => {
-  const errorTypes = logData.reduce((acc, entry) => {
-    if (entry.level === 'ERROR') {
-      acc[entry.stack] = (acc[entry.stack] || 0) + 1;
-    }
-    return acc;
-  }, {});
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
-  const sortedErrors = Object.entries(errorTypes).sort((a, b) => b[1] - a[1]);
+const ERROR_STATISTICS = {};
 
-  return sortedErrors.map(error => {
-    return {
-      errorType: error[0],
-      count: error[1]
-    }
-  });
+const errorStatistics = (log) => {
+    const errorType = log.level.toLowerCase();
+    ERROR_STATISTICS[errorType] = (ERROR_STATISTICS[errorType] || 0) + 1;
+};
+
+const getErrorStatistics = () => {
+    return ERROR_STATISTICS;
 };
 
 module.exports = {
-  countErrors
+    errorStatistics,
+    getErrorStatistics
 }

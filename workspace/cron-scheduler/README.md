@@ -1,17 +1,29 @@
-## 定时任务调度器
+## Cron Scheduler
 
-这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
+This document provides instructions on how to use the Cron Scheduler.
 
-## 安装
+### Installation
 
-确保你已经安装了Node.js。
+1. Clone the repository:
+    git clone [repository-url]
 
-## 使用
+2. Navigate to the project directory:
+    cd cron-scheduler
 
-1. 创建一个配置文件，例如 `tasks.json`。
-2. 运行 `node scheduler.js --config tasks.json`。
+3. Install dependencies:
+    npm install
 
-## 配置文件示例
+### Usage
+
+To start the scheduler, run the following command:
+
+    node scheduler.js --config tasks.json
+
+The --config option is used to specify the configuration file path.
+
+### Configuration File
+
+The configuration file is in JSON format and contains the tasks to be scheduled. Here is an example:
 
 ```json
 {
@@ -28,10 +40,4 @@
     }
   ]
 }
-```
-
-## CLI接口
-
-```bash
-node scheduler.js --config tasks.json
 ```

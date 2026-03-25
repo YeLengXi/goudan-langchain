@@ -1,24 +1,23 @@
-const { parseLog } = require('./log-analyzer.cjs');
-const { countErrors } = require('./错误统计器.js');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
 
-const searchLogs = (logPath, keywords, timeRange, level) => {
-  const logData = parseLog(logPath);
-  const filteredLogs = logData.filter(entry => {
-    if (keywords && !entry.message.includes(keywords)) {
-      return false;
-    }
-    if (timeRange && entry.timestamp < timeRange.start || entry.timestamp > timeRange.end) {
-      return false;
-    }
-    if (level && entry.level !== level) {
-      return false;
-    }
-    return true;
-  });
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
-  return filteredLogs;
+const searchLogs = async (logFilePath, keyword, startTime, endTime, level) => {
+    const content = await readFileAsync(logFilePath, 'utf8');
+    const logs = logParser(logFilePath);
+    let filteredLogs = logs.filter(log => {
+        return log.message.includes(keyword) &&
+               log.timestamp >= startTime &&
+               log.timestamp <= endTime &&
+               (!level || log.level.toLowerCase() === level.toLowerCase());
+    });
+
+    return filteredLogs;
 };
 
 module.exports = {
-  searchLogs
+    searchLogs
 }

@@ -1,37 +1,47 @@
 const fs = require('fs');
 const path = require('path');
-const { parseLog } = require('./log-parser');
-const { countErrors } = require('./error-statistics');
-const { searchLogs } = require('./search-engine');
-const { exportToJson, exportToCsv, generateReport } = require('./report-generator');
+const util = require('util');
 
-const logFilePath = process.argv[2];
-const options = process.argv.slice(3);
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
-const logs = fs.readFileSync(logFilePath, 'utf-8').split('\n').map(parseLog).filter((log) => log !== null);
+const logParser = require('./日志解析器').logParser;
+const errorStatistics = require('./错误统计器').errorStatistics;
+const searchLogs = require('./搜索引擎').searchLogs;
+const exportToJSON = require('./报告生成器').exportToJSON;
+const exportToCSV = require('./报告生成器').exportToCSV;
+const generateReport = require('./报告生成器').generateReport;
 
-options.forEach((option) => {
-  const [key, value] = option.split('=');
-  switch (key) {
-    case '--error':
-      const errorTypes = countErrors(logs);
-      console.log('Error types:', errorTypes);
-      break;
-    case '--search':
-      const [keyword, startTime, endTime, level] = value.split(',');
-      const filteredLogs = searchLogs(logs, keyword, new Date(startTime).getTime(), new Date(endTime).getTime(), level);
-      console.log('Filtered logs:', filteredLogs);
-      break;
-    case '--export':
-      const [format, ...rest] = value.split(',');
-      switch (format) {
-        case 'json':
-          exportToJson(logs);
-          break;
-        case 'csv':
-          exportToCsv(logs);
-          break;
-      }
-      break;
-  }
-});
+const analyzeLog = async (logFilePath, options) => {
+    const logs = logParser(logFilePath);
+    errorStatistics(logs);
+
+    if (options.error) {
+        const errorStats = require('./错误统计器').getErrorStatistics();
+        console.log('Error Statistics:', errorStats);
+    }
+
+    if (options.search) {
+        const { keyword, startTime, endTime, level } = options.search;
+        const filteredLogs = await searchLogs(logFilePath, keyword, startTime, endTime, level);
+        console.log('Filtered Logs:', filteredLogs);
+    }
+
+    if (options.export) {
+        switch (options.export) {
+            case 'json':
+                await exportToJSON(logFilePath, logs);
+                break;
+            case 'csv':
+                await exportToCSV(logFilePath, logs);
+                break;
+            case 'report':
+                await generateReport(logFilePath, logs);
+                break;
+        }
+    }
+};
+
+module.exports = {
+    analyzeLog
+}

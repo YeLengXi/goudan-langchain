@@ -2,34 +2,35 @@ const ProgressBar = require('cli-progress');
 
 class ProgressBar {
   constructor(options) {
-    this.total = options.total;
-    this.width = options.width;
-    this.complete = options.complete;
-    this.incomplete = options.incomplete;
-    this.current = 0;
-    this.start = Date.now();
+    this.total = options.total || 100;
+    this.width = options.width || 20;
+    this.complete = options.complete || "█";
+    this.incomplete = options.incomplete || " ";
+    this.progress = 0;
+    this.start_time = Date.now();
+    this.end_time = null;
   }
 
   update(value) {
-    this.current = value;
-    const percent = (this.current / this.total) * 100;
-    const completeStr = this.complete.repeat(Math.floor(this.width * percent / 100));
-    const incompleteStr = this.incomplete.repeat(this.width - completeStr.length);
-    const eta = this.calculateETA();
-    console.log(`[${completeStr}${incompleteStr}] ${percent.toFixed(2)}% | ETA: ${eta} | ${this.current}/${this.total} items | ${this.current / (Date.now() - this.start).toFixed(2)} items/s`);
+    this.progress = value;
+    this.end_time = Date.now();
+    this.render();
   }
 
-  calculateETA() {
-    if (this.current === this.total) {
-      return '0:00:00';
-    }
-    const timeTaken = (Date.now() - this.start) / 1000;
-    const itemsPerSecond = this.current / timeTaken;
-    const timeLeft = (this.total - this.current) / itemsPerSecond;
-    const hours = Math.floor(timeLeft / 3600);
-    const minutes = Math.floor((timeLeft - hours * 3600) / 60);
-    const seconds = Math.floor(timeLeft - hours * 3600 - minutes * 60);
-    return `${hours}:${minutes}:${seconds}`;
+  render() {
+    const complete_length = Math.round(this.width * (this.progress / this.total));
+    const incomplete_length = this.width - complete_length;
+    const complete_str = this.complete.repeat(complete_length);
+    const incomplete_str = this.incomplete.repeat(incomplete_length);
+    const percentage = Math.round((this.progress / this.total) * 100);
+    const elapsed_time = this.end_time - this.start_time;
+    const eta = elapsed_time ? (elapsed_time / this.progress) * (this.total - this.progress) : 0;
+    const speed = this.progress ? this.progress / (elapsed_time / 1000) : 0;
+    console.log(
+      
+        "\nProcessing files...\n" +
+        "[" + complete_str + incomplete_str + "] " + percentage + "% | ETA: " + Math.round(eta / 1000) + ":" + (eta % 1000).toString().padStart(2, '0') + " | " + this.progress + "/" + this.total + " files | " + speed.toFixed(1) + " files/s\n"
+    );
   }
 }
 

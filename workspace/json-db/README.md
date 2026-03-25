@@ -1,63 +1,89 @@
 ## JSON数据库工具
 
-这是一个简单的基于JSON文件的数据库，支持CRUD操作和查询。
+这是一个简单的基于JSON文件的数据库工具，支持CRUD操作和查询。
 
 ### 安装
 
 确保你已经安装了Node.js。
 
-### 使用
+### 使用方法
 
-1. 初始化数据库
+1. 初始化数据库：
 
-   - 创建一个名为`data.json`的文件。
+   ```bash
+   node database.js init
+   ```
 
-2. 创建表
+2. 创建表：
 
-   - `node database.js create <table_name>`
+   ```bash
+   node database.js create <table_name>
+   ```
 
-3. 插入记录
+3. 插入记录：
 
-   - `node database.js insert <table_name> --data '<data>'`
+   ```bash
+   node database.js insert <table_name> --data '<data>'
+   ```
 
-4. 查询记录
+4. 查询记录：
 
-   - `node database.js find <table_name> --query '<query>'`
+   ```bash
+   node database.js find <table_name> --query '<query>'
+   ```
 
-5. 更新记录
+5. 更新记录：
 
-   - `node database.js update <table_name> --id <id> --data '<data>'`
+   ```bash
+   node database.js update <table_name> --id <id> --data '<data>'
+   ```
 
-6. 删除记录
+6. 删除记录：
 
-   - `node database.js delete <table_name> --id <id>`
+   ```bash
+   node database.js delete <table_name> --id <id>
+   ```
 
-7. 保存数据库
+7. 保存数据库：
 
-   - `node database.js save`
+   ```bash
+   node database.js save
+   ```
 
 ### 示例
 
-1. 创建表`users`
+1. 创建一个名为users的表：
 
-   - `node database.js create users`
+   ```bash
+   node database.js create users
+   ```
 
-2. 插入记录
+2. 向users表中插入一条记录：
 
-   - `node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'`
+   ```bash
+   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
+   ```
 
-3. 查询记录
+3. 查询users表中年龄为30的记录：
 
-   - `node database.js find users --query '{\"age\":30}'`
+   ```bash
+   node database.js find users --query '{\"age\":30}'
+   ```
 
-4. 更新记录
+4. 更新users表中ID为1的记录的年龄：
 
-   - `node database.js update users --id 1 --data '{\"age\":31}'`
+   ```bash
+   node database.js update users --id 1 --data '{\"age\":31}'
+   ```
 
-5. 删除记录
+5. 删除users表中ID为1的记录：
 
-   - `node database.js delete users --id 1`
+   ```bash
+   node database.js delete users --id 1
+   ```
 
-6. 保存数据库
+6. 保存数据库：
 
-   - `node database.js save`
+   ```bash
+   node database.js save
+   ```

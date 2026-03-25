@@ -1,26 +1,11 @@
-const minimist = require('minimist');
+# demo.js
 
-const ProgressBar = require('./progress.js');
-const MultiProgressBar = require('./multi-progress.js');
+This script demonstrates the usage of the ProgressBar module.
 
-const args = minimist(process.argv.slice(2));
+## Usage
 
-if (args.style === 'standard') {
-  const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
-  for (let i = 0; i <= 100; i++) {
-    bar.update(i);
-    // Do some work
-  }
-} else if (args.style === 'multi') {
-  const multi = new MultiProgressBar();
-  const bar1 = multi.create('Download', 100);
-  const bar2 = multi.create('Upload', 100);
-  for (let i = 0; i <= 100; i++) {
-    bar1.update(i);
-    bar2.update(i);
-    // Do some work
-  }
-  multi.render();
-} else {
-  console.log('Unsupported style');
-}
+```bash
+node demo.js --style standard
+node demo.js --style dots
+node demo.js --multi
+```

@@ -23,20 +23,24 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   }
 
   // Step 2: Add newlines after semicolons
-  formatted = formatted.replace(/;/g, ';\n');
+  formatted = formatted.replace(/;/g, ';
+');
 
   // Step 3: Add newlines after opening braces
-  formatted = formatted.replace(/{/g, '{\n');
+  formatted = formatted.replace(/{/g, '{
+');
 
   // Step 4: Add newlines before closing braces
-  formatted = formatted.replace(/}/g, '\n}\n');
+  formatted = formatted.replace(/}/g, '
+');
 
   // Step 5: Add newlines after keywords
-  formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
+  formatted = formatted.replace(/(function|if|for|while|else)/g, '
+$1');
 
   // Clean up multiple newlines
   formatted = formatted.replace(/
-{3,}/g, '\n\n');
+{2,}/g, '\n\n');
 
   // Process indentation
   const lines = formatted.split('\n');

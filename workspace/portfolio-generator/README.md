@@ -1,18 +1,20 @@
 # Portfolio Generator
 
-This is a simple static website generator for creating personal portfolios. To use it, follow these steps:
+This is a static website generator for creating personal portfolios.
 
-1. Create a `portfolio.json` file in the project directory with your personal information.
-2. Run `npm install` to install the required dependencies.
-3. Run `npm generate` to generate the website.
+## Features
+
+- Supports reading personal information from `portfolio.json`
+- HTML template system with automatic personal information filling
+- Responsive design
+- Modern UI
 
 ## Usage
 
-```bash
-npm install
-npm generate
-```
+1. Create a `portfolio.json` file with your personal information.
+2. Run `npm install` to install dependencies.
+3. Run `npm start` to generate the website.
 
 ## License
 
-This project is licensed under the MIT License.
+MIT

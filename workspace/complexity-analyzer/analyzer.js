@@ -1,22 +1,28 @@
-const fs = require('fs');
-const path = require('path');
+const analyzeCodeComplexity = (code) => {
+  const cyclomaticComplexity = (ast) => {
+    let count = 1;
+    ast.body.forEach((node) => {
+      if (node.type === 'IfStatement' || node.type === 'ForStatement' || node.type === 'WhileStatement' || node.type === 'DoWhileStatement' || node.type === 'SwitchStatement' || node.type === 'TryStatement') {
+        count++;
+      }
+    });
+    return count;
+  };
 
-const analyze = (filePath) => {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const ast = esprima.parse(content);
-  const complexity = calculateComplexity(ast);
-  const report = generateReport(complexity);
-  fs.writeFileSync(path.join(__dirname, 'report.txt'), report);
+  const cognitiveComplexity = (code) => {
+    const complexity = code.match(/(if|else|for|while|do|switch|case|catch|throw|try|finally|return|break|continue|new|this|super|delete|in|instanceof|typeof|void|delete|typeof|void|new|this|super|delete|in|instanceof|typeof|void|new|this|super|delete|in|instanceof|typeof|void)/g).length;
+    return complexity;
+  };
+
+  const maintainabilityIndex = (lines) => {
+    const complexity = cyclomaticComplexity(code);
+    const cognitive = cognitiveComplexity(code);
+    return (2 * cognitive) + (1 * complexity) - 1.5 * lines;
+  };
+
+  return {
+    cyclomaticComplexity,
+    cognitiveComplexity,
+    maintainabilityIndex
+  };
 };
-
-const calculateComplexity = (ast) => {
-  // Implementation of complexity calculation
-  // This function should return an object containing cyclomatic complexity, cognitive complexity, and maintainability index
-};
-
-const generateReport = (complexity) => {
-  // Implementation of report generation
-  // This function should return a string containing the report
-};
-
-module.exports = analyze;

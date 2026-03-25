@@ -1,3 +1,3 @@
-# README模板
+# README.md
 
-这是一个 README 模板文件。
+这是一个 README 模板。

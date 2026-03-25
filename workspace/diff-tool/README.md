@@ -1,32 +1,6 @@
-# Diff-Tool
+# diff-tool
 
-This tool is a simple file and directory comparison tool, similar to `git diff`.
-
-## Usage
-
-To compare two files:
-
-```bash
-node diff.js file1.txt file2.txt
-```
-
-To compare two directories:
-
-```bash
-node diff.js dir1/ dir2/
-```
-
-To specify the output format:
-
-```bash
-node diff.js file1.txt file2.txt --format unified
-```
-
-To enable color output:
-
-```bash
-node diff.js --color file1.txt file2.txt
-```
+This tool is a simple file and directory comparison tool similar to git diff.
 
 ## Features
 
@@ -35,3 +9,34 @@ node diff.js --color file1.txt file2.txt
 - Multiple output formats
 - Color highlighting
 - Statistics
+
+## Usage
+
+### File Comparison
+
+```bash
+node diff.js file1.txt file2.txt
+```
+
+### Directory Comparison
+
+```bash
+node diff.js dir1/ dir2/
+```
+
+### Output Formats
+
+```bash
+node diff.js file1.txt file2.txt --format unified
+```
+
+```bash
+node diff.js dir1/ dir2/ --format side-by-side
+```
+
+### Color Highlighting
+
+```bash
+node diff.js --color file1.txt file2.txt
+```
+

@@ -1,31 +1,36 @@
-# 日志解析器
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
 
-// 解析应用日志
-const parseAppLog = (logContent) => {
-  const lines = logContent.split('\n');
-  const parsedLogs = lines.map(line => {
-    const parts = line.split(' ');
-    return {
-      timestamp: parts[0],
-      level: parts[1],
-      message: parts.slice(2).join(' ')
-    }
-  });
-  return parsedLogs;
+const readFileAsync = util.promisify(fs.readFile);
+const writeFileAsync = util.promisify(fs.writeFile);
+
+const LOG_FORMATS = {
+    APP: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?(INFO|WARN|ERROR).*/g,
+    ACCESS: /^(\d{2}/\d{2}/\d{4}:\d{2}:\d{2}:\d{2} - \S+) "(\S+) (\S+) (\S+)" (\d{3}) (\S+) "(.*?)" "(.*?)"$/g,
+    ERROR: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?(ERROR).*?(at .*)/g
 };
 
-// 解析访问日志
-const parseAccessLog = (logContent) => {
-  // Apache 格式解析逻辑
-};
+const logParser = (logFilePath) => {
+    const content = fs.readFileSync(logFilePath, 'utf8');
+    const logs = [];
 
-// 解析错误日志
-const parseErrorLog = (logContent) => {
-  // 错误日志解析逻辑
+    Object.keys(LOG_FORMATS).forEach(format => {
+        const regex = LOG_FORMATS[format];
+        let match;
+        while ((match = regex.exec(content)) !== null) {
+            logs.push({
+                type: format,
+                timestamp: match[1],
+                level: match[2],
+                message: match[3] || match[7]
+            });
+        }
+    });
+
+    return logs;
 };
 
 module.exports = {
-  parseAppLog,
-  parseAccessLog,
-  parseErrorLog
-};
+    logParser
+}

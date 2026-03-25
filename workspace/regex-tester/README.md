@@ -1,39 +1,40 @@
 # 正则表达式测试器
 
-这是一个用于测试和调试正则表达式的工具。
-
-## 功能
-
-- 测试正则表达式
-- 显示匹配结果
-- 提取捕获组
-- 正则替换
-- 常用正则库
-- 错误处理
+## 目标
+创建一个正则表达式测试和调试工具。
 
 ## 使用方法
 
-### CLI接口
+### 安装
 
 ```bash
-node tester.js "/\d+/" --text "hello 123 world"
-node tester.js --email "test@example.com"
-node tester.js --phone "13800138000"
-node tester.js --url "https://example.com"
-node tester.js replace "/\s+/g" --text "hello\ \ world" --with "+"
+npm install regex-tester
 ```
 
-### 输出示例
+### 使用
 
 ```bash
-$ node tester.js "/\d+/" --text "hello 123 world"
-Pattern: /\d+/
-Text: hello 123 world
-Match: 123
-Position: 6-9
+regex-tester 
+```
 
-$ node tester.js --email "test@example.com"
-Pattern: /^[\^\s@]+@[\^\s@]+\.[\^\s@]+$/
-Input: test@example.com
-Valid: ✅ true
+### 参数
+
+- --text: 需要测试的文本
+- --pattern: 正则表达式模式
+- --replace: 替换文本
+- --with: 替换为的文本
+- --email: 测试邮箱格式
+- --phone: 测试手机号格式
+- --url: 测试URL格式
+- --ip: 测试IP地址格式
+- --date: 测试日期格式
+
+### 示例
+
+```bash
+regex-tester "/\d+/" --text "hello 123 world"
+regex-tester --email "test@example.com"
+regex-tester --phone "13800138000"
+regex-tester --url "https://example.com"
+regex-tester replace "/\s+/g" --text "hello   world" --with "+"
 ```

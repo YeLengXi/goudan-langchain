@@ -1,15 +1,20 @@
+// README.md
 # Test Framework
 
 This is a simple JavaScript unit testing framework.
 
-## Installation
+## Features
 
-No installation is required. Just require the test.js file in your project.
+- Test organization
+- Assertion functions
+- Async test support
+- Error handling
+- Report generation
 
 ## Usage
 
 ```javascript
-const { describe, it, expect } = require('./test-framework/test.js');
+const { describe, it, expect } = require('./test.js');
 
 describe('Math operations', () => {
   it('should add numbers', () => {
@@ -20,14 +25,4 @@ describe('Math operations', () => {
     expect(subtract(5, 2)).toBe(3);
   });
 });
-
 ```
-
-## CLI
-
-You can run tests using the following commands:
-
-- `node test.js example.test.js`
-- `node test.js tests/`
-- `node test.js --verbose`
-- `node test.js --watch`

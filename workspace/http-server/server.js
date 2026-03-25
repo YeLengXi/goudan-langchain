@@ -2,54 +2,48 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const mime = require('mime');
 
-const hostname = '127.0.0.1';
-const port = process.argv[2] || 8080;
-const rootDir = process.argv[3] || './public';
+const PORT = process.argv[2] || 8080;
+const DIR = process.argv[3] || './public';
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  const filePath = path.join(rootDir, parsedUrl.pathname);
-  const stat = fs.statSync(filePath);
+  const filePath = path.join(DIR, parsedUrl.pathname);
 
-  if (stat.isFile()) {
-    const mime = require('mime-types').lookup('type', filePath);
-    res.writeHead(200, { 'Content-Type': mime || 'application/octet-stream' });
-    fs.createReadStream(filePath).pipe(res);
-  } else if (stat.isDirectory()) {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    fs.readdir(filePath, (err, files) => {
-      if (err) {
-        res.writeHead(500);
-        res.end('Internal Server Error');
-        return;
-      }
-      let indexFile = 'index.html';
-      let fileFound = files.some(file => file === indexFile);
-      if (!fileFound) {
-        indexFile = files[0];
-      }
-      const indexFilePath = path.join(filePath, indexFile);
-      fs.readFile(indexFilePath, (err, content) => {
+  fs.stat(filePath, (err, stats) => {
+    if (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('404 Not Found
+');
+      return;
+    }
+
+    if (stats.isDirectory()) {
+      filePath += '/index.html';
+      fs.stat(filePath, (err, stats) => {
         if (err) {
-          res.writeHead(404);
-          res.end('Not Found');
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end('404 Not Found
+');
           return;
         }
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(content);
+
+        res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
+        fs.createReadStream(filePath).pipe(res);
       });
-    });
-  } else {
-    res.writeHead(404);
-    res.end('Not Found');
-  }
+    } else {
+      res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
+      fs.createReadStream(filePath).pipe(res);
+    }
+  });
 });
 
-server.listen(port, hostname, () => {
-  console.log(`Starting HTTP server...
-- Port: ${port}
-- Root: ${rootDir}
-- URL: http://${hostname}:${port}
-`);
+console.log(`Starting HTTP server...
+- Port: ${PORT}
+- Root: ${DIR}
+- URL: http://localhost:${PORT}`);
+
+server.listen(PORT, () => {
+  console.log('Server running on port', PORT);
 });

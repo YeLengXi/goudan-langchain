@@ -1,103 +1,75 @@
-# 🐕 goudan - AI 开发者 Agent
-
-goudan 是一个自主工作的 AI 开发者 agent，使用智谱AI API 完成开发任务。
-
-## ✨ 功能
-
-- 🔧 **自主编写代码** - 使用工具调用创建实际可运行的代码
-- 📁 **文件操作** - 读取、写入、列出文件
-- ⚡ **命令执行** - 运行 shell 命令和测试
-- 🔄 **多轮对话** - 支持最多 10 轮连续工具调用
-- 💼 **任务驱动** - 从任务队列自动加载和处理任务
-
-## 🚀 快速开始
-
-### 安装依赖
-
-```bash
-cd E:/goudan-langchain
-npm install
-```
-
-### 配置
-
-编辑 `.env` 文件：
-
-```env
-ZHIPUAI_API_KEY=你的API密钥
-ZHIPUAI_MODEL=glm-4-flash
-WORKSPACE_DIR=./workspace
-TASKS_DIR=./tasks
-LOGS_DIR=./logs
-```
-
-### 运行
-
-```bash
-node index.js
-```
-
-## 📁 项目结构
-
-```
-goudan-langchain/
-├── index.js           # 主程序
-├── package.json       # 依赖配置
-├── .env              # 环境变量
-├── tasks/            # 任务队列
-│   ├── task-1-improve-formatter.md
-│   └── task-2-log-analyzer.md
-├── workspace/        # 工作目录
-│   └── results/      # 任务结果
-└── logs/             # 日志文件
-```
-
-## 🛠️ 可用工具
-
-1. **read_file** - 读取文件内容
-2. **write_file** - 写入文件内容
-3. **exec_command** - 执行命令行命令
-4. **list_directory** - 列出目录内容
-
-## 📝 创建任务
-
-在 `tasks/` 目录创建 `.md` 文件：
-
-```markdown
-# 任务名称: 描述
+# 任务16: 正则表达式测试器
 
 ## 目标
 
-任务的具体目标
+创建一个正则表达式测试和调试工具。
 
 ## 必须创建的文件
 
-1. file1.js - 描述
-2. file2.js - 描述
+1. `workspace/regex-tester/tester.js` - 测试器主程序
+2. `workspace/regex-tester/README.md` - 使用文档
+3. `workspace/regex-tester/test.html` - 可视化界面（可选）
 
 ## 工作流程
 
 立即执行以下操作：
-1. 步骤1
-2. 步骤2
+
+1. 实现正则表达式测试：
+   - 匹配测试
+   - 捕获组提取
+   - 替换功能
+   - 分割功能
+2. 实现调试功能：
+   - 高亮匹配结果
+   - 显示捕获组
+   - 错误提示
+3. 实现常用正则库：
+   - 邮箱验证
+   - 手机号验证
+   - URL验证
+   - IP地址验证
+   - 日期格式
+4. 实现CLI接口
+5. 添加使用示例
+
+## 功能要求
+
+- 测试正则表达式
+- 显示匹配结果
+- 提取捕获组
+- 正则替换
+- 常用正则库
+- 错误处理
+
+## CLI接口
+
+```bash
+node tester.js "/\d+/" --text "hello 123 world"
+node tester.js --email "test@example.com"
+node tester.js --phone "13800138000"
+node tester.js --url "https://example.com"
+node tester.js replace "/\s+/g" --text "hello   world" --with "+"
 ```
 
-## 💰 支持项目
+## 输出示例
 
-如果 goudan 帮到了你，请考虑支持它继续开发和改进：
+```bash
+$ node tester.js "/\d+/" --text "hello 123 world"
+Pattern: /\d+/
+Text: hello 123 world
+Match: 123
+Position: 6-9
 
-- **GitHub Sponsors**: [链接待添加]
-- **Patreon**: [链接待添加]
-- **支付宝/微信**: [二维码待添加]
+$ node tester.js --email "test@example.com"
+Pattern: /^[\^\s@]+@[\^\s@]+\.[\^\s@]+$/
+Input: test@example.com
+Valid: ✅ true
+```
 
-## 📄 许可证
+## 重要
 
-MIT License
-
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
----
-
-Made with ❤️ by goudan (AI Developer Agent)
+- 包含常用正则库
+- 添加正则语法说明
+- 提供测试用例
+- 包含错误提示
+- 添加详细注释
