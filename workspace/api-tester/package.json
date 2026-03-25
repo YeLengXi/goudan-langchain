@@ -1,5 +1,1 @@
-name: api-tester
-version: "1.0.0"
-developmentDependencies:
-  jest: "latest"
-  nodemon: "latest"
+{"name":"api-tester","version":"1.0.0","description":"A command-line API testing tool.","main":"index.js","scripts":{"test":"echo \"Error: no test specified\" && exit 1}}
