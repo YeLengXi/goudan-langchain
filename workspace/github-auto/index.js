@@ -1,1 +1,7 @@
-const { exec_command } = require('./exec_command.js');const { list_directory } = require('./list_directory.js');const { read_file } = require('./read_file.js');const { write_file } = require('./write_file.js');module.exports = { exec_command, list_directory, read_file, write_file };
+const { create, init, push } = require('./commands');
+
+module.exports = {
+  create,
+  init,
+  push
+};

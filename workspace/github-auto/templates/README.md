@@ -1,13 +1,21 @@
-# README.md Template
+# README 模板
 
-Welcome to the project!
+这是一个 README 模板的示例。
 
-This README.md is a template provided by the GitHub Auto tool. You can edit this file to add more details about your project.
+## 项目介绍
 
-## Project Setup
+这里是项目的介绍。
 
-Install dependencies:
+## 安装
 
 ```bash
 npm install
 ```
+
+## 使用
+
+这里是项目的使用方法。
+
+## 贡献
+
+欢迎贡献代码。

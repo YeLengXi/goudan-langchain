@@ -1,58 +1,55 @@
 const https = require('https');
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const commands = {
+  'GET': fetch,
+  'POST': fetch,
+  'PUT': fetch,
+  'DELETE': fetch,
+  'PATCH': fetch
+};
 
-const executeRequest = async (method, url, headers, body) => {
-  const options = {
-    method,
-    headers
-  }
-
-  if (body) {
-    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-      options.headers['Content-Type'] = 'application/json';
-      body = JSON.stringify(body);
-    }
-  }
-
-  try {
-    const start = Date.now();
-    const response = await fetch(url, options);
-    const endTime = Date.now();
-    const time = endTime - start;
-
-    const data = await response.json();
-    console.log(`Status Code: ${response.status}
-Response Time: ${time}ms
-Headers: ${JSON.stringify(response.headers.raw())}
-Data: ${JSON.stringify(data)}`);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
-
-rl.on('line', async (input) => {
-  const [method, url, ...args] = input.split(' ');
+const parseArgs = (args) => {
+  const [command, url, ...options] = args;
+  let method = 'GET';
+  let data = null;
   let headers = {};
-  let body = null;
 
-  args.forEach(arg => {
-    if (arg.startsWith('-')) {
-      if (arg === '-d') {
-        body = JSON.parse(args.pop());
-      } else {
-        headers[arg.substring(2)] = args.pop();
-      }
+  options.forEach(option => {
+    if (option.startsWith('-d ')) {
+      data = JSON.parse(option.substring(3));
+    } else if (option.startsWith('-H ')) {
+      const [key, value] = option.substring(2).split(':');
+      headers[key] = value;
     }
   });
 
-  await executeRequest(method, url, headers, body);
-}).on('close', () => {
-  rl.close();
-});
+  return { command, url, method, data, headers };
+};
+
+const run = async (args) => {
+  const { command, url, method, data, headers } = parseArgs(args);
+  const options = {
+    method,
+    headers
+  };
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    options.body = JSON.stringify(data);
+  }
+
+  try {
+    const response = await commands[method](url, options);
+    const { status, headers: responseHeaders, body } = response;
+    const responseBody = await response.text();
+    console.log(`Status: ${status}
+Headers: ${JSON.stringify(responseHeaders)}
+Body: ${responseBody}`);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+module.exports = { run };
