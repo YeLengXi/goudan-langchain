@@ -1,62 +1,55 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
-const { read_file, write_file, exec_command, list_directory } = require('./utils');
+const readline = require('readline');
 
-const API_TESTER_PATH = path.join(__dirname, 'examples');
-const CONFIG_FILE = path.join(API_TESTER_PATH, 'requests.json');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-async function main() {
-  const args = parse(process.argv.slice(2));
+const executeCommand = async (command) => {
+  const [method, url, ...options] = command.split(' ');
+  let data = null;
+  let headers = {
+    'Content-Type': 'application/json'
+  };
 
-  if (args._[0] === 'GET' || args._[0] === 'POST' || args._[0] === 'PUT' || args._[0] === 'DELETE' || args._[0] === 'PATCH') {
-    const url = args._[1];
-    const method = args._[0];
-    const headers = args.headers || {};
-    const body = args.body ? JSON.parse(args.body) : null;
-    const data = args.data;
+  if (options.includes('-d')) {
+    const dataIndex = options.indexOf('-d') + 1;
+    data = JSON.parse(options[dataIndex]);
+    headers['Content-Type'] = 'application/json';
+  }
 
-    const options = {
-      method: method,
-      headers: headers
-    };
+  const optionsObject = {
+    method: method,
+    headers: headers
+  }
 
-    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-      options.body = JSON.stringify(body);
-    }
+  if (data) {
+    optionsObject.body = JSON.stringify(data);
+  }
 
-    try {
-      const start = Date.now();
-      const response = await fetch(url, options);
-      const endTime = Date.now();
+  try {
+    const startTime = Date.now();
+    const response = await fetch(url, optionsObject);
+    const endTime = Date.now();
+    const responseTime = endTime - startTime;
 
-      console.log(`Response time: ${endTime - start}ms`);
-      console.log(`Status code: ${response.status}`);
-      console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
+    console.log(`Response Time: ${responseTime}ms`);
+    console.log(`Status Code: ${response.status}`);
+    console.log('Headers:', response.headers.raw());
 
-      const data = await response.json();
-      console.log('Data:', JSON.stringify(data, null, 2));
-
-      if (args.save) {
-        await write_file(
-          path.join(API_TESTER_PATH, `${method.toLowerCase()} ${url}.json`),
-          JSON.stringify(data, null, 2)
-        );
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  } else if (args._[0] === '--request-file') {
-    const requestFile = args._[1];
-    const data = await read_file(requestFile);
-    const requests = JSON.parse(data);
-    for (const request of requests) {
-      await main(request);
-    }
-  } else {
-    console.log('Unknown command');
+    const json = await response.json();
+    console.log('Body:', JSON.stringify(json, null, 2));
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
 
-main();
+rl.on('line', (input) => {
+  executeCommand(input.trim());
+});
+rl.on('close', () => {
+  process.exit(0);
+});

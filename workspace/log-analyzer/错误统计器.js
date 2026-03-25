@@ -1,16 +1,18 @@
-const analyzeLog = require('./log-analyzer').analyzeLog;
+const parseAppLog = require('./log-analyzer').parseAppLog;
 
-const errorStats = (logData) => {
-    const stats = {};
-    logData.forEach(item => {
-        if (item.type === 'error') {
-            const errorType = item.line.match(/at (\S+)\((\S+)\):\/\/(\S+)\/(\S+):\s*(\d+):\s*(.*)/)[1];
-            stats[errorType] = (stats[errorType] || 0) + 1;
-        }
-    });
-    return stats;
+const countErrors = (logs) => {
+  const errorTypes = {};
+
+  logs.forEach(log => {
+    if (log.level === 'ERROR') {
+      const errorType = log.message;
+      errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
+    }
+  });
+
+  return errorTypes;
 };
 
 module.exports = {
-    errorStats
-};
+  countErrors
+}

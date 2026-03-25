@@ -1,15 +1,15 @@
-const analyzeLog = require('./log-analyzer').analyzeLog;
-const errorStats = require('./错误统计器').errorStats;
+const parseAppLog = require('./log-analyzer').parseAppLog;
 
-const searchLogs = (logData, keyword, startTime, endTime, level) => {
-    return logData.filter(item => {
-        const matchKeyword = item.line.includes(keyword);
-        const matchTime = item.type === 'app' && item.line.includes(startTime) && item.line.includes(endTime);
-        const matchLevel = item.type === 'app' && item.line.includes(level);
-        return matchKeyword && matchTime && matchLevel;
-    });
+const searchLogs = (logs, keyword, startTime, endTime, level) => {
+  return logs.filter(log => {
+    const matchesKeyword = log.message.includes(keyword);
+    const withinTimeRange = log.timestamp >= startTime && log.timestamp <= endTime;
+    const matchesLevel = !level || log.level === level;
+
+    return matchesKeyword && withinTimeRange && matchesLevel;
+  });
 };
 
 module.exports = {
-    searchLogs
-};
+  searchLogs
+}
