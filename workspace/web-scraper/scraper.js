@@ -1,8 +1,8 @@
 const fetch = require('node-fetch');
 
-const regexTitle = /<title>(.*?)</title>/i;
-const regexLinks = /<a [^>]*href="(.*?)" [^>]*>/gi;
-const regexImages = /<img [^>]*src="(.*?)" [^>]*>/gi;
+const regexTitle = /<title>(.*?)</title>/g;
+const regexLinks = /<a [^>]*href="([^"]+)"/g;
+const regexImages = /<img [^>]*src="([^"]+)"/g;
 
 const scraper = async (url) => {
   try {
@@ -10,25 +10,19 @@ const scraper = async (url) => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const text = await response.text();
 
-    const html = await response.text();
-    const title = html.match(regexTitle)[1];
-    const links = [];
-    let linkMatch;
-    while ((linkMatch = regexLinks.exec(html)) !== null) {
-      links.push(linkMatch[1]);n    }
-    const images = [];
-    let imageMatch;
-    while ((imageMatch = regexImages.exec(html)) !== null) {
-      images.push(imageMatch[1]);
-    }
+    const title = text.match(regexTitle);
+    const links = text.match(regexLinks);
+    const images = text.match(regexImages);
 
     return {
-      title,
-      links,
-      images
-    };n  } catch (error) {
-    console.error('Error fetching the webpage:', error);
+      title: title ? title[1] : null,
+      links: links ? links.map(link => link.split('/')[4]) : [],
+      images: images ? images.map(image => image.split('/')[4]) : [],
+    }
+  } catch (error) {
+    console.error('Error fetching the URL:', error);
     return null;
   }
 };

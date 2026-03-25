@@ -1,16 +1,19 @@
-const scraper = require('./scraper.js');
+#!/usr/bin/env node
+require('./scraper');
 
-const args = process.argv.slice(2);
+const program = require('commander');
 
-if (args.length === 0) {
-  console.log('Usage: node scraper.js <URL>');
-  process.exit(1);
-}
+program
+  .version('1.0.0')
+  .argument('<url>', 'url to scrape')
+  .action((url) => {
+    require('./scraper')(url)
+      .then(data => {
+        console.log(JSON.stringify(data, null, 2));
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  });
 
-const url = args[0];
-
-scraper(url).then(data => {
-  console.log(JSON.stringify(data, null, 2));
-}).catch(error => {
-  console.error('Error:', error);
-});
+program.parse(process.argv);

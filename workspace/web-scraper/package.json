@@ -1,10 +1,1 @@
-{
-  "name": "web-scraper",
-  "version": "1.0.0",
-  "description": "A simple web scraper tool",
-  "main": "scraper.js",
-  "scripts": {
-    "start": "node scraper.js"
-  },
-  "devDependencies": {}
-}
+{"name": "web-scraper", "version": "1.0.0"}

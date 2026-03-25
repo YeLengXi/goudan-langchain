@@ -6,16 +6,15 @@ class MultiProgressBar {
   }
 
   create(label, total) {
-    const bar = new ProgressBar({
-      total: total
-    });
+    const bar = new ProgressBar({ total, complete: '=', incomplete: ' ' });
     this.bars.push({ bar, label });
     return bar;
   }
 
-  update() {
-    this.bars.forEach(bar => {
-      bar.update(Math.random() * 100);
+  render() {
+    this.bars.forEach(barInfo => {
+      const { bar, label } = barInfo;
+      bar.update(bar.current);
     });
   }
 }

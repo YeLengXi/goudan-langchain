@@ -1,38 +1,67 @@
 const fs = require('fs');
-const { parse } = require('json2csv');
-const { JSDOM } = require('jsdom');
-const { DOMParser } = require('xmldom');
-const { parseString } = require('xml2js');
+const util = require('util');
+const path = require('path');
 
-const jsonTools = {
-  format: (json, indent) => {
-    return JSON.stringify(json, null, indent);
-  },
-  sort: (json, key) => {
-    return json.sort((a, b) => {
-      if (a[key] < b[key]) {
-        return -1;
-      }
-      if (a[key] > b[key]) {
-        return 1;
-      }
-      return 0;
-    });
-  },
-  filter: (json, condition) => {
-    return json.filter(item => {
-      try {
-        return eval(condition)(item);
-      } catch (error) {
-        console.error(error);
-        return false;
-      }
-    });
-  },
-  merge: (json1, json2) => {
-    return JSON.stringify(json1, null, 2).concat(',',
-      JSON.stringify(json2, null, 2));
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+
+const format = async (filePath, indent) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const parsedData = JSON.parse(data);
+    const formattedData = JSON.stringify(parsedData, null, indent);
+    await writeFile(filePath, formattedData, 'utf8');
+    console.log('JSON formatted successfully.');
+  } catch (error) {
+    console.error('Error formatting JSON:', error);
   }
 };
 
-module.exports = jsonTools;
+const sort = async (filePath, key) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const parsedData = JSON.parse(data);
+    const sortedData = parsedData.sort((a, b) => {
+      if (a[key] < b[key]) return -1;
+      if (a[key] > b[key]) return 1;
+      return 0;
+    });
+    const sortedDataString = JSON.stringify(sortedData, null, 2);
+    await writeFile(filePath, sortedDataString, 'utf8');
+    console.log('JSON sorted successfully.');
+  } catch (error) {
+    console.error('Error sorting JSON:', error);
+  }
+};
+
+const filter = async (filePath, condition) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const parsedData = JSON.parse(data);
+    const filteredData = parsedData.filter(item => {
+      return condition(item);
+    });
+    const filteredDataString = JSON.stringify(filteredData, null, 2);
+    await writeFile(filePath, filteredDataString, 'utf8');
+    console.log('JSON filtered successfully.');
+  } catch (error) {
+    console.error('Error filtering JSON:', error);
+  }
+};
+
+const merge = async (filePath1, filePath2, outputFilePath) => {
+  try {
+    const data1 = await readFile(filePath1, 'utf8');
+    const data2 = await readFile(filePath2, 'utf8');
+    const parsedData1 = JSON.parse(data1);
+    const parsedData2 = JSON.parse(data2);
+    const mergedData = { ...parsedData1, ...parsedData2 };
+    const mergedDataString = JSON.stringify(mergedData, null, 2);
+    await writeFile(outputFilePath, mergedDataString, 'utf8');
+    console.log('JSON merged successfully.');
+  } catch (error) {
+    console.error('Error merging JSON:', error);
+  }
+};
+
+module.exports = { format, sort, filter, merge };

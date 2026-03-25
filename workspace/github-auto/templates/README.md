@@ -1,10 +1,10 @@
-# README.md 模板
+# README.md
 
-这是一个 README.md 的模板，你可以根据需要修改它。
+这是一个 README 模板。
 
-## 项目介绍
+## 项目描述
 
-在这里介绍你的项目。
+在这里添加项目描述。
 
 ## 安装
 
@@ -14,13 +14,12 @@ npm install
 
 ## 使用
 
-```bash
-data.js
-```
+在这里添加使用说明。
 
-## 示例
+## 贡献
 
-```javascript
-data = require('data');
-console.log(data);
-```
+欢迎贡献代码。
+
+## 许可证
+
+MIT
