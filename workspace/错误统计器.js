@@ -1,28 +1,38 @@
-const parseAppLog = require('./log-analyzer').parseAppLog;
-const parseApacheLog = require('./log-analyzer').parseApacheLog;
-const parseErrorLog = require('./log-analyzer').parseErrorLog;
+const fs = require('fs');
+const path = require('path');
 
-const errorStats = (logs) => {
-  const errorTypes = {};
+const ERROR_TYPES = ['TypeError', 'SyntaxError', 'RangeError'];
+
+const countErrors = (logs) => {
+  const errorCounts = {
+    TypeError: 0,
+    SyntaxError: 0,
+    RangeError: 0
+  };
 
   logs.forEach(log => {
-    if (log.level === 'ERROR') {
-      const errorType = log.message;
-      errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
-    }
+    ERROR_TYPES.forEach(errorType => {
+      if (log.includes(errorType)) {
+        errorCounts[errorType] += 1;
+      }
+    });
   });
 
-  return errorTypes;
+  return errorCounts;
 };
 
-const findMostFrequentError = (errorStats) => {
-  let mostFrequentError = '';
-  let highestCount = 0;
+const getMostFrequentError = (errorCounts) => {
+  let mostFrequentError = {
+    name: '',
+    count: 0
+  };
 
-  for (const errorType in errorStats) {
-    if (errorStats[errorType] > highestCount) {
-      highestCount = errorStats[errorType];
-      mostFrequentError = errorType;
+  for (const errorType in errorCounts) {
+    if (errorCounts[errorType] > mostFrequentError.count) {
+      mostFrequentError = {
+        name: errorType,
+        count: errorCounts[errorType]
+      };
     }
   }
 
@@ -30,6 +40,6 @@ const findMostFrequentError = (errorStats) => {
 };
 
 module.exports = {
-  errorStats,
-  findMostFrequentError
+  countErrors,
+  getMostFrequentError
 }

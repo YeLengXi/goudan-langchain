@@ -35,11 +35,10 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
 
   // Clean up multiple newlines
-  formatted = formatted.replace(/
-{3,}/g, '\n\n');
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
 
   // Process indentation
-  const lines = formatted.split('\n');
+  const lines = formatted.split('\\n');
   let indentLevel = 0;
   const indentSize = config.indentSize;
 
@@ -69,7 +68,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
     }
   }
 
-  return formattedLines.join('\n') + '\n';
+  return formattedLines.join('\\n') + '\n';
 }
 
 function parseArgs(args) {

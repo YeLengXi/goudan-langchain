@@ -2,23 +2,21 @@ const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
 
-const PORT = 3000;
-const DIST_DIR = 'dist';
-const TEMPLATE_FILE = 'templates/default.html';
-const OUTPUT_FILE = 'index.html';
-const PORTFOLIO_FILE = 'portfolio.json';
+const portfolioJsonPath = path.join(__dirname, 'portfolio.json');
+const templatePath = path.join(__dirname, 'templates/default.html');
+const outputPath = path.join(__dirname, 'output');
 
-const express = require('express');
-const app = express();
+// Read portfolio.json
+const portfolioData = JSON.parse(fs.readFileSync(portfolioJsonPath, 'utf8'));
 
-app.set('view engine', 'ejs');
+// Render template
+const templateHtml = fs.readFileSync(templatePath, 'utf8');
+const renderedHtml = ejs.render(templateHtml, portfolioData);
 
-app.get('/', (req, res) => {
-  const portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, 'utf-8'));
-  res.render(TEMPLATE_FILE, portfolio);
-});
+// Create output directory if it doesn't exist
+if (!fs.existsSync(outputPath)) {
+  fs.mkdirSync(outputPath);
+}
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  exec_command(`start http://localhost:${PORT}`);
-});
+// Write rendered HTML to output/index.html
+fs.writeFileSync(path.join(outputPath, 'index.html'), renderedHtml);

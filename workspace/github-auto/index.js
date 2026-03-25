@@ -1,44 +1,9 @@
-const axios = require('axios');
-
-const apiUrl = 'https://api.github.com';
-const gitUrl = 'https://github.com';
-
-const createRepository = async (name, isPublic, description) => {
-  const token = 'YOUR_GITHUB_TOKEN';
-  const response = await axios.post(`${apiUrl}/user/repos`, {
-    name,
-    private: !isPublic
-  }, {
-    headers: {
-      Authorization: `token ${token}`
-    }
-  });
-
-  return response.data.clone_url;
-};
-
-const initializeRepository = async (url) => {
-  const { stdout, stderr } = await exec_command(`git init ${url}`);
-  if (stderr) {
-    throw new Error(stderr);
+const fs = require('fs');const path = require('path');const https = require('https');const { promisify } = require('util');const exec = promisify(exec);const read_file = require('./read_file');const write_file = require('./write_file');const list_directory = require('./list_directory');const exec_command = require('./exec_command');const { GitHubAPI } = require('./github-api');const { TemplateSystem } = require('./template-system');const { CLI } = require('./cli');const packageJson = require('./package.json');class GitHubAuto {
+  constructor() {
+    this.githubApi = new GitHubAPI();
+    this.templateSystem = new TemplateSystem();
+    this.cli = new CLI();
   }
+}
 
-  const { stdout: readmeContent } = await read_file('E:/goudan-langchain/workspace/github-auto/templates/README.md');
-  await write_file(`${url}/README.md`, readmeContent);
-
-  const { stdout: gitignoreContent } = await read_file('E:/goudan-langchain/workspace/github-auto/templates/gitignore');
-  await write_file(`${url}/.gitignore`, gitignoreContent);
-
-  const { stdout: licenseContent } = await read_file('E:/goudan-langchain/workspace/github-auto/templates/LICENSE');
-  await write_file(`${url}/LICENSE`, licenseContent);
-
-  await exec_command(`git add .
-  git commit -m 'Initial commit'
-  git remote add origin ${url}
-  git push -u origin main`);
-};
-
-module.exports = {
-  createRepository,
-  initializeRepository
-};
+module.exports = GitHubAuto;

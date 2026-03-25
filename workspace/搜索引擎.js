@@ -1,23 +1,24 @@
-const read_file = require('fs').readFileSync;
+const fs = require('fs');
+const path = require('path');
 
-const searchLogs = (logContent, keyword, startTime, endTime, level) => {
-  const lines = logContent.split('
+const searchLogs = (filePath, keyword, startTime, endTime, level) => {
+  const logData = fs.readFileSync(filePath, 'utf-8');
+  const lines = logData.split('
 ');
-  const filteredLogs = [];
+  const filteredLogs = lines.filter(line => {
+    const match = parseLog(line, 'APP');
+    if (!match) return false;
 
-  lines.forEach(line => {
-    const matchesKeyword = line.includes(keyword);
-    const matchesStartTime = !startTime || new Date(line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)[0]).getTime() >= startTime.getTime();
-    const matchesEndTime = !endTime || new Date(line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)[0]).getTime() <= endTime.getTime();
-    const matchesLevel = !level || line.includes(level);
+    const logTime = new Date(match[1]);
+    const logLevel = match[2];
 
-    if (matchesKeyword && matchesStartTime && matchesEndTime && matchesLevel) {
-      filteredLogs.push(line);
-    }
+    return (keyword ? line.includes(keyword) : true) &&
+           (startTime ? logTime >= new Date(startTime) : true) &&
+           (endTime ? logTime <= new Date(endTime) : true) &&
+           (level ? logLevel === level : true);
   });
 
-  return filteredLogs.join('
-');
+  return filteredLogs;
 };
 
 module.exports = {

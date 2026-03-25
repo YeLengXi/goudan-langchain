@@ -1,9 +1,11 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
 
-const DEFAULT_REQUEST_FILE = 'examples/requests.json';
+const parseArgs = require('minimist');
+const { JSDOM } = require('jsdom');
+
+const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
 
 function fetchApi(url, method, headers, body) {
   return new Promise((resolve, reject) => {
@@ -31,37 +33,49 @@ function fetchApi(url, method, headers, body) {
           body: JSON.parse(data)
         });
       });
-    }).on('error', error => {
-      reject(error);
+    }).on('error', err => {
+      reject(err);
     });
   });
 }
 
 function parseRequestFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
+  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return requests.map(request => {
+    return fetchApi(request.url, request.method, request.headers, request.body);
+  });
 }
 
-function main() {
-  const args = parse(process.argv.slice(2));
-  let { url, method, body, requestFile } = args;
+function run() {
+  const args = parseArgs(process.argv.slice(2));
+  if (args._[0]) {
+    const method = args._[0].toUpperCase();
+    const url = args._[1];
+    let headers = {};
+    let body = null;
 
-  if (requestFile) {
-    const requests = parseRequestFile(requestFile);
-    requests.forEach(request => {
-      fetchApi(request.url, request.method, request.headers, request.body).then(response => {
-        console.log(response);
-      }).catch(error => {
-        console.error(error);
-      });
+    if (args.h) {
+      headers = args.h;
+    }
+    if (args.d) {
+      body = JSON.parse(args.d);
+    }
+
+    fetchApi(url, method, headers, body).then(response => {
+      console.log(JSON.stringify(response, null, 2));
+    }).catch(error => {
+      console.error(error);
     });
-  } else {
-    fetchApi(url, method, {}, body).then(response => {
-      console.log(response);
+  } else if (args['request-file']) {
+    const filePath = args['request-file'];
+    parseRequestFile(filePath).then(results => {
+      results.forEach(result => {
+        console.log(JSON.stringify(result, null, 2));
+      });
     }).catch(error => {
       console.error(error);
     });
   }
 }
 
-main();
+run();

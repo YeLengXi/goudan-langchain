@@ -18,19 +18,13 @@ function searchLogs(logContent, keyword, startTime, endTime, level) {
 }
 
 // 报告生成器
-function generateReport(logContent, errors) {
+function generateReport(logContent, errors, searchResults) {
   // TODO: 实现报告生成逻辑
-}
-
-// 导出功能
-function exportLogs(logContent, format) {
-  // TODO: 实现导出功能逻辑
 }
 
 module.exports = {
   parseLog,
   countErrors,
   searchLogs,
-  generateReport,
-  exportLogs
-};
+  generateReport
+}
