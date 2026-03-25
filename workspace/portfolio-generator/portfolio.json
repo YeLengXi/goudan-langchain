@@ -1,21 +1,22 @@
 {
   "name": "John Doe",
-  "position": "Frontend Developer",
-  "bio": "I am a frontend developer with 5 years of experience. I am passionate about building beautiful and responsive websites.",
+  "position": "Software Developer",
+  "bio": "I am a passionate software developer with 5 years of experience in building web applications.",
   "skills": [
-    "HTML5",
-    "CSS3",
+    "HTML",
+    "CSS",
     "JavaScript",
     "React"
   ],
   "projects": [
     {
       "name": "Project 1",
-      "description": "A responsive website for a startup company.",n      "link": "https://example.com/project1"
+      "description": "A web application for managing tasks.",
+      "link": "https://example.com/project1"
     },
     {
       "name": "Project 2",
-      "description": "A web application for a healthcare company.",
+      "description": "A mobile app for tracking fitness.",
       "link": "https://example.com/project2"
     }
   ],

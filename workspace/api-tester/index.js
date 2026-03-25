@@ -1,67 +1,59 @@
 const https = require('https');
+const { parseArgs } = require('minimist');
 const fs = require('fs');
 const path = require('path');
 
-const parseArgs = require('minimist');
-const { green, red } = require('chalk');
+const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
 
-const CONFIG_FILE = path.join(__dirname, 'config.json');
-
-// Load configuration
-const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-
-// Function to make HTTP request
-async function makeRequest(method, url, headers, body) {
-  const options = {
-    method,
-    headers
-  };
-
-  if (body) {
-    options.body = JSON.stringify(body);
-    options.headers['Content-Type'] = 'application/json';
-  }
-
-  try {
-    const start = Date.now();
-    const response = await fetch(url, options);
-    const endTime = Date.now();
-    const data = await response.json();
-    const responseTime = endTime - start;
-
-    console.log(green(`Response Time: ${responseTime}ms`));
-    console.log(green(`Status Code: ${response.status}`));
-    console.log(green(`Headers: ${JSON.stringify(response.headers.raw())}`));
-    console.log(green(`Body: ${JSON.stringify(data)}`));
-
-    return data;
-  } catch (error) {
-    console.error(red(`Error: ${error.message}`));
-  }
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
+    };
+    if (body) {
+      options.body = body;
+    }
+    https.get(url, response => {
+      const chunks = [];
+      response.on('data', chunk => {
+        chunks.push(chunk);
+      });
+      response.on('end', () => {
+        const data = Buffer.concat(chunks).toString();
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          data
+        });
+      });
+    }).on('error', err => {
+      reject(err);
+    });
+  });
 }
 
-// CLI interface
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-
-  let { method, url } = args;
-  let headers = {};
-  let body = {};
-
-  if (args.d) {
-    body = JSON.parse(args.d);
-  }
-
-  if (args.h) {
-    headers = JSON.parse(args.h);
-  }
-
-  if (!method || !url) {
-    console.error(red('Error: Missing method or URL'));
-    return;
-  }
-
-  await makeRequest(method, url, headers, body);
+function parseArgs(args) {
+  const { _, ...options } = args;
+  return options;
 }
 
-main();
+function main() {
+  const args = parseArgs(process.argv);
+  if (!args.url) {
+    console.error('Error: URL is required');
+    process.exit(1);
+  }
+
+  fetchApi(args.url, args.method, args.headers, args.body).then(response => {
+    console.log('Status Code:', response.statusCode);
+    console.log('Headers:', response.headers);
+    console.log('Body:', response.data);
+  }).catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+if (require.main === module) {
+  main();
+}
