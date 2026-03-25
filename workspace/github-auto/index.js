@@ -1,30 +1,28 @@
-const axios = require('axios');
+// 主程序
+const { createRepository, initializeLocal, pushToGitHub, createTemplateSystem } = require('./utils');
 
-const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN';
+const program = require('commander');
 
-module.exports = {
-  createRepository: async (name, isPublic) => {
-    const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
-      name,
-      private: !isPublic
-    }, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`
-      }
-    });
-    return response.data;
-  },
+program
+  .version('1.0.0')
+  .command('create <name> [description]', '创建 GitHub 仓库')
+  .option('--public', '创建公开仓库', false)
+  .option('--private', '创建私有仓库', false)
+  .action((name, description, options) => {
+    if (options.private && options.public) {
+      console.error('只能选择创建公开或私有仓库');
+      return;
+    }
 
-  initializeRepository: async (repo) => {
-    // Initialize git, create project structure, add initial files, and make the first commit.
-    // This is a placeholder for the actual implementation.
-    console.log('Initializing repository:', repo);
-  },
+    createRepository(name, options.public);
+  })
+  .command('init [template]', '初始化本地项目')
+  .action((template) => {
+    initializeLocal(template);
+  })
+  .command('push', '推送到 GitHub')
+  .action(() => {
+    pushToGitHub();
+  })
 
-  pushToGitHub: async (repo) => {
-    // Add remote, push to main branch, and set default branch.
-    // This is a placeholder for the actual implementation.
-    console.log('Pushing to GitHub:', repo);
-  }
-};
+program.parse(process.argv);
