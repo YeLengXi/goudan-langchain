@@ -1,7 +1,7 @@
 {
   "name": "regex-tester",
   "version": "1.0.0",
-  "description": "Regex tester and debugger",
+  "description": "A regex tester and debugger.",
   "main": "tester.js",
   "scripts": {
     "test": "node tester.js"
