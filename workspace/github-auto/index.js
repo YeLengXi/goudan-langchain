@@ -1,117 +1,88 @@
-const fs = require('fs');
-const https = require('https');
-const path = require('path');
-const { exec } = require('child_process');
-
-const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN';
+# index.js
 
 // 读取命令行参数
-const args = process.argv.slice(2);
-const command = args[0];
-const project = args[1] || ''; 
-const options = args.slice(2);
+const yargs = require('yargs/yargs')(process.argv);
+const { hideBin } = require('yargs/helpers');
+const args = yargs.hideBin(process.argv).argv;
 
-// 创建 GitHub 仓库
-function createRepo(project, isPublic) {
-  const repoUrl = `${GITHUB_API_URL}/user/repos`; 
-  const data = {
-    name: project,
-    description: project,
-    private: !isPublic
-  };
-  const headers = {
-    'Authorization': `token ${GITHUB_TOKEN}`,
-    'Accept': 'application/vnd.github.v3+json'
-  };
-  return new Promise((resolve, reject) => {
-    https.post(repoUrl, { json: true, headers: headers, body: data }, (err, res, body) => {
-      if (err) {
-        reject(err);
-      } else if (res.statusCode === 201) {
-        resolve(body);
-      } else {
-        reject(new Error(body.message || 'Failed to create repository'));n      }
+// 读取 GitHub Personal Access Token
+const token = require('fs').readFileSync('./.github-token').toString().trim();
+
+// GitHub API
+const axios = require('axios');
+const api = axios.create({
+  baseURL: 'https://api.github.com',
+  headers: {
+    Authorization: `token ${token}`
+  }
+});
+
+// 模板
+const templates = {
+  'README': 'README.md',
+  '.gitignore': '.gitignore',
+  'LICENSE': 'LICENSE'
+};
+
+// 创建仓库
+async function createRepo(repoName, isPublic, description) {
+  try {
+    const response = await api.post('/user/repos', {
+      name: repoName,
+      private: !isPublic
     });
-  });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating repository:', error);
+    process.exit(1);
+  }
 }
 
-// 本地初始化
-function initLocal(project) {
-  exec(`git init ${project}`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    console.log('Initialized local git repository.');
-    createFiles(project);
-  });
-}
-
-// 创建文件
-function createFiles(project) {
-  const templateDir = path.join(__dirname, '../templates');
-  const templates = {
-    'README': fs.readFileSync(path.join(templateDir, 'README.md'), 'utf8'),
-    '.gitignore': fs.readFileSync(path.join(templateDir, '.gitignore'), 'utf8'),
-    'LICENSE': fs.readFileSync(path.join(templateDir, 'LICENSE'), 'utf8')
-  };
-  Object.entries(templates).forEach(([filename, content]) => {
-    fs.writeFileSync(path.join(project, filename), content);
-  });
-  commitFiles(project);
-}
-
-// 提交文件
-function commitFiles(project) {
-  exec(`git add .`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    exec(`git commit -m 'Initial commit'`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log('Initial commit done.');
-      pushToGitHub(project);
+// 初始化本地仓库
+async function initLocalRepo(repoName) {
+  const repoPath = `./${repoName}`;
+  exec_command(`mkdir -p ${repoPath}`);
+  exec_command(`cd ${repoPath}`);
+  exec_command('git init');
+  Object.entries(templates).forEach(([key, value]) => {
+    const templatePath = `../templates/${value}`;
+    read_file(templatePath).then(content => {
+      write_file(`${repoPath}/${value}`, content);
     });
   });
 }
 
 // 推送到 GitHub
-function pushToGitHub(project) {
-  exec(`git remote add origin https://${GITHUB_TOKEN}@github.com/${project}.git`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    exec(`git push -u origin main`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(err);
-        return;
-      }
-      console.log('Pushed to GitHub.');
-    });
-  });
+async function pushToGitHub(repoName) {
+  const repoPath = `./${repoName}`;
+  exec_command(`cd ${repoPath}`);
+  exec_command('git add .');
+  exec_command('git commit -m "Initial commit"');
+  exec_command(`git remote add origin https://github.com/${repoName}.git`);
+  exec_command(`git push -u origin main`);
 }
 
 // 处理命令
-switch (command) {
+switch (args._[0]) {
   case 'create':
-    const isPublic = options.includes('--public');
-    createRepo(project, isPublic).then(repo => {
-      console.log(`Repository created: ${repo.html_url}`);
-    }).catch(err => {
-      console.error(err);
-    });
+    if (!args.public && !args.private) {
+      console.error('Please specify --public or --private');
+      process.exit(1);
+    }
+    const repoName = args._[1];
+    const isPublic = args.public;
+    const description = args.description || '';
+    const repo = await createRepo(repoName, isPublic, description);
+    console.log('Repository created:', repo.html_url);
+    initLocalRepo(repoName);
     break;
   case 'init':
-    initLocal(project);
+    const template = args.template;
+    initLocalRepo(template);
     break;
   case 'push':
-    pushToGitHub(project);
+    const repoName = args._[1];
+    pushToGitHub(repoName);
     break;
   default:
     console.log('Unknown command');

@@ -1,1 +1,1 @@
-{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"start":"node index.js"},"bin":"{"github-auto":"./index.js"}}
+{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"start":"node index.js"},"dependencies":{}}

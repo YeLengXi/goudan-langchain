@@ -1,11 +1,11 @@
 [
   {
-    "method": "GET",
-    "url": "https://api.example.com/users"
+    "url": "https://api.example.com/users",
+    "method": "GET"
   },
   {
-    "method": "POST",
     "url": "https://api.example.com/users",
+    "method": "POST",
     "body": {
       "name": "John"
     }

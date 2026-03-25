@@ -24,7 +24,8 @@
     "log4js": "^6.9.1",
     "mime": "^4.1.0",
     "minimist": "^1.2.8",
-    "serve-static": "^2.2.1"
+    "serve-static": "^2.2.1",
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

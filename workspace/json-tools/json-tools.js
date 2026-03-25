@@ -1,118 +1,65 @@
 const fs = require('fs');
-const { program } = require('commander');
+const util = require('util');
+const path = require('path');
 
-// Function to format JSON
-function format(json, indent) {
-    return JSON.stringify(json, null, indent);
-}
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const mkdirSync = fs.mkdirSync;
+const existsSync = fs.existsSync;
 
-// Function to sort JSON
-function sort(json, key) {
-    return JSON.sort(json, (a, b) => {
-        if (a[key] < b[key]) return -1;
-        if (a[key] > b[key]) return 1;
-        return 0;
-    });
-}
-
-// Function to filter JSON
-function filter(json, condition) {
-    return json.filter(item => {
-        try {
-            return eval(condition)(item);
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    });
-}
-
-// Function to merge JSON
-function merge(json1, json2) {
-    return JSON.stringify(JSON.concat(json1, json2), null, 2);
-}
-
-// Read JSON from file
-function readJsonFromFile(filePath) {
+const jsonTools = {
+  async format(filePath) {
     try {
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
+      const data = await readFile(filePath, 'utf8');
+      const json = JSON.parse(data);
+      const formattedJson = JSON.stringify(json, null, 2);
+      await writeFile(filePath, formattedJson, 'utf8');
+      return formattedJson;
     } catch (error) {
-        console.error(error);
-        return null;
+      throw new Error('Invalid JSON or file read error');
     }
-}
+  },
 
-// Write JSON to file
-function writeJsonToFile(filePath, data) {
+  async sort(filePath, key) {
     try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+      const data = await readFile(filePath, 'utf8');
+      const json = JSON.parse(data);
+      json.sort((a, b) => a[key].localeCompare(b[key]));
+      const sortedJson = JSON.stringify(json, null, 2);
+      await writeFile(filePath, sortedJson, 'utf8');
+      return sortedJson;
     } catch (error) {
-        console.error(error);
+      throw new Error('Invalid JSON or file read error');
     }
-}
+  },
 
-// Main function
-function main() {
-    program
-        .command('format <filePath>')
-        .description('Format JSON file')
-        .action(filePath => {
-            const json = readJsonFromFile(filePath);
-            if (json) {
-                writeJsonToFile(filePath, format(json, 2));
-            } else {
-                console.error('Invalid JSON file');
-            }
-        })
-        .option('--indent <number>', 'Number of spaces for indentation', parseInt)
-        .on('--help', () => {
-            console.log(`
-Usage: ${process.argv[0]} ${process.argv[1]} format <filePath> --indent <number>
+  async filter(filePath, condition) {
+    try {
+      const data = await readFile(filePath, 'utf8');
+      const json = JSON.parse(data);
+      const filteredJson = json.filter(item => eval(condition));
+      const filteredJsonString = JSON.stringify(filteredJson, null, 2);
+      await writeFile(filePath, filteredJsonString, 'utf8');
+      return filteredJsonString;
+    } catch (error) {
+      throw new Error('Invalid JSON or file read error');
+    }
+  },
 
-  Options:
-    --indent <number>  Number of spaces for indentation
-`);
-        })
-        .command('sort <filePath>')
-        .description('Sort JSON file by key')
-        .action(filePath => {
-            const json = readJsonFromFile(filePath);
-            if (json) {
-                writeJsonToFile(filePath, sort(json, program.args.key));
-            } else {
-                console.error('Invalid JSON file');
-            }
-        })
-        .option('--key <key>', 'Key to sort by', String)
-        .on('--help', () => {
-            console.log(`
-Usage: ${process.argv[0]} ${process.argv[1]} sort <filePath> --key <key>
+  async merge(filePath1, filePath2) {
+    try {
+      const data1 = await readFile(filePath1, 'utf8');
+      const data2 = await readFile(filePath2, 'utf8');
+      const json1 = JSON.parse(data1);
+      const json2 = JSON.parse(data2);
+      const mergedJson = { ...json1, ...json2 };
+      const mergedJsonString = JSON.stringify(mergedJson, null, 2);
+      await writeFile(filePath1, mergedJsonString, 'utf8');
+      return mergedJsonString;
+    } catch (error) {
+      throw new Error('Invalid JSON or file read error');
+    }
+  }
+};
 
-  Options:
-    --key <key>  Key to sort by
-`);
-        })
-        .command('filter <filePath>')
-        .description('Filter JSON file by condition')
-        .action(filePath => {
-            const json = readJsonFromFile(filePath);
-            if (json) {
-                writeJsonToFile(filePath, filter(json, program.args.condition));
-            } else {
-                console.error('Invalid JSON file');
-            }
-        })
-        .option('--condition <condition>', 'Condition to filter by', String)
-        .on('--help', () => {
-            console.log(`
-Usage: ${process.argv[0]} ${process.argv[1]} filter <filePath> --condition <condition>
-
-  Options:
-    --condition <condition>  Condition to filter by
-`);
-        })
-        .parse(process.argv);
-}
-
-main();
+module.exports = jsonTools;

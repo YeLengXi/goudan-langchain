@@ -1,59 +1,54 @@
-const fetch = require('node-fetch');
-
-const parseArgs = require('minimist');
-
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { parse } = require('minimist');
 
-const requestsDir = path.join(__dirname, '../examples/requests.json');
+const DEFAULT_REQUEST_FILE = path.join(__dirname, '../examples/requests.json');
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-
-  if (args._[0]) {
-    const method = args._[0].toUpperCase();
-    if (!methods.includes(method)) {
-      console.error(`Unsupported HTTP method: ${method}`);
-      return;
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
     }
 
-    const url = args._[1];
-    const data = args.data || null;
-    const headers = args.headers || {};
-
-    try {
-      const response = await fetch(url, {
-        method,
-        headers,
-        body: data ? JSON.stringify(data) : null
-      });
-
-      const responseTime = Date.now() - start;
-      const responseBody = await response.json();
-
-      console.log(`Response Time: ${responseTime}ms`);
-      console.log(`Status Code: ${response.status}`);
-      console.log('Headers:', response.headers.raw());
-      console.log('Body:', responseBody);
-
-      if (args.save) {
-        fs.writeFileSync(path.join(__dirname, '../responses', `${method}-${url}-${Date.now()}.json`), JSON.stringify(responseBody, null, 2));
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
       }
-    } catch (error) {
-      console.error('Error:', error);
     }
-  }
 
-  if (args.requestFile) {
-    const requests = JSON.parse(fs.readFileSync(requestsDir));
-
-    for (const request of requests) {
-      await main({ ...request });
-    }
-  }
+    https.get(url, response => {
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: JSON.parse(data)
+        });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
+  });
 }
 
-start = Date.now();
-main();
+function parseRequestFile(filePath) {
+  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return requests.map(request => {
+    return {
+      url: request.url,
+      method: request.method,
+      headers: request.headers || {},
+      body: request.body || null
+    };n  });
+}
+
+module.exports = {
+  fetchApi,
+  parseRequestFile
+}
