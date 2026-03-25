@@ -1,90 +1,67 @@
 const https = require('https');
-const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
-const { promisify } = require('util');
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const parseArgs = require('minimist');
+const { green, red } = require('chalk');
 
-const executeRequest = async (method, url, headers, body, requestFile) => {
-  let promise;
-  if (method.toUpperCase() === 'GET') {
-    promise = new Promise((resolve, reject) => {
-      http.get(url, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            body: data
-          });
-        });
-      }).on('error', (err) => {
-        reject(err);
-      });
-    });
-  } else if (method.toUpperCase() === 'POST') {
-    promise = new Promise((resolve, reject) => {
-      const options = {
-        method: 'POST',
-        headers: headers
-      };
-      http.request(url, options, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          resolve({
-            statusCode: res.statusCode,
-            headers: res.headers,
-            body: data
-          });
-        });
-      }).on('error', (err) => {
-        reject(err);
-      }).end(body);
-    });
+const CONFIG_FILE = path.join(__dirname, 'config.json');
+
+// Load configuration
+const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+
+// Function to make HTTP request
+async function makeRequest(method, url, headers, body) {
+  const options = {
+    method,
+    headers
+  };
+
+  if (body) {
+    options.body = JSON.stringify(body);
+    options.headers['Content-Type'] = 'application/json';
   }
-  // Add other HTTP methods here
 
   try {
-    const response = await promise;
-    console.log(response);
+    const start = Date.now();
+    const response = await fetch(url, options);
+    const endTime = Date.now();
+    const data = await response.json();
+    const responseTime = endTime - start;
+
+    console.log(green(`Response Time: ${responseTime}ms`));
+    console.log(green(`Status Code: ${response.status}`));
+    console.log(green(`Headers: ${JSON.stringify(response.headers.raw())}`));
+    console.log(green(`Body: ${JSON.stringify(data)}`));
+
+    return data;
   } catch (error) {
-    console.error(error);
+    console.error(red(`Error: ${error.message}`));
   }
 }
 
-rl.on('line', async (input) => {
-  const [method, url, ...args] = input.split(' '); 
+// CLI interface
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+
+  let { method, url } = args;
   let headers = {};
-  let body = null;
-  args.forEach(arg => {
-    if (arg.startsWith('-')) {
-      if (arg === '-d') {
-        body = args.pop();
-      } else {
-        headers[arg.substring(1)] = args.pop();
-      }
-    }
-  });
-  if (requestFile) {
-    const content = await readFileAsync(requestFile, 'utf8');
-    const { method, url, headers, body } = JSON.parse(content);
-    await executeRequest(method, url, headers, body);
-  } else {
-    await executeRequest(method, url, headers, body);
+  let body = {};
+
+  if (args.d) {
+    body = JSON.parse(args.d);
   }
 
-  rl.close();
-});
+  if (args.h) {
+    headers = JSON.parse(args.h);
+  }
+
+  if (!method || !url) {
+    console.error(red('Error: Missing method or URL'));
+    return;
+  }
+
+  await makeRequest(method, url, headers, body);
+}
+
+main();

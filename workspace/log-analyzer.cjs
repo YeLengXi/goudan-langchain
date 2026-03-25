@@ -1,33 +1,54 @@
-const fs = require('fs');
-const path = require('path');
+const read_file = require('fs').readFileSync;
 
-const appLogPath = path.join(__dirname, './app.log');
-const appLog = fs.readFileSync(appLogPath, 'utf8');
+const parseAppLog = (logContent) => {
+  const lines = logContent.split('
+');
+  const parsedLogs = [];
 
-const logLines = appLog.split('\n');
+  lines.forEach(line => {
+    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    const level = line.match(/INFO|WARN|ERROR/);
+    const message = line.replace(timestamp, '').replace(level, '').trim();
 
-const parseLog = (logLine) => {
-  const logRegex = /^\[(.*?)\] (\w+) - (.*?)$/;
-  const match = logLine.match(logRegex);
+    parsedLogs.push({ timestamp, level, message });
+  });
 
-  if (!match) return null;
-
-  return {
-    timestamp: match[1],
-    level: match[2],
-    message: match[3]
-  };
+  return parsedLogs;
 };
 
-const parsedLogs = logLines.map(parseLog);
+const parseApacheLog = (logContent) => {
+  const lines = logContent.split('
+');
+  const parsedLogs = [];
 
-const errorStats = parsedLogs.filter(log => log.level === 'ERROR').reduce((acc, log) => {
-  const errorType = log.message.match(/^(.*?):/)[1];
-  acc[errorType] = (acc[errorType] || 0) + 1;
-  return acc;
-}, {});
+  lines.forEach(line => {
+    const timestamp = line.match(/\d{2}/);
+    const ip = line.match(/\d+\.\d+\.\d+\.\d+/);
+    const method = line.match(/\S+/);
+    const url = line.match(/\S+/);
+    const status = line.match(/\d+/);
+
+    parsedLogs.push({ timestamp, ip, method, url, status });
+  });
+
+  return parsedLogs;
+};
+
+const parseErrorLog = (logContent) => {
+  const lines = logContent.split('
+');
+  const parsedLogs = [];
+
+  lines.forEach(line => {
+    const stackTrace = line.match(/at .+/);
+    parsedLogs.push({ stackTrace });
+  });
+
+  return parsedLogs;
+};
 
 module.exports = {
-  parsedLogs,
-  errorStats
-};
+  parseAppLog,
+  parseApacheLog,
+  parseErrorLog
+}
