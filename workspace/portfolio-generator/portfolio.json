@@ -1,23 +1,22 @@
 {
   "name": "John Doe",
-  "position": "Software Developer",
-  "bio": "I am a passionate software developer with 5 years of experience in web development. I specialize in React and Node.js.",
+  "position": "Frontend Developer",
+  "bio": "I am a frontend developer with 5 years of experience in building responsive and modern websites.",
   "skills": [
-    "React",
-    "Node.js",
+    "HTML5",
+    "CSS3",
     "JavaScript",
-    "HTML"
+    "React"
   ],
   "projects": [
     {
-      "name": "Portfolio Website",
-      "description": "A personal portfolio website to showcase my work.",n
-      "link": "https://johndoeportfolio.com"
+      "name": "Project 1",
+      "description": "A responsive website for a company.",n      "url": "https://example.com/project1"
     },
     {
-      "name": "E-commerce Website",
-      "description": "An e-commerce website built with React and Node.js.",
-      "link": "https://ecommerce.com"
+      "name": "Project 2",
+      "description": "A modern web application using React.",
+      "url": "https://example.com/project2"
     }
   ],
   "social_links": {

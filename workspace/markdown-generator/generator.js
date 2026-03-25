@@ -4,9 +4,15 @@ const path = require('path');
 const marked = require('marked');
 
 // 解析JSDoc注释
-function parseJSDoc注释(content) {
-  // 使用正则表达式解析JSDoc注释
-  // 此处省略具体实现
+function parseJSDoc(注释) {
+  const regex = //\*([^*]|\*+[^*])*\*\//g;
+  let match;
+  const comments = [];
+
+  while ((match = regex.exec(注释)) !== null) {
+    comments.push(match[0]);n  }
+
+  return comments;
 }
 
 // 提取函数、类、参数信息
@@ -30,7 +36,7 @@ function main() {
   }
 
   const inputContent = fs.readFileSync(inputFilePath, 'utf8');
-  const parsedComments = parseJSDoc注释(inputContent);
+  const parsedComments = parseJSDoc(注释);
   const info = extractInfo(parsedComments);
   const markdownContent = generateMarkdown(info);
 

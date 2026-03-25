@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+
 const { format, sort, filter, merge } = require('./index');
 
 const readJSONFromFile = filePath => {
@@ -59,7 +60,8 @@ const main = () => {
     case 'filter':
       try {
         const json = readJSONFromFile(filePath);
-        const condition = options.find(option => option.startsWith('--condition '))?.split('--condition ')[1];        if (!condition) {
+        const condition = options.find(option => option.startsWith('--condition '))?.split('--condition ')[1];
+        if (!condition) {
           console.error('Usage: node json-tools.js filter <json-file> --condition <condition-expression>');
           process.exit(1);
         }
@@ -85,4 +87,4 @@ const main = () => {
   }
 };
 
-main();
+module.exports = main;

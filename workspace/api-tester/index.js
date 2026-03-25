@@ -1,53 +1,54 @@
-// Main program of the API tester.
-const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios');
 
 const parseArgs = require('minimist');
+
 const { read_file, write_file, exec_command, list_directory } = require('./utils');
 
-const API_TESTER_PATH = path.join(__dirname, 'examples');
-
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-
-  if (args._[0] === 'GET' || args._[0] === 'POST' || args._[0] === 'PUT' || args._[0] === 'DELETE' || args._[0] === 'PATCH') {
-    const method = args._[0];
-    const url = args._[1];
-    const headers = args.headers || {};
-    const body = args.body ? JSON.parse(args.body) : null;
-
+const API_TESTER = {
+  get: async (url) => {
     try {
-      const response = await fetch(url, {
-        method,
-        headers,
-        body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(body) : null
-      });
-
-      const data = await response.json();
-      console.log(JSON.stringify(data, null, 2));
-      console.log(`Response time: ${Date.now() - start}ms`);
-      console.log(`Status code: ${response.status}`);
-      console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
-
-      if (args.save) {
-        const filePath = path.join(API_TESTER_PATH, `${method}-${url}.json`);
-        write_file(filePath, JSON.stringify(data, null, 2));
-      }
+      const response = await axios.get(url);
+      return response;
     } catch (error) {
-      console.error('Error:', error);
+      throw error;
     }
-  } else if (args._[0] === '--request-file') {
-    const requestFilePath = args._[1];
-    const requests = await read_file(requestFilePath);
-    const requestsData = JSON.parse(requests);
+  },
 
-    for (const request of requestsData) {
-      await main(request);
+  post: async (url, data) => {
+    try {
+      const response = await axios.post(url, data);
+      return response;
+    } catch (error) {
+      throw error;
     }
-  } else {
-    console.log('Unknown command');
+  },
+
+  put: async (url, data) => {
+    try {
+      const response = await axios.put(url, data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  delete: async (url) => {
+    try {
+      const response = await axios.delete(url);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  patch: async (url, data) => {
+    try {
+      const response = await axios.patch(url, data);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
-}
+};
 
-main();
+module.exports = API_TESTER;

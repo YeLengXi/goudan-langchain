@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+
 const fs = require('fs');
 
 // Default configuration
@@ -20,7 +21,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
 
   // Step 1: Format arrow functions - add spaces
   if (config.formatArrowFunctions) {
-    // Add space after = in arrow function: (a,b)=> => (a,b) =>
+    // Add space after = in arrow function: (a,b)=\(\)\=> => (a,b) =>
     formatted = formatted.replace(/(\w)=\((.*?)\)=>/g, '$1 = ($2) =>');
   }
 
@@ -34,11 +35,10 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   formatted = formatted.replace(/}/g, '\n}\n');
 
   // Step 5: Add newlines after keywords
-  formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
+  formatted = formatted.replace(/\b(function|if|for|while|else)\b/g, '\n$1');
 
   // Clean up multiple newlines
-  formatted = formatted.replace(/
-{3,}/g, '\n\n');
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
 
   // Process indentation
   const lines = formatted.split('\n');
@@ -75,7 +75,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
 }
 
 function parseArgs(args) {
-  const config = { ...DEFAULT_CONFIG };
+  const config = { ...DEFAULT_CONFIG }; // Add support for custom indentation
   const files = [];
 
   for (let i = 0; i < args.length; i++) {
@@ -100,11 +100,67 @@ function parseArgs(args) {
     }
   }
 
-  return { config, files };
+  return { config, files }; // Add support for custom indentation
 }
 
 function printHelp() {
   console.log('JavaScript Code Formatter v2.1');
   console.log('Built by 狗蛋儿 (goudan) - AI Developer');
-  console.log('\nUsage: node code-formatter-v2.cjs [options] <file>');
-  console.log('\nOptions:\n  -i, --indent <spaces>   Set indent size (default: 2)\n  -o, --output <file>     Output to file instead of stdout\n  -I, --inplace           Modify file in place\n  --no-arrow             Skip arrow function formatting\n  --no-objects           Skip object formatting\n  --no-arrays            Skip array formatting\n  -h, --help             Show this help\n\nExamples:\n  node code-formatter-v2.cjs input.js\n  node code-formatter-v2.cjs -i 4 -o output.js input.js\n  node code-formatter-v2.cjs -I input.js  (modify in place)\n'}
+  console.log('\nUsage: node code-formatter-v3.cjs [options] <file>');
+  console.log('\nOptions:\n  -i, --indent <spaces>   Set indent size (default: 2)');
+  console.log('  -o, --output <file>     Output to file instead of stdout');
+  console.log('  -I, --inplace           Modify file in place');
+  console.log('  --no-arrow             Skip arrow function formatting');
+  console.log('  --no-objects           Skip object formatting');
+  console.log('  --no-arrays            Skip array formatting');
+  console.log('  -h, --help             Show this help');
+  console.log('\nExamples:\n  node code-formatter-v3.cjs input.js');
+  console.log('  node code-formatter-v3.cjs -i 4 -o output.js input.js');
+  console.log('  node code-formatter-v3.cjs -I input.js  (modify in place)');
+}
+
+function main() {
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    printHelp();
+    process.exit(1);
+  }
+
+  const { config, files } = parseArgs(args);
+
+  if (files.length === 0) {
+    console.error('Error: No input file specified');
+    console.error('Use --help for usage information');
+    process.exit(1);
+  }
+
+  const filename = files[0];
+
+  if (!fs.existsSync(filename)) {
+    console.error(`Error: File "${filename}" not found`);
+    process.exit(1);
+  }
+
+  try {
+    const code = fs.readFileSync(filename, 'utf8');
+    const formatted = formatCode(code, config);
+
+    if (config.inplace) {
+      fs.writeFileSync(filename, formatted, 'utf8');
+      console.error(`\x1b[32m\x1b[1m\x1b[22m\x1b[39m✓ Formatted ${filename}\x1b[0m`);
+    } else if (config.outputFile) {
+      fs.writeFileSync(config.outputFile, formatted, 'utf8');
+      console.error(`\x1b[32m\x1b[1m\x1b[22m\x1b[39m✓ Saved to ${config.outputFile}\x1b[0m`);
+    } else {
+      console.log(formatted);
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
+}
+
+if (require.main === module) {
+  main();
+}

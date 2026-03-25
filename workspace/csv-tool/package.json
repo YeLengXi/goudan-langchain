@@ -1,14 +1,15 @@
 {
   "name": "csv-tool",
   "version": "1.0.0",
-  "description": "A CSV processing tool for reading, parsing, converting, and exporting CSV files.",
+  "description": "A command-line tool for processing CSV files",
   "main": "csv-tool.js",
   "scripts": {
     "start": "node csv-tool.js"
   },
+  "bin": {
+    "csv-tool": "csv-tool.js"
+  },
   "dependencies": {
-    "fs": "0.0.1-security",
-    "path": "0.0.1-security",
-    "child_process": "0.0.1-security"
+    "commander": "^7.0.0"
   }
 }

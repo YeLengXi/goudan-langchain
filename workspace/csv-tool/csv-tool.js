@@ -1,105 +1,101 @@
 const fs = require('fs');
 const path = require('path');
-const util = require('./utils');
 
-const parseCSV = (csvData) => {
-  const rows = csvData.split('
+// CSV解析器
+function parseCSV(data) {
+  const rows = data.split('
 ');
   const headers = rows[0].split(',').map(header => header.trim());
-  const data = rows.slice(1).map(row => {
-    return rows[0].split(',').reduce((acc, header, index) => {
-      acc[header.trim()] = row.split(',')[index].trim();
+  const parsedRows = rows.slice(1).map(row => {
+    const values = row.split(',').map(value => value.trim());
+    return headers.reduce((acc, header, index) => {
+      acc[header] = values[index];
       return acc;
     }, {});
   });
-  return { headers, data };
-};
+  return parsedRows;
+}
 
-const generateCSV = (data, headers) => {
-  const csv = headers.join(',') + '
-';
-  data.forEach(row => {
-    const values = headers.map(header => row[header]).join(',');
-    csv += values + '
-';
+// CSV生成器
+function generateCSV(data) {
+  const headers = Object.keys(data[0]).join(', ');
+  const rows = data.map(row => Object.values(row).join(', ')).join('
+');
+  return `${headers}
+${rows}`;
+}
+
+// CSV转JSON
+function csvToJson(csv) {
+  return parseCSV(csv).map(row => {
+    return row;
   });
-  return csv;
-};
+}
 
-const convertCSVToJson = (csvFilePath) => {
-  const csvData = util.readFileSync(csvFilePath, 'utf8');
-  const { headers, data } = parseCSV(csvData);
-  return { headers, data };
-};
+// CSV转Markdown表格
+function csvToMarkdown(csv) {
+  const data = parseCSV(csv);
+  const headers = data[0].map(header => `| ${header} |`).join('
+');
+  const rows = data.slice(1).map(row => row.map(value => `| ${value} |`).join('
+')).join('
+');
+  return `|---|
+${headers}
+${rows}`;
+}
 
-const convertJsonToCSV = (jsonData, headers) => {
-  const csv = generateCSV(jsonData, headers);
-  return csv;
-};
+// CSV转HTML表格
+function csvToHTML(csv) {
+  const data = parseCSV(csv);
+  const headers = data[0].map(header => `<th>${header}</th>`).join('
+');n  const rows = data.slice(1).map(row => row.map(value => `<td>${value}</td>`).join('
+')).join('
+');n  return `<table>
+  <tr>
+    ${headers}
+  </tr>
+  <tr>${rows}</tr>
+</table>`;
+}
 
-const filterCSV = (csvFilePath, column, value) => {
-  const csvData = util.readFileSync(csvFilePath, 'utf8');
-  const { headers, data } = parseCSV(csvData);
-  const filteredData = data.filter(row => row[column] === value);
-  return convertJsonToCSV(filteredData, headers);
-};
+// CSV过滤
+function filterCSV(csv, column, value) {
+  const data = parseCSV(csv);
+  return data.filter(row => row[column] === value);
+}
 
-const sortCSV = (csvFilePath, column) => {
-  const csvData = util.readFileSync(csvFilePath, 'utf8');
-  const { headers, data } = parseCSV(csvData);
-  const sortedData = data.sort((a, b) => {
-    if (a[column] < b[column]) {
-      return -1;
-    }
-    if (a[column] > b[column]) {
-      return 1;
-    }
+// CSV排序
+function sortCSV(csv, column) {
+  const data = parseCSV(csv);
+  return data.sort((a, b) => {
+    if (a[column] < b[column]) return -1;
+    if (a[column] > b[column]) return 1;
     return 0;
   });
-  return convertJsonToCSV(sortedData, headers);
-};
+}
 
-const convertCSVToMarkdown = (csvFilePath) => {
-  const csvData = util.readFileSync(csvFilePath, 'utf8');
-  const { headers, data } = parseCSV(csvData);
-  const markdown = ' | '.repeat(headers.length) + '
-' + headers.join(' | ') + '
-' + '-|-'.repeat(headers.length) + '
-';
-  data.forEach(row => {
-    const values = headers.map(header => row[header]).join(' | ');
-    markdown += values + '
-';
-  });
-  return markdown;
-};
-
-const convertCSVToHTML = (csvFilePath) => {
-  const csvData = util.readFileSync(csvFilePath, 'utf8');
-  const { headers, data } = parseCSV(csvData);
-  const html = '<table>
-  <tr>
-    <th>' + headers.join('</th><th>') + '</th>
-  </tr>
-';
-  data.forEach(row => {
-    html += '  <tr>
-    <td>' + row.join('</td><td>') + '</td>
-  </tr>
-';
-  });
-  html += '  </table>
-';
-  return html;
-};
-
-module.exports = {
-  parseCSV,
-  generateCSV,
-  convertCSVToJson,
-  convertJsonToCSV,
-  filterCSV,
-  sortCSV,
-  convertCSVToMarkdown,
-  convertCSVToHTML
-};
+// CLI接口
+const cli = require('commander');
+cli.version('1.0.0');
+cli.command('convert <input> --format <format>').action((input, format) => {
+  const csv = fs.readFileSync(input, 'utf8');
+  const convertedData = format === 'json' ? csvToJson(csv) : csvToMarkdown(csv);
+  fs.writeFileSync(`output.${format}`, convertedData, 'utf8');
+});
+cli.command('filter <input> --column <column> --value <value>').action((input, column, value) => {
+  const csv = fs.readFileSync(input, 'utf8');
+  const filteredData = filterCSV(csv, column, value);
+  fs.writeFileSync('output.csv', generateCSV(filteredData), 'utf8');
+});
+cli.command('sort <input> --column <column>').action((input, column) => {
+  const csv = fs.readFileSync(input, 'utf8');
+  const sortedData = sortCSV(csv, column);
+  fs.writeFileSync('output.csv', generateCSV(sortedData), 'utf8');
+});
+cli.command('to-table <input> --format <format>').action((input, format) => {
+  const csv = fs.readFileSync(input, 'utf8');
+  const convertedData = format === 'markdown' ? csvToMarkdown(csv) : csvToHTML(csv);
+  fs.writeFileSync(`output.${format}`, convertedData, 'utf8');
+});
+cli.parse(process.argv);
