@@ -1,1 +1,3 @@
-node_modules/
+node demo.js --style standard
+node demo.js --style dots
+node demo.js --multi

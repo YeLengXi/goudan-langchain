@@ -1,42 +1,43 @@
-const { createProgressBar } = require('./progress.js');
+const ProgressBar = require('./progress.js');
 
-class MultiProgressBar {
-  constructor() {
-    this.bars = [];
-  }
+// 创建单个进度条实例
+function createProgressBar(options) {
+  const { total, width, complete, incomplete } = options;
+  let current = 0;
+  let startTime = Date.now();
 
-  create(name, total) {
-    const bar = new createProgressBar({
-      total: total,
-      complete: '█',
-      incomplete: '░'
-    });
-    this.bars.push({ name, bar });
-    return bar;
-  }
+  return {
+    update: function (value) {
+      current = value;
+      const percentage = (current / total) * 100;
+      const completeLength = Math.round((percentage / 100) * width);
+      const incompleteLength = width - completeLength;
+      const bar = complete.repeat(completeLength) + incomplete.repeat(incompleteLength);
+      const elapsedTime = (Date.now() - startTime) / 1000;
+      const estimatedTime = elapsedTime * (total / current) - elapsedTime;
+      const speed = current / elapsedTime;
 
-  update() {
-    this.bars.forEach(barInfo => {
-      const { name, bar } = barInfo;
-      bar.update();
-      console.log(`[${name}] ${bar.render()}`);
-    });
+      console.log(`Processing files... [${bar}] ${percentage.toFixed(2)}% | ETA: ${estimatedTime.toFixed(2)}s | ${current}/${total} files | ${speed.toFixed(2)} files/s`);
+    }
   }
 }
 
-const createProgressBar = options => {
-  const { total, width, complete, incomplete } = options;
-  let bar = '';
-  let percent = 0;
+// 创建多进度条实例
+function createMultiProgressBar() {
+  const bars = [];
 
   return {
-    update: (value) => {
-      percent = value / total * 100;
-      bar = complete.repeat(Math.floor(percent / 100 * width)) + incomplete.repeat(width - Math.floor(percent / 100 * width));
-      console.log(`[${bar}] ${percent.toFixed(2)}% | ETA: ${Math.floor((total - value) / value * 100) / 100 * 60} minutes | ${value} / ${total} | ${value / 1000} files/s`);
+    create: function (label, total) {
+      const bar = createProgressBar({ total, width: 40, complete: '█', incomplete: '░' });
+      bars.push({ bar, label, total });
+      return bar;
     },
-    render: () => {
-      return `[${bar}] ${percent.toFixed(2)}% | ETA: ${Math.floor((total - 100) / 100 * 60) / 100 * 60} minutes | 100 / 100 | 1 files/s`
+    update: function () {
+      bars.forEach(bar => {
+        bar.bar.update(bar.current);
+      });
     }
   }
-};
+}
+
+module.exports = { ProgressBar: createProgressBar, MultiProgressBar: createMultiProgressBar };

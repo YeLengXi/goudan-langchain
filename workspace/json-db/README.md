@@ -1,74 +1,49 @@
-## README.md
+## JSON数据库工具
 
-欢迎使用JSON数据库工具！
+这个文档提供了如何使用JSON数据库工具的说明。
 
-以下是该工具的基本使用说明：
+### 安装
+
+确保你已经安装了Node.js。
 
 ### 初始化数据库
 
-```bash
-node database.js init
-```
+1. 创建一个新的文件夹作为数据库的工作空间。
+2. 在工作空间中创建一个名为data.json的文件。
+3. 使用以下命令初始化数据库：
 
-### 创建表
+    node database.js init
 
-```bash
-node database.js create [table_name]
-```
+### 使用数据库
 
-### 插入记录
+- 创建表：
+    node database.js create <table_name>
+- 插入记录：
+    node database.js insert <table_name> --data '<data>'
+- 查询记录：
+    node database.js find <table_name> --query '<query>'
+- 更新记录：
+    node database.js update <table_name> --id <id> --data '<data>'
+- 删除记录：
+    node database.js delete <table_name> --id <id>'
 
-```bash
-node database.js insert [table_name] --data '[{\"key\":\"value\"}]'
-```
+### 示例
 
-### 查询记录
+- 创建一个名为users的表：
+    node database.js create users
+- 插入一条记录：
+    node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
+- 查询年龄为30的用户：
+    node database.js find users --query '{\"age\":30}'
+- 更新id为1的用户的年龄：
+    node database.js update users --id 1 --data '{\"age\":31}'
+- 删除id为1的用户的记录：
+    node database.js delete users --id 1
 
-```bash
-node database.js find [table_name] --query '[{\"key\":\"value\"}]'
-```
+### 命令行接口
 
-### 更新记录
-
-```bash
-node database.js update [table_name] --id [id] --data '[{\"key\":\"value\"}]'
-```
-
-### 删除记录
-
-```bash
-node database.js delete [table_name] --id [id]
-```
-
-### 保存数据库
-
-```bash
-node database.js save
-```
-
-### 使用示例
-
-```javascript
-const DB = require('./database');
-
-// 初始化
-const db = new DB('./data.json');
-
-// 创建表
-db.createTable('users');
-
-// 插入
-db.insert('users', { name: 'Alice', age: 30 });
-
-// 查询
-const users = db.find('users', { age: 30 });
-
-// 更新
-db.update('users', 1, { age: 31 });
-
-// 删除
-db.delete('users', 1);
-
-// 保存
-db.save();
-```
+- 创建表：create <table_name>
+- 插入记录：insert <table_name> --data '<data>'
+- 查询记录：find <table_name> --query '<query>'
+- 更新记录：update <table_name> --id <id> --data '<data>'
+- 删除记录：delete <table_name> --id <id>'

@@ -1,40 +1,42 @@
-# Cron Scheduler
+# cron-scheduler
 
-This is a simple cron scheduler that can execute tasks according to cron expressions.
+const cron = require('cron');
+const fs = require('fs');
+const path = require('path');
 
-### Features
+const scheduler = {
+  tasks: [],
+  cronJobs: {},
 
-- Parse cron expressions
-- Schedule and execute tasks
-- Support multiple tasks
-- Task execution history
-- Error handling and retry
+  loadTasks: (configPath) => {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    config.tasks.forEach(task => {
+      this.addTask(task.name, task.cron, task.command);
+    });
+  },
 
-### Configuration File
+  addTask: (name, cron, command) => {
+    const job = cron.job(cron, () => {
+      console.log(`Executing task: ${name} at ${new Date().toISOString()}`);
+      exec(command);
+    });
+    job.start();
+    this.tasks.push({ name, cron, command });
+    this.cronJobs[name] = job;
+  },
 
-The configuration file should be in JSON format and located at `tasks.json`. It should contain an array of tasks.
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
+  removeTask: (name) => {
+    const index = this.tasks.findIndex(task => task.name === name);
+    if (index !== -1) {
+      this.cronJobs[name].stop();
+      delete this.cronJobs[name];
+      this.tasks.splice(index, 1);
     }
-  ]
-}
-```
+  },
 
-### Usage
+  listTasks: () => {
+    return this.tasks;
+  }
+};
 
-To use the scheduler, run the following command:
-
-```bash
-node scheduler.js --config tasks.json
-```
+module.exports = scheduler;

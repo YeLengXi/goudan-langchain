@@ -1,79 +1,71 @@
 const fs = require('fs');
-const { program } = require('commander');
 
-const formatJson = (json, indent) => {
+const format = (json, indent) => {
   return JSON.stringify(json, null, indent);
 };
 
-const sortJson = (json, key) => {
+const sort = (json, key) => {
+  return JSON.stringify(json.sort((a, b) => a[key].localeCompare(b[key])));
+};
+
+const filter = (json, condition) => {
+  return JSON.stringify(json.filter(item => eval(condition)));
+};
+
+const merge = (json1, json2) => {
+  return JSON.stringify(JSON.parse(JSON.stringify(json1)).concat(JSON.parse(JSON.stringify(json2))));
+};
+
+const readJsonFile = (filePath) => {
   try {
-    const data = JSON.parse(json);
-    data.sort((a, b) => a[key].localeCompare(b[key]));
-    return JSON.stringify(data, null, 2);
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
   } catch (error) {
     throw new Error('Invalid JSON');
   }
 };
 
-const filterJson = (json, condition) => {
+const writeJsonFile = (filePath, data) => {
+  fs.writeFileSync(filePath, data, 'utf8');
+};
+
+const main = () => {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const filePath = args[1];
+  let json;
+
   try {
-    const data = JSON.parse(json);
-    return JSON.stringify(data.filter(item => eval(condition)), null, 2);
+    json = readJsonFile(filePath);
   } catch (error) {
-    throw new Error('Invalid JSON');
+    console.error(error.message);
+    return;
+  }
+
+  switch (command) {
+    case 'format':
+      const indent = args[2] || 2;
+      console.log(format(json, indent));
+      break;
+    case 'sort':
+      const key = args[2];
+      console.log(sort(json, key));
+      break;
+    case 'filter':
+      const condition = args[2];
+      console.log(filter(json, condition));
+      break;
+    case 'merge':
+      const [filePath1, filePath2] = args.slice(2);
+      const json1 = readJsonFile(filePath1);
+      const json2 = readJsonFile(filePath2);
+      console.log(merge(json1, json2));
+      break;
+    default:
+      console.log('Unknown command');
   }
 };
 
-const mergeJson = (json1, json2) => {
-  try {
-    const result = {
-      ...JSON.parse(json1),
-      ...JSON.parse(json2)
-    };
-    return JSON.stringify(result, null, 2);
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-};
-
-program
-  .command('format <file>')
-  .description('Format JSON file')
-  .action(file => {
-    const content = fs.readFileSync(file, 'utf8');
-    const json = JSON.parse(content);
-    console.log(formatJson(json, 2));
-  });
-
-program
-  .command('sort <file>')
-  .option('--key <key>', 'Sort by key')
-  .description('Sort JSON file')
-  .action(file => {
-    const content = fs.readFileSync(file, 'utf8');
-    const json = JSON.parse(content);
-    console.log(sortJson(json, program.key));
-  });
-
-program
-  .command('filter <file>')
-  .option('--condition <condition>', 'Filter condition')
-  .description('Filter JSON file')
-  .action(file => {
-    const content = fs.readFileSync(file, 'utf8');
-    const json = JSON.parse(content);
-    console.log(filterJson(json, program.condition));
-  });
-
-program
-  .command('merge <file1> <file2>')
-  .description('Merge two JSON files')
-  .action((file1, file2) => {
-    const content1 = fs.readFileSync(file1, 'utf8');
-    const content2 = fs.readFileSync(file2, 'utf8');
-    const json1 = JSON.parse(content1);
-    const json2 = JSON.parse(content2);
-    console.log(mergeJson(json1, json2));
-  });
-
-program.parse(process.argv);
+if (require.main === module) {
+  main();
+}

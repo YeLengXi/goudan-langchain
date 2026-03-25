@@ -1,23 +1,27 @@
-# README.md
+# README.md 模板
 
-这是一个 README 模板。
+This is a template for README.md.
 
-## 项目描述
+## Project
 
-这里可以添加项目的描述。
+[Project Name]
 
-## 安装
+## Description
 
-```bash
-data install
-```
+[Description]
 
-## 使用
+## Installation
 
-```bash
-data run
-```
+[Installation Instructions]
 
-## 贡献
+## Usage
 
-欢迎贡献代码！
+[Usage Instructions]
+
+## Contributing
+
+[Contributing Guidelines]
+
+## License
+
+[License Information]

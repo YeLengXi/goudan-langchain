@@ -1,87 +1,42 @@
 const crypto = require('crypto');
 
-// 加密函数
-function encrypt(text, method, key) {
-  switch (method) {
-    case 'caesar':
-      return caesarCipher(text, key);
-    case 'base64':
-      return base64Encode(text);
-    case 'rot13':
-      return rot13(text);
-    case 'xor':
-      return xorEncrypt(text, key);
-    case 'aes':
-      return aesEncrypt(text, key);
-    default:
-      throw new Error('未知加密方法');
-  }
-}
-
-// 解密函数
-function decrypt(encryptedText, method, key) {
-  switch (method) {
-    case 'caesar':
-      return caesarCipher(encryptedText, key, true);
-    case 'base64':
-      return base64Decode(encryptedText);
-    case 'rot13':
-      return rot13(encryptedText, true);
-    case 'xor':
-      return xorEncrypt(encryptedText, key, true);
-    case 'aes':
-      return aesDecrypt(encryptedText, key);
-    default:
-      throw new Error('未知加密方法');
-  }
-}
-
-// 凯撒密码加密
-function caesarCipher(text, key, decrypt = false) {
-  let result = '';
-  for (let i = 0; i < text.length; i++) {
-    let char = text[i];
+// Caesar Cipher
+function caesarCipher(text, key) {
+  return text.split('').map(char => {
     if (char.match(/[a-z]/i)) {
-      let offset = decrypt ? -key : key;
-      char = String.fromCharCode((char.charCodeAt(0) + offset - 65) % 26 + 65);
+      let charCode = char.charCodeAt(0);
+      charCode = charCode >= 65 && charCode <= 90 ? charCode - 65 + key : charCode - 97 + key;
+      charCode = charCode > 90 ? charCode - 26 : charCode < 65 ? charCode + 26 : charCode;
+      return String.fromCharCode(charCode);
     }
-    result += char;
-  }
-  return result;
+    return char;
+  }).join('');
 }
 
-// Base64编码
+// Base64 Encoding
 function base64Encode(text) {
   return Buffer.from(text).toString('base64');
 }
 
-// Base64解码
-function base64Decode(text) {
-  return Buffer.from(text, 'base64').toString();
+// ROT13
+function rot13(text) {
+  return text.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      let charCode = char.charCodeAt(0);
+      charCode = charCode >= 65 && charCode <= 90 ? charCode - 65 + 13 : charCode - 97 + 13;
+      charCode = charCode > 90 ? charCode - 26 : charCode < 65 ? charCode + 26 : charCode;
+      return String.fromCharCode(charCode);
+    }
+    return char;
+  }).join('');
 }
 
-// ROT13加密
-function rot13(text, decrypt = false) {
-  return text.replace(/[a-zA-Z]/g, function(c) {
-    let code = c.charCodeAt(0);
-    let offset = decrypt ? 13 : -13;
-    return String.fromCharCode(((code - 65 + offset) % 26) + 65) || ((code - 97 + offset) % 26) + 97);
-  });
+// Simple XOR Encryption
+function xorEncrypt(text, key) {
+  return text.split('').map((char, index) => char.charCodeAt(0) ^ key.charCodeAt(index % key.length)).map(charCode => String.fromCharCode(charCode)).join('');
 }
 
-// XOR加密
-function xorEncrypt(text, key, decrypt = false) {
-  let result = '';
-  for (let i = 0; i < text.length; i++) {
-    let char = text[i];
-    let keyChar = key[i % key.length];
-    let xorResult = char ^ keyChar.charCodeAt(0);
-    result += String.fromCharCode(xorResult);
-  }
-  return result;
-}
-
-// AES加密
+// AES Encryption
 function aesEncrypt(text, key) {
   const cipher = crypto.createCipher('aes-256-cbc', key);
   let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -89,12 +44,10 @@ function aesEncrypt(text, key) {
   return encrypted;
 }
 
-// AES解密
-function aesDecrypt(encryptedText, key) {
-  const decipher = crypto.createDecipher('aes-256-cbc', key);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
-
-module.exports = { encrypt, decrypt };
+module.exports = {
+  caesarCipher,
+  base64Encode,
+  rot13,
+  xorEncrypt,
+  aesEncrypt
+};

@@ -1,47 +1,69 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
+const { parse } = require('minimist');
 
-const argv = yargs(hideBin(process.argv)).argv;
+const DEFAULT_REQUEST_FILE = 'requests.json';
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-const headers = {
-  'Content-Type': 'application/json
-};
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
+    }
 
-async function makeRequest(method, url, data = null) {
-  const options = {
-    method,
-    headers
-  }
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
+      }
+    }
 
-  if (data) {
-    options.headers['Content-Type'] = 'application/json';
-    options.body = JSON.stringify(data);
-  }
+    https.get(url, response => {
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: JSON.parse(data)
+        });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
+  });
+}
 
-  try {
-    const start = Date.now();
-    const response = await fetch(url, options);
-    const endTime = Date.now();
-    const time = endTime - start;
+function parseRequestFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content);
+}
 
-    const responseBody = await response.text();
-    const parsedResponse = JSON.parse(responseBody);
+function main() {
+  const args = parse(process.argv.slice(2));
+  let { method, url, body } = args;
+  let headers = args.headers ? JSON.parse(args.headers) : {};
 
-    console.log(`Status Code: ${response.status}
-Response Time: ${time}ms
-Headers: ${JSON.stringify(response.headers.raw())}
-Response Body: ${JSON.stringify(parsedResponse)}`);
-
-    return parsedResponse;
-  } catch (error) {
-    console.error('Error:', error);
+  if (args._[0] === '--request-file') {
+    const requestFile = args._[1] || DEFAULT_REQUEST_FILE;
+    const requests = parseRequestFile(requestFile);
+    requests.forEach(request => {
+      fetchApi(request.url, request.method, request.headers, request.body).then(response => {
+        console.log(response);
+      }).catch(error => {
+        console.error(error);
+      });
+    });
+  } else {
+    fetchApi(url, method, headers, body).then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.error(error);
+    });
   }
 }
 
-module.exports = {
-  makeRequest
-};
+main();

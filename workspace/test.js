@@ -1,22 +1,11 @@
-const db = require('./database');
+const { describe, it, expect } = require('./test-framework/test.js');
 
-// 初始化数据库
-db.init();
+describe('Example tests', () => {
+  it('should return true for truthy value', () => {
+    expect(true).toBeTruthy();
+  });
 
-// 创建表
-db.createTable('users');
-
-// 插入
-db.insert('users', { name: 'Alice', age: 30 });
-
-// 查询
-const users = db.find('users', { age: 30 });
-
-// 更新
-db.update('users', 1, { age: 31 });
-
-// 删除
-db.delete('users', 1);
-
-// 保存
-db.save();
+  it('should return false for falsy value', () => {
+    expect(false).toBeFalsy();
+  });
+});

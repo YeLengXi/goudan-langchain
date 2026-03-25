@@ -1,22 +1,19 @@
-const axios = require('axios');
+const { exec_command } = require('./utils');
 
-const apiUrl = 'https://api.github.com';
+const createRepository = async (name, isPublic, description) => {
+  // TODO: 实现创建仓库的逻辑
+};
 
-const createRepo = async (username, repoName, isPublic, description) => {
-  const token = 'YOUR_GITHUB_TOKEN';
-  const { data } = await axios.post(`${apiUrl}/user/repos`, {
-    name: repoName,
-    description,
-    private: !isPublic
-  }, {
-    headers: {
-      Authorization: `token ${token}`
-    }
-  });
+const initializeRepository = async (template) => {
+  // TODO: 实现初始化仓库的逻辑
+};
 
-  return data;
+const pushToGitHub = async () => {
+  // TODO: 实现推送代码到 GitHub 的逻辑
 };
 
 module.exports = {
-  createRepo
+  createRepository,
+  initializeRepository,
+  pushToGitHub
 };

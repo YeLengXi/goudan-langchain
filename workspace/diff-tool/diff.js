@@ -1,48 +1,103 @@
+// diff-tool
+// A simple file and directory comparison tool similar to git diff.
+
 const fs = require('fs');
-const path = require('path');
+const { exec } = require('child_process');
 
-const diffFiles = (file1, file2, format = 'unified', color = false) => {
-  const content1 = fs.readFileSync(file1, 'utf8');
-  const content2 = fs.readFileSync(file2, 'utf8');
-
-  const lines1 = content1.split('
-');
-  const lines2 = content2.split('
-');
-
-  let diff = '';
-  let additions = 0;
-  let deletions = 0;
-
-  lines1.forEach((line, index) => {
-    if (lines2[index] !== undefined && lines2[index] !== line) {
-      diff += '- ' + line + '\n';
-      diff += '+ ' + lines2[index] + '\n';
-      additions++;
-      deletions++;
-    } else if (lines2[index] === undefined) {
-      diff += '- ' + line + '\n';
-      deletions++;
-    } else if (lines1[index] === undefined) {
-      diff += '+ ' + lines2[index] + '\n';
-      additions++;
+const diffFiles = (file1, file2, format, color) => {
+  fs.readFile(file1, 'utf8', (err, data1) => {
+    if (err) {
+      console.error(err);
+      return;
     }
+
+    fs.readFile(file2, 'utf8', (err, data2) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      const diff = generateDiff(data1, data2);
+      const formattedDiff = formatDiff(diff, format);
+      const coloredDiff = colorDiff(formattedDiff, color);
+      console.log(coloredDiff);
+    });
   });
+};
 
+const generateDiff = (data1, data2) => {
+  // Implement diff generation logic here
+  let diff = [];
+  let i = 0;
+  let j = 0;
+  while (i < data1.length && j < data2.length) {
+    if (data1[i] === data2[j]) {
+      diff.push(data1[i]);
+      i++;
+      j++;
+    } else if (data1[i] < data2[j]) {
+      diff.push('-');
+      diff.push(data1[i]);
+      i++;
+    } else {
+      diff.push('+');
+      diff.push(data2[j]);
+      j++;
+    }
+  }
+  while (i < data1.length) {
+    diff.push('-');
+    diff.push(data1[i]);
+    i++;
+  }
+  while (j < data2.length) {
+    diff.push('+');
+    diff.push(data2[j]);
+    j++;
+  }
+  return diff.join('');
+};
+
+const formatDiff = (diff, format) => {
+  // Implement diff formatting logic here
   if (format === 'unified') {
-    diff = '--- ' + path.basename(file1) + '
-+++ ' + path.basename(file2) + '
-' + diff;
+    return diff;
+  } else if (format === 'context') {
+    // Implement context diff formatting
+  } else if (format === 'side-by-side') {
+    // Implement side-by-side diff formatting
   }
+};
 
+const colorDiff = (diff, color) => {
+  // Implement color logic here
   if (color) {
-    const red = (text) => '\x1b[31m' + text + '\x1b[0m';
-    const green = (text) => '\x1b[32m' + text + '\x1b[0m';
-
-    diff = diff.replace(/-/g, red).replace(+/g, green);
+    return diff.replace(/-/g, '\033[31m').replace(/\+/g, '\033[32m').replace(/\n/g, '\033[0m');
   }
-
   return diff;
 };
 
-module.exports = { diffFiles };
+const parseCLIArgs = () => {
+  const args = process.argv.slice(2);
+  const [file1, file2, ...options] = args;
+
+  let format = 'unified';
+  let color = false;
+
+  options.forEach(option => {
+    if (option.startsWith('--format=')) {
+      format = option.split('=')[1];
+    } else if (option === '--color') {
+      color = true;
+    }
+  });
+
+  return { file1, file2, format, color }; 
+};
+
+const main = () => {
+  const { file1, file2, format, color } = parseCLIArgs();
+  diffFiles(file1, file2, format, color);
+};
+
+main();

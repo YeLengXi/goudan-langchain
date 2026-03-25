@@ -1,4 +1,3 @@
-# README.md
 # Test Framework
 
 This is a simple JavaScript unit testing framework.
@@ -9,7 +8,7 @@ This is a simple JavaScript unit testing framework.
 - Assertion functions
 - Async test support
 - Error handling
-- Report generation
+- Test report generation
 
 ## Usage
 

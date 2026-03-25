@@ -1,1 +1,17 @@
-{"name": "web-scraper", "version": "1.0.0"}
+{
+  "name": "web-scraper",
+  "version": "1.0.0",
+  "description": "A simple web scraper tool",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js"
+  },
+  "keywords": [
+    "web-scraper",
+    "scraper",
+    "node"
+  ],
+  "dependencies": {
+    "node-fetch": "^1.0.0"
+  }
+}

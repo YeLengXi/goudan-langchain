@@ -733,6 +733,11 @@ http-errors@^2.0.0, http-errors@^2.0.1, http-errors@~2.0.1:
     statuses "~2.0.2"
     toidentifier "~1.0.1"
 
+http@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://registry.npmjs.org/http/-/http-0.0.1-security.tgz"
+  integrity sha512-RnDvP10Ty9FxqOtPZuxtebw1j4L/WiqNMDtuc1YMH1XQm5TgDRaR1G9u8upL6KD1bXHSp9eSXo/ED+8Q7FAr+g==
+
 iconv-lite@^0.6.3:
   version "0.6.3"
   resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz"
@@ -862,6 +867,11 @@ luxon@~3.7.0:
   version "3.7.2"
   resolved "https://registry.npmjs.org/luxon/-/luxon-3.7.2.tgz"
   integrity sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==
+
+marked@^17.0.5:
+  version "17.0.5"
+  resolved "https://registry.npmjs.org/marked/-/marked-17.0.5.tgz"
+  integrity sha512-6hLvc0/JEbRjRgzI6wnT2P1XuM1/RrrDEX0kPt0N7jGm1133g6X7DlxFasUIx+72aKAr904GTxhSLDrd5DIlZg==
 
 math-intrinsics@^1.1.0:
   version "1.1.0"

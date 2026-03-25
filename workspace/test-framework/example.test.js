@@ -1,13 +1,14 @@
-# example.test.js
 const { describe, it, expect } = require('./test.js');
-const { equal } = require('./assert.js');
 
+// Test suite
 describe('Math operations', () => {
+  // Test case
   it('should add numbers', () => {
-    equal(1 + 2, 3);
+    expect(add(1, 2)).toBe(3);
   });
 
+  // Test case
   it('should subtract numbers', () => {
-    equal(5 - 2, 3);
+    expect(subtract(5, 2)).toBe(3);
   });
 });
