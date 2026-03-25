@@ -1,25 +1,15 @@
-# README 模板
+# README.md
 
-欢迎使用 GitHub 自动化工具！
+Welcome to the project!
 
-以下是一个基本的 README 模板，您可以根据需要进行修改。
+## Project Description
 
-## 项目描述
+This is a template for the README file.
 
-[项目描述]
+## Getting Started
 
-## 安装
+To get started, please follow the instructions below.
 
-[安装说明]
+## License
 
-## 使用
-
-[使用说明]
-
-## 贡献
-
-[贡献指南]
-
-## 许可
-
-[许可信息]
+MIT

@@ -1,31 +1,28 @@
-# api-tester
+# API Tester
 
-A command-line API testing tool.
+This tool is a command-line API testing tool that allows developers to quickly test REST APIs.
 
-## Installation
+## Features
 
-To install the tool, run:
-
-```bash
-npm install -g api-tester
-```
+- HTTP method support: GET, POST, PUT, DELETE, PATCH
+- Custom request headers
+- Request body support (JSON, form-data)
 
 ## Usage
 
-To test an API, run:
-
 ```bash
 api-tester GET https://api.example.com/users
-```
-
-To send a POST request with JSON data:
-
-```bash
-api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
-```
-
-To load requests from a file:
-
-```bash
+api-tester POST https://api.example.com/users -d '{"name":"John"}'
 api-tester --request-file requests.json
 ```
+
+## Configuration
+
+The tool saves frequently used API requests and supports environment variables and request set management.
+
+## Response Handling
+
+- Beautiful JSON output
+- Display response time
+- Display status code and headers
+- Save response to file

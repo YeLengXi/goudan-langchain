@@ -1,71 +1,53 @@
-const https = require('https');
+// Main program of the API testing tool.
+// This file handles the CLI interface and HTTP requests.
+
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
+const { parseArgs } = require('minimist');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+// Parse command-line arguments
+const args = parseArgs(process.argv.slice(2));
 
-const packageJson = require('./package.json');
-
-async function main() {
-  const args = process.argv.slice(2);
-  if (args.length === 0) {
-    console.log('Usage: api-tester <method> <url> [options]');
-    process.exit(1);
-  }
-
-  const [method, url] = args[0].split(' ');
-  const options = args.slice(2).reduce((acc, arg) => {
-    const [key, value] = arg.split('=');
-    acc[key] = value;
-    return acc;
-  }, {});
-
+// Helper function to handle HTTP requests
+async function sendRequest(method, url, headers, body) {
   try {
-    const response = await fetchRequest(method, url, options);
-    console.log(response);
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(body) : undefined
+    });
+    return response.json();
   } catch (error) {
-    console.error(error);
+    throw error;
   }
 }
 
-async function fetchRequest(method, url, options) {
-  const { headers, body } = options;
-  const headersObj = headers ? JSON.parse(headers) : {};
-  const bodyObj = body ? JSON.parse(body) : {};
+// Helper function to format response
+function formatResponse(response) {
+  return JSON.stringify(response, null, 2);
+}
 
-  const fetchOptions = {
-    method,
-    headers: headersObj
+// Helper function to save response to file
+function saveResponseToFile(response, filename) {
+  fs.writeFileSync(filename, formatResponse(response));
+}
+
+// CLI interface logic
+async function main() {
+  if (args._[0] === 'GET') {
+    const { url } = args;
+    const response = await sendRequest('GET', url);
+    console.log(formatResponse(response));
+  } else if (args._[0] === 'POST') {
+    const { url, d } = args;
+    const body = JSON.parse(d);
+    const response = await sendRequest('POST', url, {}, body);
+    console.log(formatResponse(response));
+  } // Add other HTTP methods here
+  else {
+    console.log('Unsupported HTTP method');
   }
-
-  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-    fetchOptions.body = JSON.stringify(bodyObj);
-  }
-
-  return new Promise((resolve, reject) => {
-    const startTime = Date.now();
-    https.get(url, response => {
-      const chunks = [];
-      response.on('data', chunk => chunks.push(chunk));
-      response.on('end', () => {
-        const endTime = Date.now();
-        const data = Buffer.concat(chunks).toString();
-        const parsedData = JSON.parse(data);
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: parsedData,
-          responseTime: endTime - startTime
-        });
-      });
-    }).on('error', error => {
-      reject(error);
-    });
-  });
 }
 
 main();
