@@ -1,98 +1,60 @@
 const fs = require('fs');
 const path = require('path');
 
-const configFilePath = process.argv[2];
+const configPath = process.argv[2];
 
-// 读取配置文件
-function readConfig(filePath) {
+const readConfig = () => {
   return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
+    fs.readFile(configPath, 'utf8', (err, data) => {
       if (err) {
-        return reject(err);
-      }
-      try {
-        const config = JSON.parse(data);
-        resolve(config);
-      } catch (error) {
-        reject(error);
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
       }
     });
   });
-}
+};
 
-// 执行命令
-function executeCommand(command, file) {
-  const replacedCommand = command.replace(\{file\}, file);
-  console.log(`Executing: ${replacedCommand}`);
-  require('child_process').exec(replacedCommand, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Error executing command: ${replacedCommand}`, err);
-    } else {
-      console.log(`Output: ${stdout}`);
+const executeCommand = (command, file) => {
+  return new Promise((resolve, reject) => {
+    const { spawn } = require('child_process');
+    const process = spawn('bash', ['-c', command.replace('{file}', file)]);
+    process.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+    process.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+    process.on('close', (code) => {
+      resolve(code);
+    });
+  });
+};
+
+const monitorDirectory = (config) => {
+  fs.watch(config.watchDir, (eventType, filename) => {
+    if (eventType === 'rename' && filename) {
+      const event = eventType;
+      const file = filename;
+      console.log(`Event: ${event}, File: ${file}`);
+
+      const command = config.events[event];
+      if (command) {
+        executeCommand(command, file);
+      } else {
+        console.log(`No command for event: ${event}`);
+      }
     }
   });
-}
+};
 
-// 监控目录
-function watchDirectory(directory) {
-  fs.watch(directory, (eventType, filename) => {
-    console.log(`Event type: ${eventType}, filename: ${filename}`);
-    switch (eventType) {
-      case 'rename':
-        if (filename) {
-          const file = path.basename(filename);
-          readConfig(configFilePath)
-            .then(config => {
-              if (config.events.create) {
-                executeCommand(config.events.create, file);
-              }
-              if (config.events.delete) {
-                executeCommand(config.events.delete, file);
-              }
-            })
-            .catch(error => {
-              console.error('Error reading config:', error);
-            });
-        }
-        break;
-      case 'change':
-        if (filename) {
-          const file = path.basename(filename);
-          readConfig(configFilePath)
-            .then(config => {
-              if (config.events.modify) {
-                executeCommand(config.events.modify, file);
-              }
-            })
-            .catch(error => {
-              console.error('Error reading config:', error);
-            });
-        }
-        break;
-      default:
-        console.log('Unknown event type');
-    }
-  });
-}
-
-// 主函数
-function main() {
-  if (!configFilePath) {
-    console.error('No config file path provided');
-    return;
+const main = async () => {
+  try {
+    const config = await readConfig();
+    monitorDirectory(config);
+  } catch (err) {
+    console.error('Error:', err);
   }
-  readConfig(configFilePath)
-    .then(config => {
-      if (!config.watchDir) {
-        console.error('No watch directory specified in config');
-        return;
-      }
-      watchDirectory(config.watchDir);
-    })
-    .catch(error => {
-      console.error('Error reading config:', error);
-    });
-}
+};
 
-// 运行主函数
 main();
