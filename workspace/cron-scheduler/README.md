@@ -1,57 +1,37 @@
-## Cron Scheduler
+## 定时任务调度器
 
-This document provides instructions on how to use the Cron Scheduler.
+这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
 
-### Installation
+## 安装
 
-1. Clone the repository:
-   git clone https://github.com/your-username/cron-scheduler.git
+确保已安装Node.js。
 
-2. Navigate to the project directory:
-   cd cron-scheduler
+## 使用
 
-3. Install dependencies:
-   npm install
+1. 创建一个配置文件（例如：tasks.json）。
+2. 运行命令：`node scheduler.js --config tasks.json`
 
-### Usage
-
-To run the scheduler, use the following command:
-
-   node scheduler.js --config tasks.json
-
-The --config flag is used to specify the configuration file containing the tasks to be scheduled.
-
-### Configuration File
-
-The configuration file is a JSON file that defines the tasks to be scheduled. The format is as follows:
+## 配置文件示例
 
 ```json
 {
   "tasks": [
     {
-      "name": "task-name",
-      "cron": "cron-expression",
-      "command": "command-to-execute"
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
     },
     {
-      "name": "another-task",
-      "cron": "another-cron-expression",
-      "command": "another-command-to-execute"
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
   ]
 }
 ```
 
-Each task has a name, a cron expression, and a command to execute.
+## CLI接口
 
-### Examples
-
-Here are some examples of cron expressions:
-
-- `0 9 * * *`: Runs at 9 AM every day
-- `*/5 * * * *`: Runs every 5 minutes
-- `0 0 * * 1`: Runs at midnight every Monday
-
-### Contributing
-
-Contributions are welcome. Please see the CONTRIBUTING.md file for details.
+```bash
+node scheduler.js --config tasks.json
+```

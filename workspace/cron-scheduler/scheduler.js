@@ -1,28 +1,24 @@
-# Cron Scheduler
+# scheduler.js
 
-This is the main program for the Cron Scheduler. It uses Node.js to schedule tasks based on cron expressions.
+这是一个简单的定时任务调度器，它使用Node.js编写。
 
-## Features
+## 功能
 
-- Parse cron expressions
-- Schedule tasks
-- Add/remove tasks
-- Task execution logs
-- Configuration file support
+- 解析cron表达式
+- 定时执行任务
+- 支持多个任务
+- 任务执行历史
+- 错误处理和重试
 
-## Usage
-
-To run the scheduler, use the following command:
+## 使用
 
 ```bash
 node scheduler.js --config tasks.json
 ```
 
-The --config flag is used to specify the configuration file containing the tasks to be scheduled.
+## 配置文件
 
-## Configuration File
-
-The configuration file is a JSON file that defines the tasks to be scheduled. The format is as follows:
+配置文件是一个JSON文件，包含任务的定义。以下是一个示例配置文件：
 
 ```json
 {
@@ -40,15 +36,3 @@ The configuration file is a JSON file that defines the tasks to be scheduled. Th
   ]
 }
 ```
-
-Each task has a name, a cron expression, and a command to execute.
-
-## Testing
-
-To test the scheduler, run the following command:
-
-```bash
-test/scheduler.test.js
-```
-
-This will run the test cases for the scheduler.
