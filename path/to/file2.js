@@ -1,18 +1,24 @@
-const calculate = require('./file1');
+class MathUtils {
+	static factorial(n) {
+		if (n === 0) {
+			return 1;
+		}
+		return n * MathUtils.factorial(n - 1);
+	}
 
-// 用户界面函数
-function displayResult() {
-    const num1 = parseFloat(document.getElementById('num1').value);
-    const num2 = parseFloat(document.getElementById('num2').value);
-    const operation = document.getElementById('operation').value;
-
-    try {
-        const result = calculate(operation, num1, num2);
-        document.getElementById('result').innerText = `Result: ${result}`;
-    } catch (error) {
-        document.getElementById('result').innerText = `Error: ${error.message}`;
-    }
+	static isPrime(n) {
+		if (n <= 1) {
+			return false;
+		}
+		for (let i = 2; i <= Math.sqrt(n); i++) {
+			if (n % i === 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
-// 为计算按钮添加事件监听器
-document.getElementById('calculateBtn').addEventListener('click', displayResult);
+// Test cases
+console.log(MathUtils.factorial(5)); // 120
+console.log(MathUtils.isPrime(7)); // true
