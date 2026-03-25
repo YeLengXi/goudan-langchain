@@ -520,9 +520,9 @@ ${task.content}
         await log(`💰 估算收入: ¥${totalEarnings.toFixed(2)} (约 $${(totalEarnings / 7).toFixed(2)})`);
         await log('='.repeat(60));
 
-        // 自动提交完成的工具到 git
+        // 自动提交并推送完成的工具到 git
         try {
-          await this.autoCommit();
+          await this.autoCommitAndPush();
         } catch (error) {
           await log(`自动提交失败: ${error.message}`, 'warn');
         }
@@ -543,16 +543,14 @@ ${task.content}
     }
   }
 
-  // 自动提交到 git
-  async autoCommit() {
-    const { execAsync } = await import('./index.js');
-
+  // 自动提交并推送到 git
+  async autoCommitAndPush() {
     try {
-      // 检查是否有更改
-      const { stdout } = await execAsync('cd E:/goudan-langchain/workspace && git status --short');
+      // 检查 workspace 是否有更改
+      const { stdout: wsStatus } = await execAsync('cd E:/goudan-langchain/workspace && git status --short');
 
-      if (stdout.trim()) {
-        await log('📝 检测到新文件，自动提交到 git...');
+      if (wsStatus.trim()) {
+        await log('📝 Workspace 检测到新文件，自动提交...');
 
         // 添加所有文件
         await execAsync('cd E:/goudan-langchain/workspace && git add .');
@@ -561,7 +559,37 @@ ${task.content}
         const commitMsg = `feat: goudan 自动完成工具开发\n\nCo-Authored-By: goudan <goudan-ai@example.com>`;
         await execAsync(`cd E:/goudan-langchain/workspace && git commit -m "${commitMsg}"`);
 
-        await log('✅ 自动提交成功！');
+        await log('✅ Workspace 自动提交成功！');
+
+        // 尝试推送到 GitHub
+        try {
+          await execAsync('cd E:/goudan-langchain/workspace && git push origin main 2>&1');
+          await log('🚀 已推送到 GitHub！');
+        } catch (pushError) {
+          await log(`⚠️ GitHub 推送失败（可能还未创建远程仓库）: ${pushError.message}`, 'warn');
+        }
+      }
+
+      // 检查主项目是否有更改
+      const { stdout: mainStatus } = await execAsync('cd E:/goudan-langchain && git status --short');
+
+      if (mainStatus.trim()) {
+        await log('📝 主项目检测到更改，自动提交...');
+
+        await execAsync('cd E:/goudan-langchain && git add .');
+
+        const commitMsg = `chore: goudan 自动更新\n\nCo-Authored-By: goudan <goudan-ai@example.com>`;
+        await execAsync(`cd E:/goudan-langchain && git commit -m "${commitMsg}"`);
+
+        await log('✅ 主项目自动提交成功！');
+
+        // 尝试推送
+        try {
+          await execAsync('cd E:/goudan-langchain && git push origin main 2>&1');
+          await log('🚀 已推送到 GitHub！');
+        } catch (pushError) {
+          await log(`⚠️ GitHub 推送失败: ${pushError.message}`, 'warn');
+        }
       }
     } catch (error) {
       throw new Error(`Git 操作失败: ${error.message}`);
