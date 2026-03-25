@@ -4,21 +4,22 @@ This is a simple JavaScript unit testing framework.
 
 ## Installation
 
-Install the test framework by running:
+To use this framework, you need to install it in your project.
 
 ```bash
-npm install --save-dev workspace/test-framework
+npm install workspace-test-framework
 ```
 
 ## Usage
 
-To run tests, execute:
+You can use the framework by requiring it in your test files.
 
-```bash
-node test.js <test-file> [options]
+```javascript
+const { describe, it, expect } = require('workspace-test-framework/test.js');
+
+describe('Math operations', () => {
+  it('should add numbers', () => {
+    expect(add(1, 2)).toBe(3);
+  });
+});
 ```
-
-Options:
-
-- --verbose: Show verbose output
-- --watch: Watch for file changes and re-run tests

@@ -1,9 +1,23 @@
-const { describe, it, expect } = require('./test-framework/test.js');
+const assert = require('./assert.js');
 
-const { equal, deepEqual, truthy, falsy, throws, contains } = require('./test-framework/assert.js');
+const add = (a, b) => a + b;
 
-describe('Array operations', () => {
-  it('should include item', () => {
-    expect([1, 2, 3].includes(2)).toBe(true);
+const subtract = (a, b) => a - b;
+
+describe('Math operations', () => {
+  before(() => {
+    console.log('Running before all tests');
+  });
+
+  after(() => {
+    console.log('Running after all tests');
+  });
+
+  it('should add numbers', () => {
+    assert.equal(add(1, 2), 3);
+  });
+
+  it('should subtract numbers', () => {
+    assert.equal(subtract(5, 2), 3);
   });
 });
