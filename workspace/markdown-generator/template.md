@@ -1,5 +1,9 @@
 # API文档
 
+## 函数列表
+
+- [add(a, b)](#add-a-b)
+
 ## add(a, b)
 
 计算两个数的和
@@ -9,3 +13,9 @@
 - `b` (number) - 第二个数
 
 **返回值**: (number) 两数之和
+
+```javascript
+function add(a, b) {
+  return a + b;
+}
+```

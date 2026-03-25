@@ -1,17 +1,14 @@
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const ejs = require('ejs');
 
-const portfolioFilePath = path.join(__dirname, 'portfolio.json');
-const templateFilePath = path.join(__dirname, 'templates/default.html');
-const outputDirectory = path.join(__dirname, 'output');
+const app = express();
+const port = 3000;
 
-if (!fs.existsSync(outputDirectory)) {
-  fs.mkdirSync(outputDirectory);
-}
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'templates/default.html'));
+});
 
-const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf8'));
-const template = fs.readFileSync(templateFilePath, 'utf8');
-const outputHtml = ejs.render(template, portfolioData);
-
-fs.writeFileSync(path.join(outputDirectory, 'index.html'), outputHtml);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
+});

@@ -1,38 +1,60 @@
-## Cron Scheduler
+# cron-scheduler
 
-This document provides instructions on how to use the Cron Scheduler.
+This is a simple cron job scheduler written in Node.js.
 
-### Installation
+## Features
 
-1. Clone the repository:
-    git clone https://github.com/your-username/cron-scheduler
-2. Navigate to the repository directory:
-    cd cron-scheduler
-3. Install dependencies:
-    npm install
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-### Usage
+## Installation
 
-To start the scheduler, use the following command:
-    node scheduler.js --config path/to/config.json
+1. Clone the repository
 
-### Configuration
+```bash
+git clone https://github.com/your-username/cron-scheduler.git
+``` 
 
-The configuration file is in JSON format and contains the following structure:
+2. Install dependencies
+
+```bash
+npm install
+``` 
+
+## Usage
+
+To run the scheduler, use the following command:
+
+```bash
+dotnet cron-scheduler --config path/to/config.json
+``` 
+
+Replace `path/to/config.json` with the path to your configuration file.
+
+## Configuration File
+
+Here is an example configuration file:
 
 ```json
 {
   "tasks": [
     {
-      "name": "task-name",
-      "cron": "cron-expression",
-      "command": "command-to-execute"
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
     },
     {
-      "name": "another-task",
-      "cron": "another-cron-expression",
-      "command": "another-command"
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
   ]
 }
-```
+``` 
+
+## License
+
+MIT

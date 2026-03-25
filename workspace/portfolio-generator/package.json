@@ -1,12 +1,1 @@
-{
-  "name": "package.json",
-  "version": "1.0.0",
-  "description": "A portfolio generator for developers",
-  "main": "index.js",
-  "scripts": {
-    "generate": "node index.js"
-  },
-  "devDependencies": {
-    "express": "^4.17.1"
-  }
-}
+{"name": "portfolio-generator", "version": "1.0.0"}

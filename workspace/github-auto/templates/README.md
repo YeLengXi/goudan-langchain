@@ -2,48 +2,28 @@
 
 Welcome to the project!
 
-## Project Setup
+This is a template for the README file of your project.
 
-Install dependencies:
+## Project Description
 
-```bash
-npm install
-```
+Add a brief description of your project here.
 
-## Compiles and Hot Reloading for Development
+## Features
 
-```bash
-npm run serve
-```
+List the features of your project here.
 
-## Compiles and Minifies for Production
+## Installation
 
-```bash
-npm run build
-```
+Instructions on how to install your project.
 
-## Lint and Fix Files
+## Usage
 
-```bash
-npm run lint
-```
-
-## Project Documentation
-
-[Documentation](https://example.com)
+Instructions on how to use your project.
 
 ## Contributing
 
-Contributions are welcome! Please read [CONTRIBUTING.md]
+Guidelines for contributing to the project.
 
 ## License
 
-[MIT License](https://example.com)
-
-## Issues
-
-Please open an issue if you find any problems.
-
-## Author
-
-[Your Name](https://example.com)
+This project is licensed under [LICENSE NAME].
