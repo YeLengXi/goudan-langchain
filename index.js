@@ -500,14 +500,36 @@ ${task.content}
   // 持续工作模式
   async startContinuousMode() {
     await log('启动持续工作模式...');
+    await log('Goudan 将持续工作，赚钱养活自己！💰');
+
+    let totalTasksCompleted = 0;
+    let totalEarnings = 0; // 估算收入（每个任务平均 ¥0.10）
 
     while (true) {
       try {
         await this.run();
 
-        // 等待一段时间后继续
-        await log('等待 5 分钟后检查新任务...');
-        await new Promise(resolve => setTimeout(resolve, 5 * 60 * 1000));
+        // 统计完成的任务
+        const tasksCompleted = this.taskQueue.length;
+        totalTasksCompleted += tasksCompleted;
+        totalEarnings += tasksCompleted * 0.10; // 每个任务约 ¥0.10
+
+        await log('='.repeat(60));
+        await log(`📊 本轮完成: ${tasksCompleted} 个任务`);
+        await log(`📈 累计完成: ${totalTasksCompleted} 个任务`);
+        await log(`💰 估算收入: ¥${totalEarnings.toFixed(2)} (约 $${(totalEarnings / 7).toFixed(2)})`);
+        await log('='.repeat(60));
+
+        // 自动提交完成的工具到 git
+        try {
+          await this.autoCommit();
+        } catch (error) {
+          await log(`自动提交失败: ${error.message}`, 'warn');
+        }
+
+        // 等待 10 分钟后检查新任务
+        await log('⏰ 等待 10 分钟后检查新任务...');
+        await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
 
         // 重新加载任务
         await this.loadTasks();
@@ -518,6 +540,31 @@ ${task.content}
         // 等待后重试
         await new Promise(resolve => setTimeout(resolve, 60000));
       }
+    }
+  }
+
+  // 自动提交到 git
+  async autoCommit() {
+    const { execAsync } = await import('./index.js');
+
+    try {
+      // 检查是否有更改
+      const { stdout } = await execAsync('cd E:/goudan-langchain/workspace && git status --short');
+
+      if (stdout.trim()) {
+        await log('📝 检测到新文件，自动提交到 git...');
+
+        // 添加所有文件
+        await execAsync('cd E:/goudan-langchain/workspace && git add .');
+
+        // 提交
+        const commitMsg = `feat: goudan 自动完成工具开发\n\nCo-Authored-By: goudan <goudan-ai@example.com>`;
+        await execAsync(`cd E:/goudan-langchain/workspace && git commit -m "${commitMsg}"`);
+
+        await log('✅ 自动提交成功！');
+      }
+    } catch (error) {
+      throw new Error(`Git 操作失败: ${error.message}`);
     }
   }
 }
@@ -540,11 +587,8 @@ async function main() {
   // 创建 agent
   const agent = new GoudanAgent();
 
-  // 开始运行
-  await agent.run();
-
-  // 或者使用持续模式：
-  // await agent.startContinuousMode();
+  // 启动持续工作模式 - goudan 将自主工作赚钱！
+  await agent.startContinuousMode();
 }
 
 // 运行
