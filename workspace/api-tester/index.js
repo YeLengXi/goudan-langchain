@@ -1,29 +1,19 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
+const { parse } = require('minimist');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const DEFAULT_REQUEST_FILE = 'requests.json';
 
-const packageJson = require('./package.json');
-
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-
-function performRequest(method, url, headers, data) {
+function fetchApi(url, method, headers, body) {
   return new Promise((resolve, reject) => {
     const options = {
-      method: method,
-      headers: headers
+      method,
+      headers
     }
 
-    if (data) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        data = JSON.stringify(data);
-      }
+    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+      options.body = body;
     }
 
     https.get(url, response => {
@@ -35,7 +25,7 @@ function performRequest(method, url, headers, data) {
         resolve({
           statusCode: response.statusCode,
           headers: response.headers,
-          body: data
+          body: JSON.parse(data)
         });
       });
     }).on('error', error => {
@@ -44,53 +34,40 @@ function performRequest(method, url, headers, data) {
   });
 }
 
-function parseArgs(args) {
-  let method = args[0];
-  let url = args[1];
-  let data = null;
-  let headers = {};
-
-  args.forEach(arg => {
-    if (arg.startsWith('-')) {
-      if (arg === '-d') {
-        data = JSON.parse(args[args.indexOf(arg) + 1]);
-      } else if (arg.startsWith('--')) {
-        const [key, value] = arg.split('=');
-        headers[key.slice(2)] = value;
-      }
-    }
-  });
-
-  return { method, url, data, headers };
+function parseRequestFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content);
 }
 
 function main() {
-  rl.question('Enter API endpoint: ', async (url) => {
-    rl.question('Enter HTTP method (GET, POST, PUT, DELETE, PATCH): ', async (method) => {
-      rl.question('Enter headers (optional): ', async (headersInput) => {
-        if (headersInput) {
-          headers = JSON.parse(headersInput);
-        }
+  const args = parse(process.argv.slice(2));
 
-        rl.question('Enter data (optional): ', async (dataInput) => {
-          if (dataInput) {
-            data = JSON.parse(dataInput);
-          }
+  if (args._[0] === 'GET') {
+    fetchApi(args._[1], 'GET', {}, '').then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.error(error);
+    });
+  }
 
-          const { method, url, data, headers } = parseArgs([method, url]);
+  if (args._[0] === 'POST') {
+    fetchApi(args._[1], 'POST', {}, JSON.stringify(args.d)).then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.error(error);
+    });
+  }
 
-          try {
-            const response = await performRequest(method, url, headers, data);
-            console.log(`Status Code: ${response.statusCode}`);
-            console.log('Headers:', response.headers);
-            console.log('Body:', response.body);
-          } catch (error) {
-            console.error('Error:', error);
-          }
-        }
+  if (args._[0] === '--request-file') {
+    const requests = parseRequestFile(args._[1] || DEFAULT_REQUEST_FILE);
+    requests.forEach(request => {
+      fetchApi(request.url, request.method, request.headers, request.body).then(response => {
+        console.log(response);
+      }).catch(error => {
+        console.error(error);
       });
     });
-  });
+  }
 }
 
 main();

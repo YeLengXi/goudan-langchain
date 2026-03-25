@@ -1,42 +1,28 @@
-const fs = require('fs');
+# log-analyzer.cjs
 
-const analyzeLog = (filePath, options) => {
-  const content = fs.readFileSync(filePath, 'utf8').split('
-');
+const read_file = require('./日志解析器');
+const error_statistics = require('./错误统计器');
+const search_engine = require('./搜索引擎');
+const report_generator = require('./报告生成器');
 
-  // Log parsing
-  let parsedLogs = [];
-  content.forEach(line => {
-    if (line.includes('INFO') || line.includes('DEBUG') || line.includes('ERROR')) {
-      parsedLogs.push(line);
-    }
-  });
+const args = process.argv.slice(2);
+const filePath = args[0];
+const options = args.slice(1);
 
-  // Error statistics
-  let errorCounts = {};
-  parsedLogs.forEach(log => {
-    if (log.includes('ERROR')) {
-      const errorType = log.split(' ')[3];
-      errorCounts[errorType] = (errorCounts[errorType] || 0) + 1;
-    }
-  });
+// 读取日志文件
+const logContent = read_file(filePath);
 
-  // Search and filter
-  let filteredLogs = parsedLogs.filter(log => {
-    return options.search ? log.includes(options.search) : true;
-  });
+// 分析日志
+let analysisResult;
+if (options.includes('--error')) {
+  analysisResult = error_statistics(logContent);
+} else if (options.includes('--search')) {
+  const searchKeyword = options.find(option => option.startsWith('--search ')).split(' ')[1];
+  analysisResult = search_engine(logContent, searchKeyword);
+}
 
-  // Export
-  if (options.export === 'json') {
-    const jsonContent = JSON.stringify({ logs: filteredLogs, errorCounts: errorCounts }, null, 2);
-    return jsonContent;
-  } else if (options.export === 'csv') {
-    const csvContent = parsedLogs.map(log => log.split(' ')).join('
-');
-    return csvContent;
-  }
-
-  return { logs: filteredLogs, errorCounts: errorCounts };
-};
-
-module.exports = analyzeLog;
+// 导出结果
+if (options.includes('--export')) {
+  const exportFormat = options.find(option => option.startsWith('--export ')).split(' ')[1];
+  report_generator(analysisResult, exportFormat);
+}
