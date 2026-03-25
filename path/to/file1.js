@@ -1,20 +1,8 @@
-class Calculator {
-    add(a, b) {
-        return a + b;
-    }
-
-    subtract(a, b) {
-        return a - b;
-    }
-
-    multiply(a, b) {
-        return a * b;
-    }
-
-    divide(a, b) {
-        if (b === 0) {
-            throw new Error('Division by zero is not allowed.');
-        }
-        return a / b;
-    }
+// file1.js
+// A simple JavaScript file that contains a function to calculate the sum of two numbers.
+function addNumbers(a, b) {
+    return a + b;
 }
+
+// Export the function so it can be used in other files
+module.exports = addNumbers;
