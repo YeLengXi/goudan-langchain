@@ -50,9 +50,9 @@ export async function sendNotification(subject, text, html = null) {
   }
 
   const mailOptions = {
-    from: `"goudan AI Agent" <${EMAIL_CONFIG.auth.user}>`,
+    from: `"狗蛋儿 AI Agent" <${EMAIL_CONFIG.auth.user}>`,
     to: RECIPIENT_EMAIL,
-    subject: `[goudan] ${subject}`,
+    subject: `[狗蛋儿] ${subject}`,
     text: text,
     html: html || text
   };
@@ -71,7 +71,7 @@ export async function sendNotification(subject, text, html = null) {
 export async function notifyTaskCompleted(taskId, taskName, result) {
   const subject = `✅ 任务完成: ${taskName}`;
   const text = `
-goudan 完成了一个任务！
+狗蛋儿 完成了一个任务！
 
 任务 ID: ${taskId}
 任务名称: ${taskName}
@@ -81,12 +81,12 @@ goudan 完成了一个任务！
 ${result.substring(0, 200)}...
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
 自主工作，赚钱养活自己！💰
   `;
 
   const html = `
-<h2>🎉 goudan 完成了任务！</h2>
+<h2>🎉 狗蛋儿 完成了任务！</h2>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>任务 ID</b></td><td>${taskId}</td></tr>
@@ -97,7 +97,7 @@ goudan AI Agent
 <h3>结果预览:</h3>
 <pre style="background: #f4f4f4; padding: 10px; border-radius: 5px;">${result.substring(0, 200)}...</pre>
 
-<p><i>goudan AI Agent - 自主工作，赚钱养活自己！💰</i></p>
+<p><i>狗蛋儿 AI Agent - 自主工作，赚钱养活自己！💰</i></p>
   `;
 
   await sendNotification(subject, text, html);
@@ -107,18 +107,18 @@ goudan AI Agent
 export async function notifyFileCreated(fileName, filePath) {
   const subject = `📄 新文件创建: ${fileName}`;
   const text = `
-goudan 创建了一个新文件！
+狗蛋儿 创建了一个新文件！
 
 文件名: ${fileName}
 路径: ${filePath}
 时间: ${new Date().toLocaleString('zh-CN')}
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
   `;
 
   const html = `
-<h2>📄 goudan 创建了新文件！</h2>
+<h2>📄 狗蛋儿 创建了新文件！</h2>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>文件名</b></td><td>${fileName}</td></tr>
@@ -126,7 +126,7 @@ goudan AI Agent
   <tr><td><b>时间</b></td><td>${new Date().toLocaleString('zh-CN')}</td></tr>
 </table>
 
-<p><i>goudan AI Agent</i></p>
+<p><i>狗蛋儿 AI Agent</i></p>
   `;
 
   await sendNotification(subject, text, html);
@@ -136,18 +136,18 @@ goudan AI Agent
 export async function notifyGitCommit(commitHash, commitMessage) {
   const subject = `✅ Git 提交: ${commitHash}`;
   const text = `
-goudan 提交了代码！
+狗蛋儿 提交了代码！
 
 提交 ID: ${commitHash}
 提交信息: ${commitMessage}
 时间: ${new Date().toLocaleString('zh-CN')}
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
   `;
 
   const html = `
-<h2>✅ goudan 提交了代码！</h2>
+<h2>✅ 狗蛋儿 提交了代码！</h2>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>提交 ID</b></td><td><code>${commitHash}</code></td></tr>
@@ -155,7 +155,7 @@ goudan AI Agent
   <tr><td><b>时间</b></td><td>${new Date().toLocaleString('zh-CN')}</td></tr>
 </table>
 
-<p><i>goudan AI Agent</i></p>
+<p><i>狗蛋儿 AI Agent</i></p>
   `;
 
   await sendNotification(subject, text, html);
@@ -165,7 +165,7 @@ goudan AI Agent
 export async function notifyEarnings(tasksCompleted, totalEarnings) {
   const subject = `💰 收入更新: ¥${totalEarnings.toFixed(2)}`;
   const text = `
-goudan 的收入统计！
+狗蛋儿的收入统计！
 
 完成任务: ${tasksCompleted} 个
 估算收入: ¥${totalEarnings.toFixed(2)} (约 $${(totalEarnings / 7).toFixed(2)})
@@ -174,11 +174,11 @@ goudan 的收入统计！
 继续努力！💪
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
   `;
 
   const html = `
-<h2>💰 goudan 收入更新！</h2>
+<h2>💰 狗蛋儿 收入更新！</h2>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>完成任务</b></td><td>${tasksCompleted} 个</td></tr>
@@ -188,7 +188,7 @@ goudan AI Agent
 
 <p><b>继续努力！💪</b></p>
 
-<p><i>goudan AI Agent</i></p>
+<p><i>狗蛋儿 AI Agent</i></p>
   `;
 
   await sendNotification(subject, text, html);
@@ -198,20 +198,20 @@ goudan AI Agent
 export async function notifyError(errorType, errorMessage) {
   const subject = `❌ 错误: ${errorType}`;
   const text = `
-goudan 遇到了错误！
+狗蛋儿 遇到了错误！
 
 错误类型: ${errorType}
 错误信息: ${errorMessage}
 时间: ${new Date().toLocaleString('zh-CN')}
 
-请检查 goudan 的状态！
+请检查狗蛋儿的状态！
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
   `;
 
   const html = `
-<h2 style="color: red;">❌ goudan 遇到了错误！</h2>
+<h2 style="color: red;">❌ 狗蛋儿 遇到了错误！</h2>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>错误类型</b></td><td>${errorType}</td></tr>
@@ -219,9 +219,9 @@ goudan AI Agent
   <tr><td><b>时间</b></td><td>${new Date().toLocaleString('zh-CN')}</td></tr>
 </table>
 
-<p><b>请检查 goudan 的状态！</b></p>
+<p><b>请检查狗蛋儿的状态！</b></p>
 
-<p><i>goudan AI Agent</i></p>
+<p><i>狗蛋儿 AI Agent</i></p>
   `;
 
   await sendNotification(subject, text, html);
@@ -229,24 +229,24 @@ goudan AI Agent
 
 // 启动通知
 export async function notifyStartup() {
-  const subject = `🚀 goudan 已启动`;
+  const subject = `🚀 狗蛋儿 已启动`;
   const text = `
-goudan 已开始工作！
+狗蛋儿 已开始工作！
 
 启动时间: ${new Date().toLocaleString('zh-CN')}
 工作模式: 持续工作模式
 检查间隔: 10 分钟
 
-goudan 将自主完成开发任务并赚钱养活自己！💰
+狗蛋儿将自主完成开发任务并赚钱养活自己！💰
 
 ---
-goudan AI Agent
+狗蛋儿 AI Agent
   `;
 
   const html = `
-<h2>🚀 goudan 已启动！</h2>
+<h2>🚀 狗蛋儿 已启动！</h2>
 
-<p>goudan 已开始自主工作！</p>
+<p>狗蛋儿已经开始自主工作！</p>
 
 <table border="1" cellpadding="10" cellspacing="0">
   <tr><td><b>启动时间</b></td><td>${new Date().toLocaleString('zh-CN')}</td></tr>
@@ -254,9 +254,9 @@ goudan AI Agent
   <tr><td><b>检查间隔</b></td><td>10 分钟</td></tr>
 </table>
 
-<p>goudan 将自主完成开发任务并赚钱养活自己！💰</p>
+<p>狗蛋儿将自主完成开发任务并赚钱养活自己！💰</p>
 
-<p><i>goudan AI Agent</i></p>
+<p><i>狗蛋儿 AI Agent</i></p>
   `;
 
   await sendNotification(subject, text, html);
