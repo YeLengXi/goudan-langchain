@@ -1,71 +1,38 @@
 const fs = require('fs');
+const { parse } = require('json2csv');
+const { JSDOM } = require('jsdom');
+const { DOMParser } = require('xmldom');
+const { parseString } = require('xml2js');
 
-const format = (json, indent) => {
-  return JSON.stringify(json, null, indent);
-};
-
-const sort = (json, key) => {
-  return JSON.stringify(json.sort((a, b) => a[key].localeCompare(b[key])));
-};
-
-const filter = (json, condition) => {
-  return JSON.stringify(json.filter(item => eval(condition)));
-};
-
-const merge = (json1, json2) => {
-  return JSON.stringify(JSON.parse(JSON.stringify(json1)).concat(JSON.parse(JSON.stringify(json2))));
-};
-
-const readJsonFile = (filePath) => {
-  try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    throw new Error('Invalid JSON');
+const jsonTools = {
+  format: (json, indent) => {
+    return JSON.stringify(json, null, indent);
+  },
+  sort: (json, key) => {
+    return json.sort((a, b) => {
+      if (a[key] < b[key]) {
+        return -1;
+      }
+      if (a[key] > b[key]) {
+        return 1;
+      }
+      return 0;
+    });
+  },
+  filter: (json, condition) => {
+    return json.filter(item => {
+      try {
+        return eval(condition)(item);
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
+    });
+  },
+  merge: (json1, json2) => {
+    return JSON.stringify(json1, null, 2).concat(',',
+      JSON.stringify(json2, null, 2));
   }
 };
 
-const writeJsonFile = (filePath, data) => {
-  fs.writeFileSync(filePath, data, 'utf8');
-};
-
-const main = () => {
-  const args = process.argv.slice(2);
-  const command = args[0];
-  const filePath = args[1];
-  let json;
-
-  try {
-    json = readJsonFile(filePath);
-  } catch (error) {
-    console.error(error.message);
-    return;
-  }
-
-  switch (command) {
-    case 'format':
-      const indent = args[2] || 2;
-      console.log(format(json, indent));
-      break;
-    case 'sort':
-      const key = args[2];
-      console.log(sort(json, key));
-      break;
-    case 'filter':
-      const condition = args[2];
-      console.log(filter(json, condition));
-      break;
-    case 'merge':
-      const [filePath1, filePath2] = args.slice(2);
-      const json1 = readJsonFile(filePath1);
-      const json2 = readJsonFile(filePath2);
-      console.log(merge(json1, json2));
-      break;
-    default:
-      console.log('Unknown command');
-  }
-};
-
-if (require.main === module) {
-  main();
-}
+module.exports = jsonTools;

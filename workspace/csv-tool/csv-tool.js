@@ -1,157 +1,55 @@
-const fs = require('fs');
-const path = require('path');
+const { program } = require('commander');
 
-// CSV解析器
-function parseCSV(file_path) {
-  return new Promise((resolve, reject) => {
-    const results = [];
-    let currentRow = [];
-    let inQuotes = false;
-
-    fs.createReadStream(file_path)
-      .on('data', (chunk) => {
-        let data = chunk.toString();
-        for (let i = 0; i < data.length; i++) {
-          const char = data[i];
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if (char === ',' && !inQuotes) {
-            currentRow.push(char);
-          } else if (char === '
-' && !inQuotes) {
-            currentRow.push(char);
-            results.push(currentRow.join(''));
-            currentRow = [];
-          } else {
-            currentRow.push(char);
-          }
-        }
-      })
-      .on('end', () => {
-        resolve(results);
-      })
-      .on('error', (err) => {
-        reject(err);
-      });
+program
+  .command('convert <input> --format <format>')
+  .description('Convert CSV to JSON or Markdown/HTML table')
+  .action((input, options) => {
+    const csvTool = require('./csv-tool');
+    const csvData = read_file(input);
+    let result;
+    if (options.format === 'json') {
+      result = csvTool.csvToJson(csvData);
+    } else if (options.format === 'markdown') {
+      result = csvTool.csvToMarkdown(csvData);
+    } else if (options.format === 'html') {
+      result = csvTool.csvToHtml(csvData);
+    }
+    write_file(`output-${input}`, result);
   });
-}
 
-// CSV生成器
-function generateCSV(data, file_path) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(file_path, data.join('
-'), (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
+program
+  .command('filter <input> --column <column> --value <value>')
+  .description('Filter CSV by column and value')
+  .action((input, options) => {
+    const csvTool = require('./csv-tool');
+    const csvData = read_file(input);
+    const result = csvTool.filterCsv(csvData, options.column, options.value);
+    write_file(`filtered-${input}`, result);
   });
-}
 
-// CSV转JSON
-function csvToJson(csvData) {
-  return JSON.stringify(csvData, null, 2);
-}
-
-// CSV转Markdown表格
-function csvToMarkdown(csvData) {
-  let markdown = '| Header 1 | Header 2 |
-  |---------|---------|
-';
-  csvData.forEach(row => {
-    markdown += '| ' + row.join(' | ') + ' |
+program
+  .command('sort <input> --column <column>')
+  .description('Sort CSV by column')
+  .action((input, options) => {
+    const csvTool = require('./csv-tool');
+    const csvData = read_file(input);
+    const result = csvTool.sortCsv(csvData, options.column);
+    write_file(`sorted-${input}`, result);
   });
-  return markdown;
-}
 
-// CSV转HTML表格
-function csvToHtml(csvData) {
-  let html = '<table>
-    <tr>
-      <th>Header 1</th>
-      <th>Header 2</th>
-    </tr>
-';
-  csvData.forEach(row => {
-    html += '    <tr>
-      <td>' + row.join('</td><td>') + '</td>
-    </tr>
+program
+  .command('to-table <input> --format <format>')
+  .description('Convert CSV to Markdown or HTML table')
+  .action((input, options) => {
+    const csvTool = require('./csv-tool');
+    const csvData = read_file(input);
+    let result;
+    if (options.format === 'markdown') {
+      result = csvTool.csvToMarkdown(csvData);
+    } else if (options.format === 'html') {
+      result = csvTool.csvToHtml(csvData);
+    }
+    write_file(`table-${input}`, result);
   });
-  html += '</table>
-  return html;
-}
 
-// CSV过滤
-function filterCSV(csvData, column, value) {
-  return csvData.filter(row => row[column] === value);
-}
-
-// CSV排序
-function sortCSV(csvData, column) {
-  return csvData.sort((a, b) => a[column] < b[column] ? -1 : 1);
-}
-
-// CLI接口
-function cli() {
-  const args = process.argv.slice(2);
-  const command = args[0];
-  const file_path = args[1];
-
-  switch (command) {
-    case 'convert':
-      const format = args[2];
-      parseCSV(file_path)
-        .then(data => {
-          if (format === 'json') {
-            console.log(csvToJson(data));
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-      break;
-    case 'filter':
-      const column = args[2];
-      const value = args[3];
-      parseCSV(file_path)
-        .then(data => {
-          const filteredData = filterCSV(data, column, value);
-          console.log(filteredData);
-        })
-        .catch(err => {
-          console.error(err);
-        });
-      break;
-    case 'sort':
-      const sortColumn = args[2];
-      parseCSV(file_path)
-        .then(data => {
-          const sortedData = sortCSV(data, sortColumn);
-          console.log(sortedData);
-        })
-        .catch(err => {
-          console.error(err);
-        });
-      break;
-    case 'to-table':
-      const format = args[2];
-      parseCSV(file_path)
-        .then(data => {
-          if (format === 'markdown') {
-            console.log(csvToMarkdown(data));
-          } else if (format === 'html') {
-            console.log(csvToHtml(data));
-          }
-        })
-        .catch(err => {
-          console.error(err);
-        });
-      break;
-    default:
-      console.log('Unknown command');
-  }
-}
-
-cli();
+program.parse(process.argv);

@@ -1,23 +1,48 @@
 // This is the main program of the portfolio generator.
 // It reads the portfolio configuration, generates the HTML and CSS,
-// and serves the generated website.
+// and starts a local server for previewing the generated website.
 
-const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
+const express = require('express');
+const marked = require('marked');
+const ejs = require('ejs');
 
-const app = express();
-const port = 3000;
+const portfolioConfigPath = './portfolio.json';
+const templatePath = './templates/default.html';
+const outputPath = './output';
 
-app.get('/', (req, res) => {
-  const portfolio = JSON.parse(fs.readFileSync('portfolio.json', 'utf8'));
-  const template = fs.readFileSync('templates/default.html', 'utf8');
-  const html = template.replace(/{{(.*?)}}/g, (match, key) => {
-    return portfolio[key] || '';
+// Read the portfolio configuration
+const portfolioConfig = JSON.parse(fs.readFileSync(portfolioConfigPath, 'utf8'));
+
+// Load the HTML template
+const template = fs.readFileSync(templatePath, 'utf8');
+
+// Generate the HTML and CSS
+const generateHtml = (data) => {
+  return ejs.render(template, data);
+}
+
+// Write the generated HTML and CSS to the output directory
+const writeOutput = (html) => {
+  fs.writeFileSync(path.join(outputPath, 'index.html'), html);
+}
+
+// Start the local server for previewing
+const startServer = () => {
+  const app = express();
+  app.use(express.static(outputPath));
+  app.listen(3000, () => {
+    console.log('Server started on port 3000');
   });
-  res.send(html);
-});
+}
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-});
+// Main function
+const main = () => {
+  const html = generateHtml(portfolioConfig);
+  writeOutput(html);
+  startServer();
+}
+
+main();

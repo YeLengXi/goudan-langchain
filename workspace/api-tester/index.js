@@ -1,69 +1,77 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
 
-const DEFAULT_REQUEST_FILE = 'requests.json';
+const parseArgs = require('minimist');
+const { readFileSync } = require('fs');
+const { yellow, blue } = require('chalk');
 
-function fetchApi(url, method, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method,
-      headers
-    }
+const CONFIG_FILE = path.join(__dirname, 'config.json');
 
-    if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
+// Load configuration
+let config = {};
+try {
+  config = JSON.parse(readFileSync(CONFIG_FILE, 'utf8'));
+} catch (error) {
+  console.error(yellow('Configuration file not found. Creating a new one.'));
+  fs.writeFileSync(CONFIG_FILE, JSON.stringify({}, null, 2), 'utf8');
+}
+
+// Parse command line arguments
+const args = parseArgs(process.argv.slice(2));
+
+// Execute command
+async function executeCommand() {
+  try {
+    const { method, url, data, requestFile } = args;
+
+    if (requestFile) {
+      const requests = JSON.parse(readFileSync(requestFile, 'utf8'));
+      for (const request of requests) {
+        await sendRequest(request.method, request.url, request.data);
       }
+    } else {
+      await sendRequest(method, url, data);
     }
-
-    https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: JSON.parse(data)
-        });
-      });
-    }).on('error', error => {
-      reject(error);
-    });
-  });
-}
-
-function parseRequestFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
-}
-
-function main() {
-  const args = parse(process.argv.slice(2));
-  let { method, url, body } = args;
-  let headers = args.headers ? JSON.parse(args.headers) : {};
-
-  if (args._[0] === '--request-file') {
-    const requestFile = args._[1] || DEFAULT_REQUEST_FILE;
-    const requests = parseRequestFile(requestFile);
-    requests.forEach(request => {
-      fetchApi(request.url, request.method, request.headers, request.body).then(response => {
-        console.log(response);
-      }).catch(error => {
-        console.error(error);
-      });
-    });
-  } else {
-    fetchApi(url, method, headers, body).then(response => {
-      console.log(response);
-    }).catch(error => {
-      console.error(error);
-    });
+  } catch (error) {
+    console.error(blue(error.message));
   }
 }
 
-main();
+// Send HTTP request
+async function sendRequest(method, url, data) {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const options = {
+    method: method,
+    headers: headers
+  }
+
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+
+  try {
+    const start = Date.now();
+    const response = await fetch(url, options);
+    const duration = Date.now() - start;
+    const responseBody = await response.text();
+
+    console.log(yellow(`Response Time: ${duration}ms`));
+    console.log(blue(`Status Code: ${response.status}`));
+    console.log(blue(`Headers: ${JSON.stringify(response.headers.raw())}`));
+    console.log(yellow(`Response Body: ${responseBody}`));
+
+    return responseBody;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
+executeCommand();

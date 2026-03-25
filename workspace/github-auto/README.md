@@ -1,27 +1,29 @@
 # GitHub 自动化工具
 
-本工具用于自动化 GitHub 仓库的创建、初始化和推送流程。
+本工具可以帮助你自动化创建、初始化和推送 GitHub 仓库的过程。
 
 ## 安装
 
 ```bash
-npm install
+npm install -g github-auto
 ```
 
 ## 使用
+
+### 创建仓库
 
 ```bash
 github-auto create my-project --public
 ```
 
-## 功能
+### 初始化项目
 
-- 创建仓库
-- 初始化仓库
-- 推送代码到 GitHub
+```bash
+github-auto init --template nodejs
+```
 
-## 模板
+### 推送到 GitHub
 
-- README
-- .gitignore
-- LICENSE
+```bash
+github-auto push
+```

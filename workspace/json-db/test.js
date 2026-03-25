@@ -1,35 +1,22 @@
-# 测试文件
-
 const DB = require('./database');
 
+// 初始化
 const db = new DB('./data.json');
 
 // 创建表
-console.log('Creating table users...');
-await db.createTable('users');
-console.log('Table users created.');
+db.createTable('users');
 
 // 插入
-console.log('Inserting record...');
-await db.insert('users', { name: 'Alice', age: 30 });
-console.log('Record inserted.');
+db.insert('users', { name: 'Alice', age: 30 });
 
 // 查询
-console.log('Finding records...');
-const users = await db.find('users', { age: 30 });
-console.log('Records found:', users);
+const users = db.find('users', { age: 30 });
 
 // 更新
-console.log('Updating record...');
-await db.update('users', 1, { age: 31 });
-console.log('Record updated.');
+db.update('users', 1, { age: 31 });
 
 // 删除
-console.log('Deleting record...');
-await db.delete('users', 1);
-console.log('Record deleted.');
+db.delete('users', 1);
 
 // 保存
-console.log('Saving database...');
-await db.save();
-console.log('Database saved.');
+db.save();

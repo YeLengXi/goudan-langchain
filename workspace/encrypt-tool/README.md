@@ -1,27 +1,47 @@
-# Text Encryption and Decryption Tool
+# encrypt-tool
 
-## Description
-This tool provides basic encryption and decryption capabilities using various algorithms such as Caesar Cipher, Base64, ROT13, Simple XOR, and AES.
+This tool provides a simple text encryption and decryption utility with multiple encryption algorithms.
 
 ## Features
+
 - Multiple encryption algorithms
-- File encryption and decryption
+- File encryption/decryption
 - Key management
 - Error handling
-- Security warnings
+- Security tips
 
 ## Usage
 
-### Encrypt
+To encrypt a text:
 
 ```bash
 node encrypt.js "hello world" --method caesar --key 3
-node encrypt.js "hello" --method base64
+```
+
+To decrypt a text:
+
+```bash
+node decrypt.js encrypted_text --method caesar --key 3
+```
+
+To encrypt a file:
+
+```bash
 node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
 ```
 
-### Decrypt
+To decrypt a file:
 
 ```bash
 node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
 ```
+
+## Security Tips
+
+⚠️ Note: These are educational simple ciphers.
+- Caesar/ROT13: Only for demonstration
+- Base64: Encoding, not encryption
+- XOR: Simple encryption
+- AES: Relatively secure
+
+Do not use in production environments or with sensitive data!

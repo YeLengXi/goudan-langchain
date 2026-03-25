@@ -1,49 +1,59 @@
+const readline = require('readline');
 const { exec } = require('child_process');
-const { readFileSync, writeFileSync } = require('fs');
-const { listDirectory } = require('./utils');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-const usage = "Usage: node tester.js <pattern> [options]\n\nOptions:\n  --text <text>    Test regex against text\n  --email <email>   Validate email\n  --phone <phone>   Validate phone number\n  --url <url>       Validate URL\n  --ip <ip>         Validate IP address\n  --date <date>     Validate date format\n  --replace <regex> Replace text\n  --with <replacement>\n"
+function testRegex(pattern, text, options) {
+    try {
+        const regex = new RegExp(pattern);
+        let match;
+        let matches = [];
+        let result = '';
 
-const patterns = {
-  email: "^[\^\s@]+@[\^\s@]+\.[\^\s@]+$",
-  phone: "^1[3-9]\d{9}$",
-  url: "^https?://[a-z0-9]+(\.[a-z0-9]+)+([/?][^\s]*)?$",
-  ip: "^(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)\.(25[0-5]|2[0-4]\d|[01]?\d\d?)$",
-  date: "^(19|20)\d{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"
-};
+        if (options.match) {
+            while ((match = regex.exec(text)) !== null) {
+                matches.push({
+                    index: match.index,
+                    match: match[0]
+                });
+            }
+            result += 'Matches:
+' + JSON.stringify(matches) + '
+';
+        }
 
-function testRegex(pattern, options) {
-  if (!pattern) {
-    console.error('Pattern is required');
-    return;
-  }
+        if (options.capture) {
+            const captures = regex.exec(text);
+            result += 'Capture groups:
+' + JSON.stringify(captures.groups) + '
+';
+        }
 
-  const regex = new RegExp(pattern);
-  if (options.text) {
-    const matches = regex.exec(options.text);
-    if (matches) {
-      console.log(`Pattern: ${pattern}
-Text: ${options.text}
-Match: ${matches[0]}
-Position: ${matches.index}-${matches.index + matches[0].length - 1}
-`);
-    } else {
-      console.log(`Pattern: ${pattern}
-Text: ${options.text}
-No match found
-`);
+        if (options.replace) {
+            result += 'Replacement: ' + regex.replace(text, options.with) + '
+';
+        }
+
+        if (options.split) {
+            result += 'Split: ' + JSON.stringify(regex.split(text)) + '
+';
+        }
+
+        return result;
+    } catch (error) {
+        return 'Error: ' + error.message;
     }
-  }
-
-  if (options.email) {
-    const valid = regex.test(options.email);
-    console.log(`Pattern: ${pattern}
-Input: ${options.email}
-Valid: ✅ ${valid}
-`);
-  }
-
-  // Add more test cases here
 }
 
-module.exports = { testRegex };
+rl.question('Enter pattern: ', (pattern) => {
+    rl.question('Enter text: ', (text) => {
+        rl.question('Enter options (match, capture, replace, split): ', (options) => {
+            const optionsArray = options.split(',').map(option => option.trim());
+            const result = testRegex(pattern, text, { match: optionsArray.includes('match'), capture: optionsArray.includes('capture'), replace: optionsArray.includes('replace'), with: optionsArray.includes('replace') ? rl.question('Enter replacement: ') : '', split: optionsArray.includes('split') });
+            console.log(result);
+            rl.close();
+        });
+    });
+});

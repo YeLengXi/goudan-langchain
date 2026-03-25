@@ -1,4 +1,4 @@
-# 任务10: Markdown文档生成器
+# Markdown文档生成器
 
 ## 目标
 
@@ -6,13 +6,12 @@
 
 ## 必须创建的文件
 
-1. `workspace/markdown-generator/generator.js` - 主生成器
-2. `workspace/markdown-generator/README.md` - 使用说明
-3. `workspace/markdown-generator/template.md` - 文档模板
+1. `generator.js` - 主生成器
+2. `README.md` - 使用说明
+3. `template.md` - 文档模板
 
 ## 工作流程
 
-立即执行以下操作：
 1. 解析JavaScript/JSDoc注释
 2. 提取函数、类、参数信息
 3. 生成Markdown格式的API文档
@@ -70,4 +69,3 @@ node generator.js input.js -o docs/api.md
 - 生成结构化文档
 - 包含错误处理
 - 提供详细注释
-

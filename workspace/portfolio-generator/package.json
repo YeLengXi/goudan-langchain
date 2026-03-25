@@ -4,9 +4,12 @@
   "description": "A static website generator for creating personal portfolios.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "generate": "node index.js"
   },
-  "devDependencies": {
-    "express": "^4.17.1"
-  }
+  "keywords": [
+    "portfolio",
+    "generator",
+    "website"
+  ],
+  "license": "MIT"
 }

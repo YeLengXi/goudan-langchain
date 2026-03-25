@@ -1,35 +1,46 @@
-const { program } = require('commander');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const { parseArgs } = require('minimist');
+const encrypt = require('./encrypt');
+const decrypt = require('./decrypt');
 
-program.version('1.0.0');
+const methods = {
+  caesar: {
+    encrypt: encrypt.caesarCipher,
+    decrypt: encrypt.decryptCaesarCipher
+  },
+  base64: {
+    encrypt: encrypt.base64Encode,
+    decrypt: encrypt.decryptBase64
+  },
+  rot13: {
+    encrypt: encrypt.rot13,
+    decrypt: encrypt.decryptRot13
+  },
+  xor: {
+    encrypt: encrypt.xorEncrypt,
+    decrypt: encrypt.decryptXor
+  },
+  aes: {
+    encrypt: encrypt.aesEncrypt,
+    decrypt: encrypt.decryptAes
+  }
+};
 
-program.command('encrypt')
-  .argument('<text>', 'Text to encrypt')
-  .option('--method <method>', 'Encryption method (caesar, base64, rot13, xor, aes)', 'caesar')
-  .option('--key <key>', 'Encryption key', '')
-  .option('--output <output>', 'Output file path', '')
-  .action((text, options) => {
-    const encrypted = encrypt(text, options.method, options.key);
-    if (options.output) {
-      fs.writeFileSync(options.output, encrypted);
-      console.log(`Encrypted text written to ${options.output}`);
-    } else {
-      console.log(encrypted);
-    }
-  });
+function encryptFile(inputPath, outputPath, method, key) {
+  const text = fs.readFileSync(inputPath, 'utf8');
+  const encrypted = methods[method].encrypt(text, key);
+  fs.writeFileSync(outputPath, encrypted, 'utf8');
+}
 
-program.command('decrypt')
-  .argument('<input>', 'Input file path')
-  .option('--method <method>', 'Decryption method (caesar, base64, rot13, xor, aes)', 'aes')
-  .option('--key <key>', 'Decryption key', '')
-  .option('--output <output>', 'Output file path', '')
-  .action((input, options) => {
-    const decrypted = decrypt(fs.readFileSync(input, 'utf-8'), options.method, options.key);
-    if (options.output) {
-      fs.writeFileSync(options.output, decrypted);
-      console.log(`Decrypted text written to ${options.output}`);
-    } else {
-      console.log(decrypted);
-    }
-  });
+function decryptFile(inputPath, outputPath, method, key) {
+  const text = fs.readFileSync(inputPath, 'utf8');
+  const decrypted = methods[method].decrypt(text, key);
+  fs.writeFileSync(outputPath, decrypted, 'utf8');
+}
 
-program.parse(process.argv);
+module.exports = {
+  encrypt: encryptFile,
+  decrypt: decryptFile
+};

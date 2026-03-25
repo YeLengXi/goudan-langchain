@@ -4,32 +4,25 @@ This is a simple HTTP server that serves static files from a specified directory
 
 ## Features
 
-- Serves static files from a specified directory.
-- Supports directory listing.
-- Auto-detects MIME types.
-- CORS support.
-- Request logging.
-- Error handling (404, 500, etc.).
-- Graceful shutdown.
-
-## Installation
-
-Make sure you have Node.js installed.
+- Serve static files
+- Directory browsing
+- MIME type detection
+- CORS support
+- Request logging
+- Error handling (404, 500)
+- Graceful shutdown
 
 ## Usage
 
-To start the server, run:
+Start the server with the following command:
 
 ```bash
 node server.js --port 8080 --dir ./public
 ```
 
-Replace `8080` with the desired port and `./public` with the directory you want to serve.
+Replace `8080` with the desired port number and `./public` with the directory containing the static files.
 
-## Contributing
+## CLI Options
 
-Feel free to contribute to this project!
-
-## License
-
-MIT
+- `--port` - Specify the port number (default: 8080)
+- `--dir` - Specify the directory to serve static files from

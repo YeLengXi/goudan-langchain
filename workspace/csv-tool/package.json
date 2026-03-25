@@ -4,9 +4,15 @@
   "description": "A CSV data processing tool",
   "main": "csv-tool.js",
   "scripts": {
-    "start": "node csv-tool.js"
+    "convert": "node csv-tool.js convert",
+    "filter": "node csv-tool.js filter",
+    "sort": "node csv-tool.js sort",
+    "to-table": "node csv-tool.js to-table"
   },
-  "devDependencies": {
-    "commander": "^8.0.0"
+  "bin": {
+    "csv-tool": "./node_modules/.bin/csv-tool"
+  },
+  "dependencies": {
+    "commander": "^7.0.0"
   }
 }

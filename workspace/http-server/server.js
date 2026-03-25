@@ -4,66 +4,47 @@ const path = require('path');
 const url = require('url');
 
 const hostname = '127.0.0.1';
-const port = 8080;
-const rootDir = './public';
+const port = process.argv[2] || 8080;
+const rootDir = process.argv[3] || './public';
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const filePath = path.join(rootDir, parsedUrl.pathname);
+  const stat = fs.statSync(filePath);
 
-  fs.stat(filePath, (err, stats) => {
-    if (err) {
-      res.statusCode = 404;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('404 Not Found
-');
-      return;
-    }
-
-    if (stats.isDirectory()) {
-      filePath += '/index.html';
-      fs.stat(filePath, (err, stats) => {
+  if (stat.isFile()) {
+    const mime = require('mime-types').lookup('type', filePath);
+    res.writeHead(200, { 'Content-Type': mime || 'application/octet-stream' });
+    fs.createReadStream(filePath).pipe(res);
+  } else if (stat.isDirectory()) {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    fs.readdir(filePath, (err, files) => {
+      if (err) {
+        res.writeHead(500);
+        res.end('Internal Server Error');
+        return;
+      }
+      let indexFile = 'index.html';
+      let fileFound = files.some(file => file === indexFile);
+      if (!fileFound) {
+        indexFile = files[0];
+      }
+      const indexFilePath = path.join(filePath, indexFile);
+      fs.readFile(indexFilePath, (err, content) => {
         if (err) {
-          res.statusCode = 404;
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('404 Not Found
-');
+          res.writeHead(404);
+          res.end('Not Found');
           return;
         }
-
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/html');
-        fs.createReadStream(filePath).pipe(res);
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(content);
       });
-    } else {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', getMimeType(filePath));
-      fs.createReadStream(filePath).pipe(res);
-    }
-  });
-});
-
-function getMimeType(filePath) {
-  const ext = path.extname(filePath).toLowerCase();
-  switch (ext) {
-    case '.html':
-      return 'text/html';
-    case '.css':
-      return 'text/css';
-    case '.js':
-      return 'application/javascript';
-    case '.json':
-      return 'application/json';
-    case '.png':
-    case '.jpg':
-    case '.jpeg':
-    case '.gif':
-    case '.svg':
-      return 'image/' + ext.substring(1);
-    default:
-      return 'application/octet-stream';
+    });
+  } else {
+    res.writeHead(404);
+    res.end('Not Found');
   }
-}
+});
 
 server.listen(port, hostname, () => {
   console.log(`Starting HTTP server...

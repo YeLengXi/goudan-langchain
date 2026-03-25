@@ -1,69 +1,37 @@
-const fs = require('fs');
-const path = require('path');
-const esprima = require('esprima');
-const complexity = require('complexity-score');
+const analyzeCodeComplexity = (filePath, format, output) => {
+    // 读取文件内容
+    const fileContent = read_file(filePath).content;
 
-const analyzeFile = (filePath, outputFormat, outputPath) => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
+    // 解析代码
+    const ast = parseJavaScript(fileContent);
 
-    const ast = esprima.parse(data, {
-      sourceType: 'module'
-    });
+    // 计算复杂度
+    const complexityReport = calculateComplexity(ast);
 
-    const functions = ast.body.filter(node => node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression').map(node => {
-      const functionAst = esprima.parse(node.body, {
-        sourceType: 'module'
-      });
+    // 生成报告
+    const report = generateReport(complexityReport, format, output);
 
-      const complexityScore = complexity.getScore(functionAst);
+    // 输出报告
+    write_file(report, output);
+};
 
-      return {
-        name: node.id ? node.id.name : 'Anonymous Function',
-        cyclomaticComplexity: complexityScore.cyclomaticComplexity,
-        cognitiveComplexity: complexityScore.cognitiveComplexity,
-        maintainabilityIndex: complexityScore.maintainabilityIndex,
-        lines: node.body.range[1] - node.body.range[0]
-      };
-    });
+// 解析JavaScript代码
+const parseJavaScript = (code) => {
+    // 使用正则表达式解析函数和控制流语句
+    // ...
+    return ast;
+};
 
-    const report = {
-      functions: functions
-    }
+// 计算复杂度
+const calculateComplexity = (ast) => {
+    // 计算圈复杂度、认知复杂度和维护性指数
+    // ...
+    return complexityReport;
+};
 
-    if (outputFormat === 'json') {
-      console.log(JSON.stringify(report, null, 2));
-    } else if (outputPath) {
-      fs.writeFile(outputPath, JSON.stringify(report, null, 2), (err) => {
-        if (err) {
-          console.error(err);
-        }
-      });
-    } else {
-      console.log(report);
-    }
-  });
-}
-
-const analyzeDirectory = (dirPath, outputFormat, outputPath) => {
-  fs.readdir(dirPath, (err, files) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-
-    files.forEach(file => {
-      if (path.extname(file) === '.js') {
-        analyzeFile(path.join(dirPath, file), outputFormat, outputPath);
-      }
-    });
-  });
-}
-
-module.exports = {
-  analyzeFile,
-  analyzeDirectory
-}
+// 生成报告
+const generateReport = (complexityReport, format, output) => {
+    // 根据格式和输出路径生成报告
+    // ...
+    return report;
+};

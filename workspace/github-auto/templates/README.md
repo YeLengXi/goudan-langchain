@@ -1,27 +1,26 @@
 # README.md 模板
 
-This is a template for README.md.
+这是一个 README.md 的模板，你可以根据需要修改它。
 
-## Project
+## 项目介绍
 
-[Project Name]
+在这里介绍你的项目。
 
-## Description
+## 安装
 
-[Description]
+```bash
+npm install
+```
 
-## Installation
+## 使用
 
-[Installation Instructions]
+```bash
+data.js
+```
 
-## Usage
+## 示例
 
-[Usage Instructions]
-
-## Contributing
-
-[Contributing Guidelines]
-
-## License
-
-[License Information]
+```javascript
+data = require('data');
+console.log(data);
+```

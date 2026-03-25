@@ -6,12 +6,5 @@
   "scripts": {
     "start": "node scraper.js"
   },
-  "keywords": [
-    "web-scraper",
-    "scraper",
-    "node"
-  ],
-  "dependencies": {
-    "node-fetch": "^1.0.0"
-  }
+  "devDependencies": {}
 }

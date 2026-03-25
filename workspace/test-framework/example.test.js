@@ -1,14 +1,12 @@
-const { describe, it, expect } = require('./test.js');
+// example.test.js
+const { describe, it, expect } = require('./test-framework/test.js');
 
-// Test suite
-describe('Math operations', () => {
-  // Test case
-  it('should add numbers', () => {
-    expect(add(1, 2)).toBe(3);
+describe('Example tests', () => {
+  it('should pass', () => {
+    expect(1 + 1).toBe(2);
   });
 
-  // Test case
-  it('should subtract numbers', () => {
-    expect(subtract(5, 2)).toBe(3);
+  it('should fail', () => {
+    expect(1 + 1).toBe(3);
   });
 });

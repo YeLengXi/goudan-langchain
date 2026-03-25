@@ -3,85 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio</title>
+  <title>{{ title }}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-    .header {
-      text-align: center;
-    }
-    .header h1 {
-      margin: 0;
-    }
-    .bio {
-      margin-top: 20px;
-    }
-    .skills {
-      margin-top: 20px;
-    }
-    .skills h2 {
-      margin: 0;
-    }
-    .skills ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .projects {
-      margin-top: 20px;
-    }
-    .projects h2 {
-      margin: 0;
-    }
-    .projects ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .social {
-      margin-top: 20px;
-    }
-    .social a {
-      margin-right: 10px;
+      background-color: {{ themeColor }};
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>{{name}}</h1>
-      <p>{{position}}</p>
-    </div>
-    <div class="bio">
-      <p>{{bio}}</p>
-    </div>
-    <div class="skills">
-      <h2>Skills</h2>
-      <ul>
-        {{#each skills}}
-          <li>{{this}}</li>
-        {{/each}}
-      </ul>
-    </div>
-    <div class="projects">
-      <h2>Projects</h2>
-      <ul>
-        {{#each projects}}
-          <li>{{name}} - {{description}}</li>
-        {{/each}}
-      </ul>
-    </div>
-    <div class="social">
-      <h2>Connect</h2>
-      <a href="{{GitHub}}">GitHub</a>
-      <a href="{{LinkedIn}}">LinkedIn</a>
-      <a href="{{Email}}">Email</a>
-    </div>
-  </div>
+  <header>
+    <h1>{{ name }}</h1>
+    <h2>{{ position }}</h2>
+  </header>
+  <section>
+    <h2>About Me</h2>
+    <p>{{ bio }}</p>
+  </section>
+  <section>
+    <h2>Skills</h2>
+    <ul>
+      {{#each skills}}
+        <li>{{ this }}</li>
+      {{/each}}
+    </ul>
+  </section>
+  <section>
+    <h2>Projects</h2>
+    <ul>
+      {{#each projects}}
+        <li>
+          <h3>{{ name }}</h3>
+          <p>{{ description }}</p>
+          <a href="{{ link }}">Visit Project</a>
+        </li>
+      {{/each}}
+    </ul>
+  </section>
+  <section>
+    <h2>Connect</h2>
+    <ul>
+      {{#each social_links}}
+        <li>
+          <a href="{{ this }}">{{ this }}</a>
+        </li>
+      {{/each}}
+    </ul>
+  </section>
 </body>
 </html>
