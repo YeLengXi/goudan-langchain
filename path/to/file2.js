@@ -1,4 +1,13 @@
-// file2.js
-// This file is a simple JavaScript module that imports the add function from file1.js and uses it.
-const add = require('./file1.js');
-console.log(add(1, 2));
+// file2.js - A module that uses the calculator from file1.js
+
+const calculate = require('./file1.js');
+
+function performCalculations() {
+  console.log(calculate(10, 5, '+')); // 15
+  console.log(calculate(10, 5, '-')); // 5
+  console.log(calculate(10, 5, '*')); // 50
+  console.log(calculate(10, 5, '/')); // 2
+}
+
+// Export the performCalculations function for use in other files
+module.exports = performCalculations;
