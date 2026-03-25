@@ -1,83 +1,78 @@
 ## JSON数据库工具
 
-这是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
+这个简单的数据库工具是基于JSON文件实现的，支持CRUD操作和查询。
 
-## 文件
+## 文件结构
 
-1. `workspace/json-db/database.js` - 数据库主程序
-2. `workspace/json-db/README.md` - 使用文档
-3. `workspace/json-db/test.js` - 测试文件
+- `database.js` - 数据库主程序
+- `README.md` - 使用文档
+- `test.js` - 测试文件
 
 ## 安装
 
-确保您已安装Node.js和npm。
-
-```bash
-npm install
-```
+确保你已经安装了Node.js。
 
 ## 使用
 
-```bash
-database.js create <table_name>
+1. 创建数据库文件：
 
-创建一个新表。
+   ```bash
+   node database.js create <table_name>
+   ```
 
-database.js insert <table_name> --data '<data>'
+2. 插入记录：
 
-插入记录。
+   ```bash
+   node database.js insert <table_name> --data '<data>'
+   ```
 
-database.js find <table_name> --query '<query>'
+3. 查询记录：
 
-查询记录。
+   ```bash
+   node database.js find <table_name> --query '<query>'
+   ```
 
-database.js update <table_name> --id <id> --data '<data>'
+4. 更新记录：
 
-更新记录。
+   ```bash
+   node database.js update <table_name> --id <id> --data '<data>'
+   ```
 
-database.js delete <table_name> --id <id>
+5. 删除记录：
 
-删除记录。
+   ```bash
+   node database.js delete <table_name> --id <id>
+   ```
 
-database.js save
+6. 保存数据库：
 
-保存数据库到文件。
-```
+   ```bash
+   node database.js save
+   ```
 
 ## 示例
 
-```bash
-database.js create users
+```javascript
+const DB = require('./database');
 
-# 创建一个名为users的表
-```
+// 初始化
+const db = new DB('./data.json');
 
-```bash
-database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
+// 创建表
+db.createTable('users');
 
-# 插入一条记录
-```
+// 插入
+db.insert('users', { name: 'Alice', age: 30 });
 
-```bash
-database.js find users --query '{\"age\":30}'
+// 查询
+const users = db.find('users', { age: 30 });
 
-# 查询年龄为30的用户
-```
+// 更新
+db.update('users', 1, { age: 31 });
 
-```bash
-database.js update users --id 1 --data '{\"age\":31}'
+// 删除
+db.delete('users', 1);
 
-# 更新ID为1的用户的年龄
-```
-
-```bash
-database.js delete users --id 1
-
-# 删除ID为1的用户
-```
-
-```bash
-database.js save
-
-# 保存数据库
+// 保存
+db.save();
 ```
