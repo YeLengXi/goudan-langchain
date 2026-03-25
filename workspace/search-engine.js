@@ -1,19 +1,18 @@
 const fs = require('fs');
-const path = require('path');
-
-const logParser = require('./log-parser');
-const errorStatistics = require('./error-statistics');
+const { logParser } = require('./log-parser');
+const { countErrors, groupErrorsByType, getMostFrequentError } = require('./error-statistics');
+const { generateJsonReport, generateCsvReport, generateStatisticsReport } = require('./report-generator');
 
 // 搜索引擎
 const searchEngine = {
   searchByKeyword: (logs, keyword) => {
-    return logs.filter(log => log.message.includes(keyword));
+    return logs.filter(log => log.includes(keyword));
   },
-  filterByTimeRange: (logs, startTime, endTime) => {
-    return logs.filter(log => new Date(log.timestamp) >= new Date(startTime) && new Date(log.timestamp) <= new Date(endTime));
+  filterByTimeRange: (logs, start, end) => {
+    return logs.filter(log => new Date(logParser.parseApplicationLog(log).timestamp) >= new Date(start) && new Date(logParser.parseApplicationLog(log).timestamp) <= new Date(end));
   },
   filterByLogLevel: (logs, level) => {
-    return logs.filter(log => log.level === level);
+    return logs.filter(log => log.includes(level));
   }
 };
 

@@ -3,52 +3,41 @@ const path = require('path');
 
 // 日志解析器
 const logParser = {
-  parseAppLog: (logData) => {
-    const lines = logData.split('\n');
-    const parsedLogs = lines.map(line => {
-      const [timestamp, level, message] = line.split(' '); // 假设应用日志格式为：时间戳 级别 消息
+  parseApplicationLog: (log) => {
+    const match = log.match(/^([\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}).*?\[(INFO|ERROR|WARN)\].*/);
+    if (match) {
       return {
-        timestamp,
-        level,
-        message
-      };
-    });
-    return parsedLogs;
-  },
-  parseAccessLog: (logData) => {
-    const lines = logData.split('\n');
-    const parsedLogs = lines.map(line => {
-      const regex = /^([\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}) - - \[([\w\.-]+)\] "([\w]+) (\S+) (\S+)" \[([\d]{3}-[\d]{3})\] "([\w]+)" "([\w]+)"$/;
-      const match = line.match(regex);
-      if (match) {
-        return {
-          timestamp: match[1],
-          ip: match[2],
-          method: match[3],
-          url: match[4],
-          status: match[5],
-          referer: match[6],
-          user_agent: match[7]
-        };
+        timestamp: match[1],
+        level: match[2],
+        message: log.substring(match.index + match[0].length)
       }
-    });
-    return parsedLogs;
+    }
+    return null;
   },
-  parseErrorLog: (logData) => {
-    const lines = logData.split('\n');
-    const parsedLogs = lines.map(line => {
-      const regex = /^([\w]+):\s+([\w\.]+)\s+at\s+([\w\.]+)\(([^)]+)\)/;
-      const match = line.match(regex);
-      if (match) {
-        return {
-          errorType: match[1],
-          fileName: match[2],
-          methodName: match[3],
-          params: match[4]
-        };
+  parseAccessLog: (log) => {
+    const match = log.match(/^([\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}).*?"(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"$/);
+    if (match) {
+      return {
+        timestamp: match[1],
+        method: match[2],
+        status: match[3],
+        bytes: match[4],
+        request: match[5],
+        referer: match[6]
       }
-    });
-    return parsedLogs;
+    }
+    return null;
+  },
+  parseErrorLog: (log) => {
+    const match = log.match(/^.*?:.*?:\s*(.*?)(:.*?:)*:.*?:\s*(.*)$/);
+    if (match) {
+      return {
+        className: match[1],
+        methodName: match[2],
+        message: match[3]
+      }
+    }
+    return null;
   }
 };
 

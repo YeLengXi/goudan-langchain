@@ -1,40 +1,34 @@
 const fs = require('fs');
 const path = require('path');
+const { parseApplicationLog, parseAccessLog, parseErrorLog } = require('./log-parser');
+const { countErrors, groupErrorsByType, getMostFrequentError } = require('./error-statistics');
+const { searchByKeyword, filterByTimeRange, filterByLogLevel } = require('./search-engine');
+const { generateJsonReport, generateCsvReport, generateStatisticsReport } = require('./report-generator');
 
-const logParser = require('./log-parser');
-const errorStatistics = require('./error-statistics');
-const searchEngine = require('./search-engine');
-const reportGenerator = require('./report-generator');
-
-// 主程序
-const main = (args) => {
-  const logFilePath = args[2];
-  const logData = fs.readFileSync(logFilePath, 'utf-8');
-  const logs = logParser.parseAppLog(logData);
-
-  if (args.includes('--error')) {
-    const errorTypes = errorStatistics.countErrors(logs);
-    console.log(errorTypes);
+// 日志分析器入口
+const logAnalyzer = {
+  analyze: (logFilePath, options) => {
+    const logs = [];
+    const logStream = fs.createReadStream(logFilePath);
+    logStream.on('data', (data) => {
+      const log = data.toString().trim();
+      logs.push(log);
+    });
+    logStream.on('end', () => {
+      if (options.error) {
+        const errors = logParser.parseErrorLog(logs);
+        const errorStats = countErrors(errors);
+        const groupedErrors = groupErrorsByType(errors);
+        const mostFrequentError = getMostFrequentError(errors);
+        generateStatisticsReport({ errorStats, groupedErrors, mostFrequentError });
+      }
+      if (options.search) {
+        const keyword = options.search;
+        const filteredLogs = searchByKeyword(logs, keyword);
+        generateJsonReport(filteredLogs);
+      }
+    });
   }
-
-  if (args.includes('--search')) {
-    const keyword = args[args.indexOf('--search') + 1];
-    const filteredLogs = searchEngine.searchByKeyword(logs, keyword);
-    console.log(filteredLogs);
-  }
-
-  if (args.includes('--export')) {
-    const exportType = args[args.indexOf('--export') + 1];
-    if (exportType === 'json') {
-      reportGenerator.generateJsonReport(logs);
-    } else if (exportType === 'csv') {
-      reportGenerator.generateCsvReport(logs);
-    } else if (exportType === 'statistics') {
-      reportGenerator.generateStatisticsReport(logs);
-    }
-  }
-
 };
 
-const args = process.argv.slice(2);
-main(args);
+module.exports = logAnalyzer;

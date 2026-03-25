@@ -1,47 +1,32 @@
 const fs = require('fs');
-const path = require('path');
-
-const logParser = require('./log-parser');
+const { logParser } = require('./log-parser');
+const { countErrors, groupErrorsByType, getMostFrequentError } = require('./error-statistics');
+const { searchByKeyword, filterByTimeRange, filterByLogLevel } = require('./search-engine');
+const { generateJsonReport, generateCsvReport, generateStatisticsReport } = require('./report-generator');
 
 // 错误统计器
 const errorStatistics = {
   countErrors: (logs) => {
     const errorTypes = {};
     logs.forEach(log => {
-      if (log.errorType) {
-        errorTypes[log.errorType] = (errorTypes[log.errorType] || 0) + 1;
+      const parsedLog = logParser.parseErrorLog(log);
+      if (parsedLog) {
+        const errorType = parsedLog.className + ':' + parsedLog.methodName;
+        errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
       }
     });
     return errorTypes;
   },
   groupErrorsByType: (logs) => {
-    const errorTypes = {};
-    logs.forEach(log => {
-      if (log.errorType) {
-        if (!errorTypes[log.errorType]) {
-          errorTypes[log.errorType] = [];
-        }
-        errorTypes[log.errorType].push(log);
-      }
-    });
-    return errorTypes;
+    const errorTypes = errorStatistics.countErrors(logs);
+    return Object.keys(errorTypes).map(type => ({
+      type,
+      count: errorTypes[type]
+    }));
   },
   getMostFrequentError: (logs) => {
-    const errorTypes = {};
-    logs.forEach(log => {
-      if (log.errorType) {
-        errorTypes[log.errorType] = (errorTypes[log.errorType] || 0) + 1;
-      }
-    });
-    let mostFrequentError = null;
-    let maxCount = 0;
-    for (const errorType in errorTypes) {
-      if (errorTypes[errorType] > maxCount) {
-        mostFrequentError = errorType;
-        maxCount = errorTypes[errorType];
-      }
-    }
-    return mostFrequentError;
+    const errorTypes = errorStatistics.countErrors(logs);
+    return Object.keys(errorTypes).reduce((a, b) => errorTypes[a] > errorTypes[b] ? a : b);
   }
 };
 
