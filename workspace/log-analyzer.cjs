@@ -3,8 +3,7 @@ const path = require('path');
 
 // 日志解析器
 function parseLog(logContent) {
-  const lines = logContent.split('
-');
+  const lines = logContent.split('\n');
   const parsedLogs = [];
 
   lines.forEach(line => {
@@ -69,8 +68,7 @@ function exportLogs(logContent, format) {
   if (format === 'json') {
     fs.writeFileSync('exported-logs.json', JSON.stringify(logs, null, 2));
   } else if (format === 'csv') {
-    const csvContent = logs.map(log => [log.timestamp, log.level, log.message].join(',')).join('
-');
+    const csvContent = logs.map(log => [log.timestamp, log.level, log.message].join(',')).join('\n');
     fs.writeFileSync('exported-logs.csv', csvContent);
   }
 }
