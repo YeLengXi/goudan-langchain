@@ -1,44 +1,34 @@
-const fs = require('fs');
-const path = require('path');
+const read_file = require('./read_file');
+const write_file = require('./write_file');
+const exec_command = require('./exec_command');
+const list_directory = require('./list_directory');
 
-// 解析JSDoc注释并生成Markdown文档
-function generateMarkdown(inputFilePath, outputFilePath, templateFilePath) {
-  // 读取输入文件内容
-  const inputContent = fs.readFileSync(inputFilePath, 'utf8');
-  // 解析JSDoc注释
-  const jsdocComments = extractJSDocComments(inputContent);
-  // 读取模板文件内容
-  const templateContent = fs.readFileSync(templateFilePath, 'utf8');
-  // 替换模板中的占位符
-  const markdownContent = templateContent.replace(/{{(.*?)}}/g, (match, key) => {
-    if (jsdocComments[key]) {
-      return jsdocComments[key];
-    }
-    return '';
-  });
-  // 写入输出文件
-  fs.writeFileSync(outputFilePath, markdownContent);
-}
-
-// 提取JSDoc注释
-function extractJSDocComments(content) {
-  const commentsRegex = //\*\*(.*?)\*\*/gs;
-  let match;
-  const comments = {};
-  while ((match = commentsRegex.exec(content)) !== null) {
-    const comment = match[1];
-    const tagRegex = /@\w+\s+(.*)/gs;
-    let tagMatch;
-    while ((tagMatch = tagRegex.exec(comment)) !== null) {
-      const tagName = tagMatch[1];
-      const tagValue = tagMatch[2].trim();
-      comments[tagName] = tagValue;
-    }
-  }
-  return comments;
-}
-
-module.exports = {
-  generateMarkdown,
-  extractJSDocComments
+// 解析JSDoc注释
+const parseJSDoc = (jsdoc) => {
+  // TODO: 实现解析逻辑
 };
+
+// 提取函数、类、参数信息
+const extractInfo = (code) => {
+  // TODO: 实现提取逻辑
+};
+
+// 生成Markdown格式的API文档
+const generateMarkdown = (info) => {
+  // TODO: 实现生成Markdown文档的逻辑
+};
+
+// 主生成器函数
+const generate = async (inputPath, outputPath) => {
+  try {
+    const code = await read_file(inputPath);
+    const info = extractInfo(code);
+    const markdown = generateMarkdown(info);
+    await write_file(outputPath, markdown);
+    console.log('Markdown文档生成成功');
+  } catch (error) {
+    console.error('Markdown文档生成失败:', error);
+  }
+};
+
+module.exports = generate;

@@ -18,7 +18,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
 
   // Step 1: Format arrow functions - add spaces
   if (config.formatArrowFunctions) {
-    // Add space after = in arrow function: (a,b)=\(\)\=> => (a,b) =>
+    // Add space after = in arrow function: (a,b)=> => (a,b) =>
     formatted = formatted.replace(/(\w)=\((.*?)\)=>/g, '$1 = ($2) =>');
   }
 

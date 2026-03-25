@@ -1,10 +1,13 @@
 {
   "name": "csv-tool",
   "version": "1.0.0",
-  "description": "CSV数据处理工具",
+  "description": "A simple CSV data processing tool.",
   "main": "csv-tool.js",
   "scripts": {
-    "start": "node csv-tool.js"
+    "convert": "node csv-tool.js convert <input.csv> --format <format>",
+    "filter": "node csv-tool.js filter <input.csv> --column <column> --value <value>",
+    "sort": "node csv-tool.js sort <input.csv> --column <column>",
+    "to-table": "node csv-tool.js to-table <input.csv> --format <format>"
   },
   "dependencies": {
     "fs": "*

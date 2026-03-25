@@ -1,66 +1,46 @@
-# scheduler.js
+const { parse } = require('cron');
 
-const cron = require('cron');
-const fs = require('fs');
-const path = require('path');
+class Scheduler {
+  constructor() {
+    this.tasks = [];
+  }
 
-const tasksConfigPath = process.argv[2];
+  addTask(name, cron, command) {
+    const parsedCron = parse(cron);
+    this.tasks.push({
+      name,
+      cron: parsedCron,
+      command,
+      lastRun: null
+    });
+  }
 
-// 解析cron表达式
-function parseCronExpression(expression) {
-  const cronPattern = expression.split(' ');
-  return cron.Cron.parse(cronPattern);
-}
+  removeTask(name) {
+    this.tasks = this.tasks.filter(task => task.name !== name);
+  }
 
-// 执行任务
-function executeTask(task) {
-  console.log(`执行任务：${task.name} - ${new Date().toLocaleString()}`);
-  require('child_process').exec(task.command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行任务 ${task.name} 时出错：${error}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`执行任务 ${task.name} 时有错误输出：${stderr}`);
-      return;
-    }
-    console.log(`任务 ${task.name} 执行完成，输出：${stdout}`);
-  });
-}
+  run() {
+    const now = new Date();
+    this.tasks.forEach(task => {
+      if (task.lastRun === null || now - task.lastRun >= this.getCronDuration(task.cron)) {
+        this.executeTask(task);
+      }
+    });
+    setTimeout(() => this.run(), 1000);
+  }
 
-// 获取所有任务
-function getAllTasks() {
-  const tasksConfig = fs.readFileSync(tasksConfigPath, 'utf-8');
-  const tasks = JSON.parse(tasksConfig).tasks;
-  return tasks;
-}
+  executeTask(task) {
+    console.log(`Running task: ${task.name} at ${new Date().toLocaleTimeString()}`);
+    exec_command(task.command);
+    task.lastRun = new Date();
+  }
 
-// 添加任务
-function addTask(task) {
-  const tasks = getAllTasks();
-  tasks.push(task);
-  fs.writeFileSync(tasksConfigPath, JSON.stringify({ tasks }, null, 2), 'utf-8');
-}
-
-// 删除任务
-function deleteTask(taskName) {
-  const tasks = getAllTasks();
-  const index = tasks.findIndex(task => task.name === taskName);
-  if (index !== -1) {
-    tasks.splice(index, 1);
-    fs.writeFileSync(tasksConfigPath, JSON.stringify({ tasks }, null, 2), 'utf-8');
+  getCronDuration(cron) {
+    // This is a simplified version of getting the next run time duration.
+    // It is not a complete implementation.
+    const nextRun = cron.next();
+    return nextRun - new Date();
   }
 }
 
-// 主函数
-function main() {
-  const tasks = getAllTasks();
-  tasks.forEach(task => {
-    const cronJob = cron.CronJob(task.cron, () => executeTask(task), null, true);
-    cronJob.start();
-    console.log(`任务 ${task.name} 已添加到调度器`);
-  });
-}
-
-// 运行主函数
-main();
+module.exports = Scheduler;

@@ -1,1 +1,27 @@
-{"name":"John Doe","position":"Frontend Developer","bio":"I am a frontend developer with 5 years of experience. I specialize in building responsive and modern websites.","skills":["HTML","CSS","JavaScript","React","Vue"],"projects":[{"name":"Project 1","description":"A responsive website for a company","link":"https://example.com/project1"},{"name":"Project 2","description":"A modern web application","link":"https://example.com/project2"}],"social_links":{"GitHub":"https://github.com/johndoe","LinkedIn":"https://linkedin.com/in/johndoe","Email":"johndoe@example.com"}}
+{
+  "name": "John Doe",
+  "position": "Frontend Developer",
+  "bio": "I am a frontend developer with 5 years of experience. I specialize in building responsive and modern websites.",
+  "skills": [
+    "HTML5",
+    "CSS3",
+    "JavaScript",
+    "React"
+  ],
+  "projects": [
+    {
+      "name": "Project 1",
+      "description": "A responsive website for a company.",n      "link": "https://example.com/project1"
+    },
+    {
+      "name": "Project 2",
+      "description": "A modern web application.",
+      "link": "https://example.com/project2"
+    }
+  ],
+  "social_links": {
+    "GitHub": "https://github.com/johndoe",
+    "LinkedIn": "https://linkedin.com/in/johndoe",
+    "Email": "johndoe@example.com"
+  }
+}

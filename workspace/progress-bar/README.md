@@ -1,65 +1,60 @@
-# CLI进度条工具
+# progress-bar
 
-## 目标
-创建一个命令行进度条工具，用于显示长时间运行任务的进度。
+This module provides a CLI progress bar utility.
 
-## 必须创建的文件
+## Installation
 
-1. `workspace/progress-bar/progress.js` - 进度条主程序
-2. `workspace/progress-bar/README.md` - 使用文档
-3. `workspace/progress-bar/demo.js` - 演示程序
+To use this module, you need to install it via npm:
 
-## 工作流程
+```bash
+npm install progress-bar
+```
 
-立即执行以下操作：
+## Usage
 
-1. 实现进度条显示：
-   - 百分比显示
-   - 进度条图形（[====>     ]）
-   - ETA计算
-   - 速度显示
-
-2. 实现多种样式：
-   - 标准进度条
-   - 圆形进度
-   - 点状进度（.....）
-   - 箭头进度（>>>>）
-
-3. 实现多进度条（同时显示多个）
-
-4. 实现日志输出（不干扰进度条）
-
-5. 添加使用示例
-
-## 功能要求
-
-- 动态更新
-- 百分比显示
-- ETA计算
-- 支持多种样式
-- 多进度条
-- 彩色输出
-
-## API接口
+To create a progress bar, you can do the following:
 
 ```javascript
-const ProgressBar = require('./progress.js');
+const ProgressBar = require('progress-bar');
 
-// 单个进度条
-const bar = new ProgressBar({
-  total: 100,
-  width: 40,
-  complete: '█',
-  incomplete: '░'
-});
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
-  // 做一些工作
+  // Do some work here
 }
 
-// 多进度条
-const multi = new MultiProgressBar();
-const bar1 = multi.create('Download', 100);
-const bar2 = multi.create('Upload', 100);
+bar.finish();
+```
+
+## API
+
+- `new ProgressBar(options)` creates a new progress bar.
+  - `options.total` (number) - The total number of steps (default is 100).
+  - `options.width` (number) - The width of the progress bar (default is 20).
+  - `options.complete` (string) - The character to use for the completed part of the progress bar (default is '█').
+  - `options.incomplete` (string) - The character to use for the incomplete part of the progress bar (default is ' ').
+
+- `update(percentage)` updates the progress bar to the specified percentage.
+
+- `finish()` finishes the progress bar.
+
+## Examples
+
+### Standard Progress Bar
+
+```bash
+node demo.js --style standard
+```
+
+### Dots Progress Bar
+
+```bash
+node demo.js --style dots
+```
+
+### Multi Progress Bar
+
+```bash
+node demo.js --multi
 ```

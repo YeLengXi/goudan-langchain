@@ -1,57 +1,50 @@
 const fs = require('fs');
-const util = require('util');
-const path = require('path');
+const { parse, stringify } = require('jsonc-stable-stringify');
+const { deepMerge } = require('deepmerge');
 
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const readFileAsync = readFile;
-const writeFileAsync = writeFile;
-
-async function format(json, indent = 2) {
+// Helper function to format JSON
+function format(json, indent = 2) {
     try {
-        const formattedJson = JSON.stringify(json, null, indent);
+        const formattedJson = stringify(json, { indent });
         return formattedJson;
     } catch (error) {
         throw new Error('Invalid JSON');
     }
 }
 
-async function sort(json, key) {
+// Helper function to sort JSON by key
+function sort(json, key) {
     try {
-        const sortedJson = JSON.stringify(json, (a, b) => {
+        const sortedJson = JSON.parse(format(json));
+        sortedJson.sort((a, b) => {
             if (a[key] < b[key]) return -1;
             if (a[key] > b[key]) return 1;
             return 0;
-        }, 2);
-        return sortedJson;
+        });
+        return JSON.stringify(sortedJson);
     } catch (error) {
         throw new Error('Invalid JSON');
     }
 }
 
-async function filter(json, condition) {
+// Helper function to filter JSON based on condition
+function filter(json, condition) {
     try {
-        const filteredJson = JSON.stringify(json.filter(item => eval(condition)), 2);
-        return filteredJson;
-    } catch (error) {
-        throw new Error('Invalid JSON or Condition');
-    }
-}
-
-async function merge(json1, json2) {
-    try {
-        return JSON.stringify({
-            ...json1,
-            ...json2
-        }, 2);
+        const jsonData = JSON.parse(format(json));
+        return JSON.stringify(jsonData.filter(item => eval(condition)));
     } catch (error) {
         throw new Error('Invalid JSON');
     }
 }
 
-module.exports = {
-    format,
-    sort,
-    filter,
-    merge
+// Helper function to merge JSON objects
+function merge(json1, json2) {
+    try {
+        const mergedJson = deepMerge(JSON.parse(format(json1)), JSON.parse(format(json2)));
+        return JSON.stringify(mergedJson);
+    } catch (error) {
+        throw new Error('Invalid JSON');
+    }
 }
+
+module.exports = { format, sort, filter, merge };

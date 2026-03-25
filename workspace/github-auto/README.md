@@ -4,9 +4,7 @@
 
 ## 安装
 
-首先，您需要安装 Node.js。
-
-然后，运行以下命令来安装依赖项：
+首先，你需要安装工具：
 
 ```bash
 npm install
@@ -14,10 +12,10 @@ npm install
 
 ## 使用
 
-- `github-auto create <仓库名> --public` - 创建公开仓库
-- `github-auto create <仓库名> --private` - 创建私有仓库
-- `github-auto init --template <模板名>` - 初始化项目
-- `github-auto push` - 推送到 GitHub
+- `github-auto create <仓库名> --public` 创建公开仓库
+- `github-auto create <仓库名> --private` 创建私有仓库
+- `github-auto init --template <模板名>` 初始化项目
+- `github-auto push` 推送到 GitHub
 
 ## 模板
 
@@ -26,4 +24,6 @@ npm install
 
 ## 注意
 
-- 您需要配置 GitHub Personal Access Token。
+- 需要 GitHub Personal Access Token
+- 错误处理和提示
+- 支持配置文件

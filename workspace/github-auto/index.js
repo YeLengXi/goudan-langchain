@@ -1,47 +1,41 @@
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const { promisify } = require('util');
-const exec = promisify(require('child_process').exec);
-const dotenv = require('dotenv');
+const { program } = require('commander');
 
-dotenv.config();
+const createGitHubRepository = require('./github-api').createGitHubRepository;
 
-const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+program
+  .command('create <repoName>')
+  .option('--public', 'Create a public repository')
+  .option('--private', 'Create a private repository')
+  .action(async (repoName, options) => {
+    const isPublic = options.public || !options.private;
+    try {
+      const response = await createGitHubRepository(process.env.GITHUB_TOKEN, repoName, isPublic);
+      console.log(`Repository created: ${response.full_name}`);
+    } catch (error) {
+      console.error('Error creating repository:', error);
+    }
+  });
 
-module.exports = {
-  createRepository: async (name, isPublic, description) => {
-    const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
-      name,
-      private: !isPublic
-    }, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`
-      }
-    });
-    return response.data;
-  },
+program
+  .command('init')
+  .option('--template <template>', 'Initialize project with a specific template')
+  .action(async (options) => {
+    if (!options.template) {
+      console.error('Error: Missing template name. Use --template <template>.
+');      return;
+    }
 
-  initializeRepository: async (repo) => {
-    const repoPath = path.join(__dirname, repo.name);
-    fs.mkdirSync(repoPath, { recursive: true });
-    fs.writeFileSync(path.join(repoPath, 'README.md'), await readTemplate('README'));
-    fs.writeFileSync(path.join(repoPath, '.gitignore'), await readTemplate('.gitignore'));
-    fs.writeFileSync(path.join(repoPath, 'LICENSE'), await readTemplate('LICENSE'));
-    await exec(`git init ${repoPath}`);
-    await exec(`git add . ${repoPath}`);
-    await exec(`git commit -m 'Initial commit' ${repoPath}`);
-  },
+    // Create project structure and initialize git
+    console.log(`Initializing project with ${options.template} template...`);
+    // ... (additional code for project initialization and template application)
+  });
 
-  pushToGitHub: async (repo) => {
-    const repoPath = path.join(__dirname, repo.name);
-    await exec(`git remote add origin https://github.com/${repo.full_name}.git ${repoPath}`);
-    await exec(`git push -u origin main ${repoPath}`);
-  },
+program
+  .command('push')
+  .action(async () => {
+    // Add remote and push to GitHub
+    console.log('Pushing to GitHub...');
+    // ... (additional code for pushing to GitHub)
+  });
 
-  readTemplate: async (templateName) => {
-    const templatePath = path.join(__dirname, 'templates', `${templateName}.md`);
-    return fs.readFileSync(templatePath, 'utf8');
-  }
-};
+program.parse(process.argv);
