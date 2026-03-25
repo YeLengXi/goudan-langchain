@@ -1,60 +1,43 @@
-const cron = require('cron');
-const fs = require('fs');
-const path = require('path');
+# Cron Scheduler
 
-const taskDir = path.join(__dirname, 'tasks');
-const logDir = path.join(__dirname, 'logs');
+This is the main program for the Cron Scheduler. It uses Node.js to parse cron expressions and execute tasks at scheduled times.
 
-if (!fs.existsSync(taskDir)) {
-  fs.mkdirSync(taskDir);
-}
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+## Features
 
-const tasks = [];
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-function parseCronExpression(expression) {
-  // 实现cron表达式解析的代码
-}
+## Usage
 
-function addTask(task) {
-  tasks.push(task);
-  cron.schedule(task.cron, () => {
-    execCommand(task.command);
-    logTaskExecution(task.name);
-  });
-}
+To use the Cron Scheduler, you need to provide a configuration file (tasks.json) that defines the tasks you want to schedule. The configuration file should be in JSON format and contain an array of tasks. Each task has the following properties:
 
-function removeTask(taskName) {
-  tasks = tasks.filter(task => task.name !== taskName);
-}
+- `name`: The name of the task.
+- `cron`: The cron expression that determines when the task should be executed.
+- `command`: The command that will be executed by the task.
 
-function logTaskExecution(taskName) {
-  const logPath = path.join(logDir, `${taskName}_execution.log`);
-  const logContent = `Execution time: ${new Date().toISOString()}
-`;
-  fs.appendFileSync(logPath, logContent);
-}
-
-function execCommand(command) {
-  console.log(`Executing: ${command}`);
-  require('child_process').exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error: ${error.message}`);
-      return;
+Example configuration:
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
-    if (stderr) {
-      console.error(`Stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Stdout: ${stdout}`);
-  });
+  ]
 }
+```
 
-module.exports = {
-  addTask,
-  removeTask,
-  logTaskExecution,
-  execCommand
-};
+To run the scheduler, use the following command:
+
+```bash
+node scheduler.js --config tasks.json
+```
