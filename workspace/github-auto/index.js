@@ -1,38 +1,34 @@
+#!/usr/bin/env node
+
+const program = require('commander');
 const axios = require('axios');
+const fs = require('fs');
+const { exec } = require('child_process');
 
 const apiUrl = 'https://api.github.com';
-const gitHubToken = 'YOUR_GITHUB_TOKEN';
+const accessToken = 'YOUR_GITHUB_ACCESS_TOKEN';
 
-module.exports = {
-  createRepository: async (name, isPublic, description) => {
-    const response = await axios.post(`${apiUrl}/user/repos`, {
-      name,
-      private: !isPublic
-    }, {
-      headers: {
-        Authorization: `token ${gitHubToken}`
-      }
-    });
-    return response.data;
-  },
+program
+  .command('create <name> [public]')
+  .description('创建 GitHub 仓库')
+  .option('--private', '创建私有仓库')
+  .action((name, public) => {
+    const isPrivate = public || program.private;
+    createRepo(name, isPrivate);
+  })
 
-  initializeGit: async (path) => {
-    await exec_command(`cd ${path} && git init`);
-    await exec_command(`cd ${path} && echo '# .gitignore' > .gitignore`);
-    await exec_command(`cd ${path} && echo 'LICENSE' > LICENSE`);
-  },
+program
+  .command('init [template]')
+  .description('初始化项目')
+  .action((template) => {
+    initProject(template);
+  })
 
-  addFiles: async (path) => {
-    await exec_command(`cd ${path} && echo 'README.md' > README.md`);
-    await exec_command(`cd ${path} && echo '# Project description' >> README.md`);
-    await exec_command(`cd ${path} && echo '## Features' >> README.md`);
-    await exec_command(`cd ${path} && echo '' >> README.md`);
-  },
+program
+  .command('push')
+  .description('推送到 GitHub')
+  .action(() => {
+    pushToGitHub();
+  })
 
-  commitAndPush: async (path, repoUrl) => {
-    await exec_command(`cd ${path} && git add .`);
-    await exec_command(`cd ${path} && git commit -m 'Initial commit'`);
-    await exec_command(`cd ${path} && git remote add origin ${repoUrl}`);
-    await exec_command(`cd ${path} && git push -u origin main`);
-  }
-};
+program.parse(process.argv);

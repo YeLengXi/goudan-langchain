@@ -2,15 +2,13 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const mime = require('mime');
 
-const hostname = 'localhost';
-const port = process.argv[2] || 8080;
-const rootDir = process.argv[3] || './public';
+const PORT = process.argv.slice(2).find(arg => arg.startsWith('--port')).split('=')[1] || 8080;
+const DIR = process.argv.slice(2).find(arg => arg.startsWith('--dir')).split('=')[1] || './public';
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  const filePath = path.join(rootDir, parsedUrl.pathname);
+  const filePath = path.join(DIR, parsedUrl.pathname);
 
   fs.stat(filePath, (err, stats) => {
     if (err) {
@@ -30,20 +28,37 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
+        res.writeHead(200, { 'Content-Type': 'text/html' });
         fs.createReadStream(filePath).pipe(res);
       });
     } else {
-      res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
+      const mime = getMime(filePath);
+      res.writeHead(200, { 'Content-Type': mime });
       fs.createReadStream(filePath).pipe(res);
     }
   });
 });
 
-server.listen(port, () => {
+function getMime(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case '.html': return 'text/html';
+    case '.css': return 'text/css';
+    case '.js': return 'application/javascript';
+    case '.json': return 'application/json';
+    case '.png': return 'image/png';
+    case '.jpg': return 'image/jpeg';
+    case '.jpeg': return 'image/jpeg';
+    case '.gif': return 'image/gif';
+    case '.svg': return 'image/svg+xml';
+    default: return 'application/octet-stream';
+  }
+}
+
+server.listen(PORT, () => {
   console.log(`Starting HTTP server...
-- Port: ${port}
-- Root: ${rootDir}
-- URL: http://${hostname}:${port}
+- Port: ${PORT}
+- Root: ${DIR}
+- URL: http://localhost:${PORT}
 `);
 });

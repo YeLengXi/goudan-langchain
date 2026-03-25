@@ -1,92 +1,78 @@
-const fs = require('fs');
-const { parse, generate } = require('csv-parse/sync');
-const { StringDecoder } = require('string_decoder');
+const { Transform } = require('stream');
 
-// 解析CSV文件
-function parseCSV(filePath) {
-    const decoder = new StringDecoder('utf8');
-    const fileBuffer = fs.readFileSync(filePath);
-    const fileContent = decoder.write(fileBuffer.toString());
-    const parsedData = parse(fileContent, {
-        columns: true,
-        skip_empty_lines: true
-    });
-    return parsedData;
-}
+// CSV解析器
+class CSVParser extends Transform {
+  constructor(options) {
+    super(options);
+    this.currentRow = [];
+    this.currentField = '';
+    this.rowIndex = 0;
+    this.isQuoted = false;
+  }
 
-// 生成CSV文件
-function generateCSV(data, filePath) {
-    const csv = require('csv-stringify/sync')(data, {
-        header: true
-    });
-    fs.writeFileSync(filePath, csv);
-}
+  _transform(chunk, encoding, callback) {
+    let data = chunk.toString();
 
-// CSV转JSON
-function csvToJson(csvFilePath, jsonFilePath) {
-    const csvData = parseCSV(csvFilePath);
-    const jsonData = JSON.stringify(csvData, null, 2);
-    fs.writeFileSync(jsonFilePath, jsonData);
-}
+    for (let i = 0; i < data.length; i++) {
+      const char = data[i];
 
-// CSV转Markdown表格
-function csvToMarkdown(csvFilePath, markdownFilePath) {
-    const csvData = parseCSV(csvFilePath);
-    const markdown = '\|' + csvData.columns.join('\|') + '\|
-|---|---|
-' + csvData.rows.map(row => '\|' + row.join('\|') + '\|
-').join('\n');
-    fs.writeFileSync(markdownFilePath, markdown);
-}
-
-// CSV转HTML表格
-function csvToHtml(csvFilePath, htmlFilePath) {
-    const csvData = parseCSV(csvFilePath);
-    const html = '<table>
-' + csvData.columns.map(column => '<th>' + column + '</th>').join('
-') + '
-</table>
-' + csvData.rows.map(row => '<tr>
-' + row.map(cell => '<td>' + cell + '</td>').join('
-') + '</tr>').join('
-');
-    fs.writeFileSync(htmlFilePath, html);
-}
-
-// CSV过滤
-function csvFilter(csvFilePath, column, value) {
-    const csvData = parseCSV(csvFilePath);
-    const filteredData = csvData.rows.filter(row => row[column] === value);
-    generateCSV(filteredData, csvFilePath);
-}
-
-// CSV排序
-function csvSort(csvFilePath, column) {
-    const csvData = parseCSV(csvFilePath);
-    const sortedData = csvData.rows.sort((a, b) => a[column] > b[column] ? 1 : -1);
-    generateCSV(sortedData, csvFilePath);
-}
-
-// CLI接口
-function cliInterface() {
-    const args = process.argv.slice(2);
-    switch (args[0]) {
-        case 'convert':
-            csvToJson(args[1], args[2]);
-            break;
-        case 'filter':
-            csvFilter(args[1], args[2], args[3]);
-            break;
-        case 'sort':
-            csvSort(args[1], args[2]);
-            break;
-        case 'to-table':
-            csvToMarkdown(args[1], args[2]);
-            break;
-        default:
-            console.log('未知命令');
+      if (char === '\') {
+        // 转义字符
+        this.currentField += data[i + 1];
+        i++;
+      } else if (char === '"') {
+        // 引号
+        this.isQuoted = !this.isQuoted;
+      } else if (char === ',' && !this.isQuoted) {
+        // 字段分隔符
+        this.push(this.currentRow.join(','));
+        this.currentRow = [];
+      } else if (char === '
+' && !this.isQuoted) {
+        // 行分隔符
+        this.push(this.currentRow.join(','));
+        this.currentRow = [];
+        this.rowIndex++;
+      } else {
+        // 普通字符
+        this.currentField += char;
+      }
     }
+
+    callback();
+  }
+
+  _flush(callback) {
+    if (this.currentRow.length > 0) {
+      this.push(this.currentRow.join(','));
+    }
+    callback();
+  }
 }
 
-// 运行CLI接口
-cliInterface();
+// CSV生成器
+class CSVGenerator extends Transform {
+  constructor(options) {
+    super(options);
+    this.header = [];
+  }
+
+  _transform(chunk, encoding, callback) {
+    const row = chunk.toString().split(',');
+
+    if (this.header.length === 0) {
+      this.header = row;
+    }
+
+    this.push(this.header.join(','));
+    this.push('
+');
+    this.push(row.join(','));
+    this.push('
+');
+
+    callback();
+  }
+}
+
+module.exports = { CSVParser, CSVGenerator };

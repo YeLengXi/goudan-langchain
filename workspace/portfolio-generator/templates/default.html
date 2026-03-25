@@ -11,100 +11,90 @@
       padding: 0;
       background-color: #f4f4f4;
     }
+
     .container {
-      width: 80%;
+      max-width: 800px;
       margin: auto;
-      overflow: hidden;
-    }
-    header {
-      background: #35424a;
-      color: #ffffff;
-      padding-top: 30px;
-      min-height: 70px;
-      border-bottom: #e8491d 3px solid;
-    }
-    header a {
-      color: #ffffff;
-      text-decoration: none;
-      text-transform: uppercase;
-      font-size: 16px;
-    }
-    header ul {
-      padding: 0;
-      list-style: none;
-    }
-    header li {
-      float: left;
-      display: inline;
-      padding: 0 20px 0 20px;
-    }
-    header #branding {
-      float: left;
-    }
-    header #branding h1 {
-      margin: 0;
-    }
-    header nav {
-      float: right;
-      margin-top: 10px;
-    }
-    header .highlight, header .current a {
-      color: #e8491d;
-      font-weight: bold;
-    }
-    header a:hover {
-      color: #ffffff;
-      font-weight: bold;
-    }
-    .banner {
-      background: url('banner.jpg') no-repeat center center/cover;
-      height: 400px;
-      background-color: #35424a;
-    }
-    .banner h1 {
-      text-align: center;
-      padding-top: 100px;
-      color: #ffffff;
-      font-size: 55px;
-    }
-    .banner h3 {
-      text-align: center;
-      color: #ffffff;
-      font-size: 30px;
-    }
-    footer {
       padding: 20px;
-      color: #ffffff;
-      background-color: #35424a;
+    }
+
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
       text-align: center;
+    }
+
+    .bio {
+      background-color: #fff;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .skills {
+      background-color: #fff;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .projects {
+      background-color: #fff;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .project {
+      margin-bottom: 20px;
+    }
+
+    .social-links {
+      background-color: #fff;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .social-link {
+      margin-right: 10px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <div id="branding">
-        <h1><span class="highlight">John</span> Doe</h1>
+  <div class="container">
+    <header>
+      <h1>John Doe</h1>
+      <p>Frontend Developer</p>
+    </header>
+    <section class="bio">
+      <p>I am a frontend developer with 5 years of experience. I specialize in building responsive and modern websites.</p>
+    </section>
+    <section class="skills">
+      <h2>Skills</h2>
+      <ul>
+        <li>HTML5</li>
+        <li>CSS3</li>
+        <li>JavaScript</li>
+        <li>React</li>
+      </ul>
+    </section>
+    <section class="projects">
+      <h2>Projects</h2>
+      <div class="project">
+        <h3>Project 1</h3>
+        <p>A responsive website for a company.</p>
+        <a href="https://example.com/project1">Visit Project</a>
       </div>
-      <nav>
-        <ul>
-          <li class="current"><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Skills</a></li>
-          <li><a href="#">Portfolio</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-  <section class="banner">
-    <div class="container">
-      <h1>Welcome to My Portfolio</h1>
-      <h3>I am a frontend developer with 5 years of experience.</h3>
-    </div>
-  </section>
-  <footer>
-    <p>John Doe &copy; 2022</p>
-  </footer>
+      <div class="project">
+        <h3>Project 2</h3>
+        <p>A modern web application.</p>
+        <a href="https://example.com/project2">Visit Project</a>
+      </div>
+    </section>
+    <section class="social-links">
+      <h2>Social Links</h2>
+      <a href="https://github.com/johndoe" class="social-link">GitHub</a>
+      <a href="https://linkedin.com/in/johndoe" class="social-link">LinkedIn</a>
+      <a href="johndoe@example.com" class="social-link">Email</a>
+    </section>
+  </div>
 </body>
 </html>

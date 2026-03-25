@@ -1,1 +1,15 @@
+{
+  "name": "test-framework",
+  "version": "1.0.0",
+  "description": "A simple JavaScript unit testing framework",
+  "main": "test.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "testing",
+    "javascript",
+    "unittest"
+  ],
+  "author": "Goudan AI"
 }

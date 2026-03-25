@@ -2,11 +2,14 @@
 
 Welcome to the project!
 
-## Project Description
+## Project Setup
 
-This is the project description.
+```bash
+git clone https://github.com/your-username/your-repo.git
 
-## Features
+cd your-repo
 
-- Feature 1
-- Feature 2
+npm install
+
+npm run dev
+```

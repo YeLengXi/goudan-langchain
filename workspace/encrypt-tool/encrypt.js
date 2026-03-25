@@ -1,75 +1,107 @@
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 
-const methods = {
-  caesar: (text, key) => {
-    return text.split('').map((char) => {
-      if (char.match(/[a-z]/i)) {
-        let code = char.charCodeAt(0) + key;
-        if (code > 'z'.charCodeAt(0)) code -= 26;
-        if (code < 'a'.charCodeAt(0)) code += 26;
-        return String.fromCharCode(code);
-      }
-      return char;
-    }).join('');
-  },
-  base64: (text) => {
-    return Buffer.from(text).toString('base64');
-  },
-  rot13: (text) => {
-    return text.split('').map((char) => {
-      if (char.match(/[a-z]/i)) {
-        let code = char.charCodeAt(0) + 13;
-        if (code > 'z'.charCodeAt(0)) code -= 26;
-        if (code < 'a'.charCodeAt(0)) code += 26;
-        return String.fromCharCode(code);
-      }
-      return char;
-    }).join('');
-  },
-  xor: (text, key) => {
-    let binary = text.split('').map((char) => {
-      return char.charCodeAt(0).toString(2).padStart(8, '0');
-    }).join('');
-    let keyBinary = key.split('').map((char) => {
-      return char.charCodeAt(0).toString(2).padStart(8, '0');
-    }).join('');
-    let resultBinary = binary.split('').map((bit, index) => {
-      return (parseInt(bit, 2) ^ parseInt(keyBinary[index % keyBinary.length], 2)).toString(2).padStart(8, '0');
-    }).join('');
-    return parseInt(resultBinary, 2).toString(16);
-  },
-  aes: (text, key) => {
-    const cipher = crypto.createCipher('aes-256-cbc', key);
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return encrypted;
-  }
-};
+// 加密函数
+function encrypt(text, method, key) {
+  let encryptedText = '';
 
-const args = process.argv.slice(2);
-
-const [command, text, method, key, output] = args;
-
-if (command === 'encrypt') {
-  if (!text || !method) {
-    console.error('请提供文本和加密方法。');
-    process.exit(1);
+  switch (method) {
+    case 'caesar':
+      encryptedText = caesarCipher(text, key);
+      break;
+    case 'base64':
+      encryptedText = Buffer.from(text).toString('base64');
+      break;
+    case 'rot13':
+      encryptedText = rot13(text);
+      break;
+    case 'xor':
+      encryptedText = xor(text, key);
+      break;
+    case 'aes':
+      encryptedText = aes(text, key);
+      break;
+    default:
+      throw new Error('未知加密方法');
   }
 
-  if (method === 'aes' && !key) {
-    console.error('AES加密需要提供密钥。');
-    process.exit(1);
-  }
-
-  if (method === 'aes' && output) {
-    fs.writeFileSync(output, methods[method](text, key));
-    console.log(`文件已加密到 ${output}`);
-  } else {
-    console.log(methods[method](text, method === 'aes' ? key : null));
-  }
-} else {
-  console.error('无效的命令。');
-  process.exit(1);
+  return encryptedText;
 }
+
+// 解密函数
+function decrypt(encryptedText, method, key) {
+  let decryptedText = '';
+
+  switch (method) {
+    case 'caesar':
+      decryptedText = caesarCipher(encryptedText, -key);
+      break;
+    case 'base64':
+      decryptedText = Buffer.from(encryptedText, 'base64').toString();
+      break;
+    case 'rot13':
+      decryptedText = rot13(encryptedText);
+      break;
+    case 'xor':
+      decryptedText = xor(encryptedText, key);
+      break;
+    case 'aes':
+      decryptedText = aes(encryptedText, key);
+      break;
+    default:
+      throw new Error('未知加密方法');
+  }
+
+  return decryptedText;
+}
+
+// 凯撒密码加密
+function caesarCipher(text, key) {
+  return text.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      let code = char.charCodeAt(0) + key;
+      if (code > 'z'.charCodeAt(0)) code -= 26;
+      if (code < 'a'.charCodeAt(0)) code += 26;
+      return String.fromCharCode(code);
+    }
+    return char;
+  }).join('');
+}
+
+// ROT13加密
+function rot13(text) {
+  return text.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      let code = char.charCodeAt(0) + 13;
+      if (code > 'z'.charCodeAt(0)) code -= 26;
+      if (code < 'a'.charCodeAt(0)) code += 26;
+      return String.fromCharCode(code);
+    }
+    return char;
+  }).join('');
+}
+
+// XOR加密
+function xor(text, key) {
+  return text.split('').map((char, index) => {
+    let keyChar = key[index % key.length];
+    return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
+  }).join('');
+}
+
+// AES加密
+function aes(text, key) {
+  const cipher = crypto.createCipher('aes-256-cbc', key);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
+}
+
+// AES解密
+function aesDecrypt(encryptedText, key) {
+  const decipher = crypto.createDecipher('aes-256-cbc', key);
+  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
+}
+
+module.exports = { encrypt, decrypt };

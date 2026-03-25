@@ -1,40 +1,37 @@
 # GitHub 自动化工具
 
+## 简介
 本工具旨在自动化 GitHub 仓库的创建、初始化和推送流程。
 
-## 安装
+## 功能
 
-首先，您需要安装本工具。
+- 仓库创建
+  - 通过 GitHub API 创建仓库
+  - 支持公开/私有仓库
+  - 自动初始化 README
+  - 添加 .gitignore 和 LICENSE
 
-```bash
-npm install -g github-auto
-```
+- 本地初始化
+  - 自动初始化 git
+  - 创建项目结构
+  - 添加初始文件
+  - 第一次提交
+
+- 推送到 GitHub
+  - 添加 remote
+  - 推送到 main 分支
+  - 设置默认分支
+
+- 模板系统
+  - README 模板
+  - 多种 .gitignore 模板
+  - LICENSE 选择（MIT, Apache, GPL）
 
 ## 使用
 
-### 创建仓库
-
 ```bash
 github-auto create my-project --public
-```
-
-```bash
 github-auto create my-project --private --description "My awesome project"
-```
-
-### 初始化本地项目
-
-```bash
 github-auto init --template nodejs
-```
-
-### 推送到 GitHub
-
-```bash
 github-auto push
 ```
-
-## 注意
-
-- 您需要设置 GitHub Personal Access Token。
-- 确保您的项目已经初始化了 git。

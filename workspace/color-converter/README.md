@@ -1,16 +1,18 @@
-# color-converter
+## color-converter
 
-This tool is a color converter that supports various color formats.
+This tool is a color converter that supports various color formats for conversion.
 
 ## Features
 
-- Supports multiple color formats
+- Support multiple color formats
 - Bidirectional conversion
-- Color operations
+- Color operations (lighten/darken, saturation adjustment, invert, mix colors)
 - Input validation
 - Error handling
 
 ## Usage
+
+### Conversion
 
 To convert a color format to another format, use the following command:
 
@@ -18,30 +20,47 @@ To convert a color format to another format, use the following command:
 node converter.js <color> --to <format>
 ```
 
-Where `<color>` is the color to be converted and `<format>` is the target format.
-
-### Examples
-
-Convert #ff0000 to RGB:
+For example:
 
 ```bash
 node converter.js #ff0000 --to rgb
-```
-
-Convert rgb(255, 0, 0) to HEX:
-
-```bash
 node converter.js rgb(255, 0, 0) --to hex
 ```
 
-Lighten #ff0000 by 20%:
+### Color Operations
+
+To perform color operations, use the following command:
+
+```bash
+node converter.js <color> --<operation> <value>
+```
+
+For example:
 
 ```bash
 node converter.js #ff0000 --lighten 20
+node converter.js red --to hsl
 ```
 
-Convert red to HSL:
+## CLI Interface
+
+The CLI interface supports the following commands:
+
+- `--to <format>`: Convert the input color to the specified format.
+- `--lighten <value>`: Lighten the color by the specified percentage.
+- `--darken <value>`: Darken the color by the specified percentage.
+- `--saturation <value>`: Adjust the saturation of the color.
+- `--invert`: Invert the color.
+- `--mix <color>`: Mix the color with another color.
+
+## Examples
 
 ```bash
-node converter.js red --to hsl
+$ node converter.js #ff0000 --to rgb
+Input: #ff0000
+Output: rgb(255, 0, 0)
+
+$ node converter.js #ff0000 --lighten 20
+Input: #ff0000
+Output: #ff6666 (20% lighter)
 ```

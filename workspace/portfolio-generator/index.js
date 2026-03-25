@@ -1,19 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const ejs = require('ejs');
+const express = require('express');
+const app = express();
+const port = 3000;
 
-const portfolioFilePath = path.join(__dirname, 'portfolio.json');
-const templateFilePath = path.join(__dirname, 'templates/default.html');
-const outputDir = path.join(__dirname, 'output');
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'templates'));
 
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir);
-}
+const portfolioData = require('./portfolio.json');
 
-const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf8'));
-const template = fs.readFileSync(templateFilePath, 'utf8');
-const outputFilePath = path.join(outputDir, 'index.html');
+app.get('/', (req, res) => {
+  res.render('default', portfolioData);
+});
 
-const html = ejs.render(template, portfolioData);
-fs.writeFileSync(outputFilePath, html);
-console.log('Portfolio website generated successfully!');
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
+});

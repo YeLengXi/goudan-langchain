@@ -2,27 +2,18 @@
 
 This is a simple JavaScript unit testing framework.
 
-## Features
+## Installation
 
-- Test suite organization
-- Assertion functions
-- Async test support
-- Error handling
-- Test report generation
+To use this framework, you need to install it in your project.
+
+```bash
+npm install test-framework
+```
 
 ## Usage
 
+To write a test, you need to require the `describe`, `it`, and `expect` functions from the `test.js` file.
+
 ```javascript
-const { describe, it, expect } = require('./test.js');
-
-describe('Math operations', () => {
-  it('should add numbers', () => {
-    expect(add(1, 2)).toBe(3);
-  });
-
-  it('should subtract numbers', () => {
-    expect(subtract(5, 2)).toBe(3);
-  });
-});
-
+const { describe, it, expect } = require('./test-framework/test.js');
 ```

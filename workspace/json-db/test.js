@@ -1,22 +1,49 @@
 const DB = require('./database');
 
-// 初始化
-const db = new DB('./data.json');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
 
-// 创建表
-db.createTable('users');
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const appendFile = util.promisify(fs.appendFile);
+const mkdir = util.promisify(fs.mkdir);
+const stat = util.promisify(fs.stat);
 
-// 插入
-db.insert('users', { name: 'Alice', age: 30 });
+class TestDB {
+  constructor(file_path) {
+    this.file_path = file_path;
+    this.db = new DB(this.file_path);
+  }
 
-// 查询
-const users = db.find('users', { age: 30 });
+  async run() {
+    await this.db.init();
 
-// 更新
-db.update('users', 1, { age: 31 });
+    // Create table
+    await this.db.createTable('users');
 
-// 删除
-db.delete('users', 1);
+    // Insert
+    await this.db.insert('users', { name: 'Alice', age: 30 });
+    await this.db.insert('users', { name: 'Bob', age: 25 });
 
-// 保存
-db.save();
+    // Find
+    const users = await this.db.find('users', { age: 25 });
+    console.log('Find:', users);
+
+    // Update
+    await this.db.update('users', 1, { age: 26 });
+
+    // Delete
+    await this.db.delete('users', 1);
+
+    // Save
+    await this.db.save();
+  }
+}
+
+const testDB = new TestDB('./data.json');
+testDB.run().then(() => {
+  console.log('Test completed.');
+}).catch(error => {
+  console.error('Test failed:', error);
+});

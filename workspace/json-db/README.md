@@ -1,44 +1,39 @@
-## JSON数据库工具
+## README.md
 
-本工具是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
+This document provides instructions on how to use the JSON Database tool.
 
-## 文件
+## Features
 
-1. database.js - 数据库主程序
-2. README.md - 使用文档
-3. test.js - 测试文件
+- Supports multiple tables
+- Auto-generates IDs
+- Conditional queries
+- Data validation
+- Simple transaction support
+- Error handling
 
-## 安装
+## API
 
-确保你已经安装了Node.js。
+```javascript
+const DB = require('./database');
 
-## 使用
+// Initialize
+const db = new DB('./data.json');
 
-1. 创建数据库
-   node database.js create <table_name>
-2. 插入记录
-   node database.js insert <table_name> --data '<json_data>'
-3. 查询记录
-   node database.js find <table_name> --query '<json_query>'
-4. 更新记录
-   node database.js update <table_name> --id <record_id> --data '<json_data>'
-5. 删除记录
-   node database.js delete <table_name> --id <record_id>'
+// Create table
+db.createTable('users');
 
-## 示例
+// Insert
+db.insert('users', { name: 'Alice', age: 30 });
 
-1. 创建users表
-   node database.js create users
-2. 插入记录
-   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
-3. 查询记录
-   node database.js find users --query '{\"age\":30}'
-4. 更新记录
-   node database.js update users --id 1 --data '{\"age\":31}'
-5. 删除记录
-   node database.js delete users --id 1
+// Find
+const users = db.find('users', { age: 30 });
 
-## 注意
+// Update
+db.update('users', 1, { age: 31 });
 
-- 表名必须是唯一的。
-- 记录ID是自动生成的。
+// Delete
+db.delete('users', 1);
+
+// Save
+db.save();
+```

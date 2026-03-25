@@ -4,50 +4,24 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const args = process.argv.slice(2);
+rl.question('Enter the pattern: ', (pattern) => {
+  rl.question('Enter the text: ', (text) => {
+    try {
+      const regex = new RegExp(pattern);
+      let match;
 
-let pattern = '';
-let text = '';
-let withText = '';
-
-args.forEach(arg => {
-  if (arg.startsWith('--')) {
-    switch (arg) {
-      case '--text':
-        text = args[args.indexOf(arg) + 1];
-        break;
-      case 'replace':
-        pattern = args[args.indexOf(arg) + 1];
-        withText = args[args.indexOf(arg) + 2];
-        break;
-      default:
-        pattern = arg;
-        break;
+      if ((match = regex.exec(text)) !== null) {
+        console.log(`Pattern: ${pattern}`);
+        console.log(`Text: ${text}`);
+        console.log(`Match: ${match[0]}`);
+        console.log(`Position: ${match.index}-${match.index + match[0].length - 1}`);
+      } else {
+        console.log('No match found.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
-  }
+
+    rl.close();
+  });
 });
-
-try {
-  if (pattern && text) {
-    const matches = text.match(new RegExp(pattern));
-    if (matches) {
-      console.log(`Pattern: ${pattern}`);
-      console.log(`Text: ${text}`);
-      console.log(`Match: ${matches[0]}`);
-      console.log(`Position: ${text.indexOf(matches[0])}-${text.indexOf(matches[0]) + matches[0].length - 1}`);
-    } else {
-      console.log('No match found.');
-    }
-  }
-
-  if (pattern && withText && text) {
-    const replaced = text.replace(new RegExp(pattern, 'g'), withText);
-    console.log(`Pattern: ${pattern}`);
-    console.log(`Text: ${text}`);
-    console.log(`Replaced Text: ${replaced}`);
-  }
-} catch (error) {
-  console.error('Error:', error.message);
-}
-
-rl.close();

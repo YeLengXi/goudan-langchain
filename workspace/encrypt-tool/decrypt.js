@@ -1,77 +1,47 @@
-# 解密工具 - decrypt.js
-
-const crypto = require('crypto');
+const { encrypt, decrypt } = require('./encrypt');
 const fs = require('fs');
 const path = require('path');
 
-const methods = {
-  caesar: (text, key) => {
-    return text.split('').map((char) => {
-      if (char.match(/[a-z]/i)) {
-        let code = char.charCodeAt(0) - key;
-        if (code < 'a'.charCodeAt(0)) code += 26;
-        if (code > 'z'.charCodeAt(0)) code -= 26;
-        return String.fromCharCode(code);
-      }
-      return char;
-    }).join('');
-  },
-  base64: (text) => {
-    return Buffer.from(text, 'base64').toString('utf8');
-  },
-  rot13: (text) => {
-    return text.split('').map((char) => {
-      if (char.match(/[a-z]/i)) {
-        let code = char.charCodeAt(0) - 13;
-        if (code < 'a'.charCodeAt(0)) code += 26;
-        if (code > 'z'.charCodeAt(0)) code -= 26;
-        return String.fromCharCode(code);
-      }
-      return char;
-    }).join('');
-  },
-  xor: (text, key) => {
-    let binary = text.split('').map((char) => {
-      return char.charCodeAt(0).toString(2).padStart(8, '0');
-    }).join('');
-    let keyBinary = key.split('').map((char) => {
-      return char.charCodeAt(0).toString(2).padStart(8, '0');
-    }).join('');
-    let resultBinary = binary.split('').map((bit, index) => {
-      return (parseInt(bit, 2) ^ parseInt(keyBinary[index % keyBinary.length], 2)).toString(2).padStart(8, '0');
-    }).join('');
-    return parseInt(resultBinary, 2).toString(16);
-  },
-  aes: (text, key) => {
-    const decipher = crypto.createDecipher('aes-256-cbc', key);
-    let decrypted = decipher.update(text, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
+const encryptFile = (filePath, method, key, output) => {
+  const text = fs.readFileSync(filePath, 'utf8');
+  const encryptedText = encrypt(text, method, key);
+  fs.writeFileSync(output, encryptedText, 'utf8');
+};
+
+const decryptFile = (filePath, method, key, output) => {
+  const encryptedText = fs.readFileSync(filePath, 'utf8');
+  const decryptedText = decrypt(encryptedText, method, key);
+  fs.writeFileSync(output, decryptedText, 'utf8');
+};
+
+const parseArgs = (args) => {
+  const result = {
+    method: args[2],
+    key: args[4] || '',
+    output: args[6] || ''
+  };
+
+  if (result.method === 'aes' && !result.key) {
+    throw new Error('AES加密需要提供密钥');
+  }
+
+  return result;
+};
+
+const main = () => {
+  const args = parseArgs(process.argv);
+
+  if (args.method === 'aes') {
+    if (args.output) {
+      encryptFile(args.input, args.method, args.key, args.output);
+      console.log('文件加密成功');
+    } else {
+      decryptFile(args.input, args.method, args.key, args.output);
+      console.log('文件解密成功');
+    }
+  } else {
+    console.log('未提供文件路径');
   }
 };
 
-const args = process.argv.slice(2);
-
-const [command, encryptedText, method, key, output] = args;
-
-if (command === 'decrypt') {
-  if (!encryptedText || !method) {
-    console.error('请提供加密文本和加密方法。');
-    process.exit(1);
-  }
-
-  if (method === 'aes' && !key) {
-    console.error('AES解密需要提供密钥。');
-    process.exit(1);
-  }
-
-  if (output) {
-    fs.writeFileSync(output, methods[method](encryptedText, method === 'aes' ? key : null));
-    console.log(`文件已解密到 ${output}`);
-  } else {
-    console.log(methods[method](encryptedText, method === 'aes' ? key : null));
-  }
-} else {
-  console.error('无效的命令。');
-  process.exit(1);
-}
+main();

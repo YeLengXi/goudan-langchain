@@ -1,42 +1,29 @@
-# CLI进度条工具
+# progress-bar
 
-这是一个用于显示长时间运行任务的进度的命令行工具。
+This is a CLI progress bar tool for displaying the progress of long-running tasks.
 
-## 安装
+## Installation
 
-首先，你需要安装Node.js和npm（Node.js包管理器）。
-
-然后，将此项目克隆到你的本地机器：
+To use this tool, you need to install it locally.
 
 ```bash
-git clone https://github.com/your-username/progress-bar-cli.git
-
-cd progress-bar-cli
-
-npm install
+npm install workspace/progress-bar
 ```
 
-## 使用
+## Usage
 
-运行以下命令来使用进度条工具：
+To use the progress bar, you can require the 'ProgressBar' module and create an instance with the desired options.
 
-```bash
-node demo.js --style standard
+```javascript
+const ProgressBar = require('./progress.js');
 
-node demo.js --style dots
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
 
-node demo.js --multi
-```
+for (let i = 0; i <= 100; i++) {
+  bar.update(i);
+  // Do some work
+}
 
-## 参数
-
-- `--style`：指定进度条样式（可选，默认为'standard'）
-
-- `--multi`：创建多个进度条
-
-## 示例
-
-```bash
-Processing files...
-[████████████░░░░░░░░░] 60% | ETA: 0:00:05 | 12/20 files | 2.4 files/s
+// To finish the progress bar, call the finish method
+bar.finish();
 ```
