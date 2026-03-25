@@ -1,40 +1,48 @@
-const cron = require('node-cron');
-const fs = require('fs');
-const path = require('path');
+const { CronJob } = require('cron');
 
-const CONFIG_FILE = 'config.json';
+const taskMap = new Map();
 
-function loadConfig() {
-  const configPath = path.join(__dirname, CONFIG_FILE);
-  const config = fs.readFileSync(configPath, 'utf8');
-  return JSON.parse(config);
+function parseCronExpression(expression) {
+  // 实现cron表达式解析
 }
 
-function executeTask(task) {
-  console.log(`Executing task: ${task.name} at ${new Date().toLocaleString()}`);
-  exec_command(task.command);
+function addTask(name, cron, command) {
+  const job = new CronJob(cron, command, null, true);
+  job.start();
+  taskMap.set(name, job);
 }
 
-function scheduleTasks() {
-  const config = loadConfig();
-  config.tasks.forEach(task => {
-    cron.schedule(task.cron, () => {
-      executeTask(task);
-    });
+function deleteTask(name) {
+  const job = taskMap.get(name);
+  if (job) {
+    job.stop();
+    taskMap.delete(name);
+  }
+}
+
+function scheduleTasks(tasks) {
+  tasks.forEach(task => {
+    addTask(task.name, task.cron, task.command);
   });
 }
 
-function exec_command(command) {
+function executeCommand(command) {
   require('child_process').exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Execution error: ${error}`);
-      console.error(`Error output: ${stderr}`);
-    } else {
-      console.log(`Execution successful: ${stdout}`);
+      console.error(`执行错误: ${error}`);
+      return;
+    }
+    console.log(`执行输出: ${stdout}`);
+    if (stderr) {
+      console.error(`执行错误: ${stderr}`);
     }
   });
 }
 
 module.exports = {
-  scheduleTasks
+  parseCronExpression,
+  addTask,
+  deleteTask,
+  scheduleTasks,
+  executeCommand
 };

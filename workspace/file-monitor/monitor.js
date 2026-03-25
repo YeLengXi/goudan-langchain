@@ -1,29 +1,53 @@
 const fs = require('fs');
 
-const configPath = process.argv[2];
+const configFilePath = process.argv[2];
 
-// 读取配置文件
-read_file(configPath).then(config => {
-  const watchDir = config.watchDir;
-  const events = config.events;
-
-  // 监控目录
-  fs.watch(watchDir, (eventType, filename) => {
-    if (filename) {
-      console.log(`Event type: ${eventType}, File: ${filename}`);
-
-      // 根据事件类型执行命令
-      if (eventType === 'rename') {
-        if (fs.statSync(watchDir + '/' + filename).isFile()) {
-          const eventCommand = events[eventType];
-          eventCommand = eventCommand.replace('{file}', filename);
-          exec_command(eventCommand);
-        }
+const readConfig = () => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(configFilePath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
       }
-    }
-  }).on('error', err => {
-    console.error(`Error watching directory: ${err.message}`);
+    });
   });
-}).catch(err => {
-  console.error(`Error reading config file: ${err.message}`);
-});
+};
+
+const executeCommand = (command, file) => {
+  return new Promise((resolve, reject) => {
+    const exec = require('child_process').exec;
+    exec(command.replace(\{file\}, file), (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        console.log(stdout);
+        resolve(stdout);
+      }
+    });
+  });
+};
+
+const monitorDirectory = async () => {
+  try {
+    const config = await readConfig();
+    const watchDir = config.watchDir;
+    const events = config.events;
+
+    fs.watch(watchDir, (eventType, filename) => {
+      if (eventType === 'rename' && events.create) {
+        executeCommand(events.create, filename);
+      }
+      if (eventType === 'change' && events.modify) {
+        executeCommand(events.modify, filename);
+      }
+      if (eventType === 'unlink' && events.delete) {
+        executeCommand(events.delete, filename);
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+monitorDirectory();

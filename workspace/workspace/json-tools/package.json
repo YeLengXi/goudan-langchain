@@ -1,1 +1,16 @@
-node json-tools.js
+{
+    "name": "json-tools",
+    "version": "1.0.0",
+    "description": "A JSON data processing tool",
+    "main": "json-tools.js",
+    "scripts": {
+        "format": "node json-tools.js format",
+        "sort": "node json-tools.js sort",
+        "filter": "node json-tools.js filter"
+    },
+    "dependencies": {
+        "json2csv": "^1.0.0",
+        "json-stringify-safe": "^5.0.1"
+    },
+    "devDependencies": {}
+}
