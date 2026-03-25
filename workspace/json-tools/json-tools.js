@@ -1,97 +1,87 @@
 const fs = require('fs');
-const program = require('commander');
+const { JSDOM } = require('jsdom');
+const { promisify } = require('util');
+const read_file = promisify(fs.readFile);
+const write_file = promisify(fs.writeFile);
+const exec_command = require('./exec_command');
+const list_directory = require('./list_directory');
 
-// 格式化JSON
-function format(json, indent) {
-  return JSON.stringify(JSON.parse(json), null, indent);
-}
-
-// 排序JSON
-function sort(json, key) {
+// JSON processing functions
+const format = async (json, indent) => {
   try {
-    const data = JSON.parse(json);
-    if (!Array.isArray(data)) {
-      throw new Error('JSON is not an array');
-    }
-    return JSON.stringify(data.sort((a, b) => a[key].localeCompare(b[key])));
+    return JSON.stringify(json, null, indent);
   } catch (error) {
     throw new Error('Invalid JSON');
   }
-}
+};
 
-// 过滤JSON
-function filter(json, condition) {
+const sort = async (json, key) => {
   try {
-    const data = JSON.parse(json);
-    if (!Array.isArray(data)) {
-      throw new Error('JSON is not an array');
-    }
-    return JSON.stringify(data.filter(item => eval(condition)));
+    const parsed = JSON.parse(json);
+    parsed.sort((a, b) => a[key].localeCompare(b[key]));
+    return JSON.stringify(parsed, null, 2);
   } catch (error) {
     throw new Error('Invalid JSON');
   }
-}
+};
 
-// 合并JSON
-function merge(json1, json2) {
+const filter = async (json, condition) => {
   try {
-    return JSON.stringify(JSON.parse(json1).concat(JSON.parse(json2)));
+    const parsed = JSON.parse(json);
+    return JSON.stringify(parsed.filter(item => eval(condition)), null, 2);
   } catch (error) {
     throw new Error('Invalid JSON');
   }
-}
+};
 
-// 读取文件
-function read_file(file_path) {
-  return fs.readFileSync(file_path, 'utf8');
-}
+const merge = async (json1, json2) => {
+  try {
+    const parsed1 = JSON.parse(json1);
+    const parsed2 = JSON.parse(json2);
+    return JSON.stringify({ ...parsed1, ...parsed2 }, null, 2);
+  } catch (error) {
+    throw new Error('Invalid JSON');
+  }
+};
 
-// 主程序
-function main() {
-  program
-    .version('1.0.0')
-    .command('format <file>')
-    .description('Format JSON file')
-    .action(file => {
-      try {
-        const json = read_file(file);
-        console.log(format(json, 2));
-      } catch (error) {
-        console.error(error.message);
-      }
-    })
-    .command('sort <file> --key <key>')
-    .description('Sort JSON file by key')
-    .action((file, options) => {
-      try {
-        const json = read_file(file);
-        console.log(sort(json, options.key));
-      } catch (error) {
-        console.error(error.message);
-      }
-    })
-    .command('filter <file> --condition <condition>')
-    .description('Filter JSON file by condition')
-    .action((file, options) => {
-      try {
-        const json = read_file(file);
-        console.log(filter(json, options.condition));
-      } catch (error) {
-        console.error(error.message);
-      }
-    })
-    .command('merge <file1> <file2>')
-    .description('Merge two JSON files')
-    .action((file1, file2) => {
-      try {
-        const json1 = read_file(file1);
-        const json2 = read_file(file2);
-        console.log(merge(json1, json2));
-      } catch (error) {
-        console.error(error.message);
-      }
-    })
-    .parse(process.argv);
-}
+// CLI interface
+const main = async () => {
+  const [command, ...args] = process.argv.slice(2);
+  switch (command) {
+    case 'format':
+      const [inputFile] = args;
+      const content = await read_file(inputFile);
+      const formatted = await format(content, 2);
+      await write_file('output.json', formatted);
+      console.log('Formatted JSON saved to output.json');
+      break;
+    case 'sort':
+      const [inputFile, key] = args;
+      const content = await read_file(inputFile);
+      const sorted = await sort(content, key);
+      await write_file('output.json', sorted);
+      console.log('Sorted JSON saved to output.json');
+      break;
+    case 'filter':
+      const [inputFile, condition] = args;
+      const content = await read_file(inputFile);
+      const filtered = await filter(content, condition);
+      await write_file('output.json', filtered);
+      console.log('Filtered JSON saved to output.json');
+      break;
+    case 'merge':
+      const [file1, file2] = args;
+      const content1 = await read_file(file1);
+      const content2 = await read_file(file2);
+      const merged = await merge(content1, content2);
+      await write_file('output.json', merged);
+      console.log('Merged JSON saved to output.json');
+      break;
+    default:
+      console.log('Unknown command');
+  }
+};
 
-main();
+main().catch(error => {
+  console.error(error.message);
+});

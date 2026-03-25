@@ -1,8 +1,6 @@
-# demo.js
+const ProgressBar = require('./progress.js');
 
-const ProgressBar = require('./progress-bar/progress.js');
-
-// 单个进度条
+// 创建一个进度条实例
 const bar = new ProgressBar({
   total: 100,
   width: 40,
@@ -11,19 +9,9 @@ const bar = new ProgressBar({
 });
 
 // 更新进度条
-setInterval(() => {
-  bar.update(Math.floor(Math.random() * 101));
-}, 100);
+bar.update(50);
 
-// 多进度条
-const MultiProgressBar = require('./progress-bar/progress.js').MultiProgressBar;
-
+// 创建多进度条实例
 const multi = new MultiProgressBar();
 const bar1 = multi.create('Download', 100);
 const bar2 = multi.create('Upload', 100);
-
-// 更新多进度条
-setInterval(() => {
-  bar1.update(Math.floor(Math.random() * 101));
-  bar2.update(Math.floor(Math.random() * 101));
-}, 100);

@@ -1,20 +1,19 @@
-## Cron Scheduler
+## 定时任务调度器
 
-This document provides instructions on how to use the Cron Scheduler.
+这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
 
-### Features
+## 功能
 
-- Cron expression parsing
-- Task scheduling
-- Support for multiple tasks
-- Task execution history
-- Error handling and retry
+- 解析cron表达式
+- 定时执行任务
+- 支持多个任务
+- 任务执行历史
+- 错误处理和重试
 
-### Configuration File
+## 使用说明
 
-The configuration file is in JSON format and contains an array of tasks.
+1. 创建一个配置文件，例如 `tasks.json`，内容如下：
 
-Example:
 ```json
 {
   "tasks": [
@@ -32,9 +31,12 @@ Example:
 }
 ```
 
-### CLI Interface
+2. 运行调度器：
 
-To start the scheduler, run the following command:
-```
+```bash
 node scheduler.js --config tasks.json
 ```
+
+## 注意
+
+- 确保配置文件中的命令是可执行的。
