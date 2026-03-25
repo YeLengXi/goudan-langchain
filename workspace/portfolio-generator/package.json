@@ -1,11 +1,1 @@
-{
-  "name": "portfolio-generator",
-  "version": "1.0.0",
-  "description": "A static website generator for creating personal portfolios.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "dependencies": {},
-  "devDependencies": {}
-}
+{"name": "portfolio-generator", "version": "1.0.0", "description": "A static website generator for creating personal portfolio websites.", "main": "index.js", "scripts": {"generate": "node index.js"}, "author": "Goudan"}

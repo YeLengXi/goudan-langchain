@@ -2,18 +2,19 @@ const read_file = require('fs').readFileSync;
 const write_file = require('fs').writeFileSync;
 const exec_command = require('child_process').exec;
 
-// 搜索引擎
-function searchLogs(logContent, keyword, startTime, endTime, level) {
-  const lines = logContent.split('\n');
-  const results = [];
-  lines.forEach(line => {
-    if (line.includes(keyword) && line.includes(level) && line.includes(startTime) && line.includes(endTime)) {
-      results.push(line);
-    }
-  });
-  return results;
+// 报告生成器
+function generateReport(logContent, errors, searchResults) {
+  const report = `Total Errors: ${errors.totalErrors}
+
+Error Types:
+${errors.errorTypes.join('\n')}
+
+Search Results:
+${searchResults.join('\n')}
+`;
+  return report;
 }
 
 module.exports = {
-  searchLogs
+  generateReport
 }
