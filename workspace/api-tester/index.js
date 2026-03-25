@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { parse } = require('minimist');
 
-const DEFAULT_REQUEST_FILE = 'requests.json';
+const API_TESTER_PATH = path.join(__dirname, 'examples/requests.json');
 
 function fetchApi(url, method, headers, body) {
   return new Promise((resolve, reject) => {
@@ -13,23 +13,19 @@ function fetchApi(url, method, headers, body) {
     }
 
     if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
-      }
+      options.body = body;
     }
 
     https.get(url, response => {
-      let data = '';
+      const { statusCode } = response;
+      const headers = response.headers;
+      const chunks = [];
       response.on('data', chunk => {
-        data += chunk;
+        chunks.push(chunk);
       });
       response.on('end', () => {
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: JSON.parse(data)
-        });
+        const body = Buffer.concat(chunks).toString();
+        resolve({ statusCode, headers, body });
       });
     }).on('error', error => {
       reject(error);
@@ -37,39 +33,44 @@ function fetchApi(url, method, headers, body) {
   });
 }
 
-function parseRequestFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
+function parseArgs(args) {
+  const parsedArgs = parse(args);
+  return parsedArgs;
 }
 
-function main() {
-  const args = parse(process.argv.slice(2));
-  let { url, method, body, requestFile } = args;
+function run() {
+  const args = parseArgs(process.argv.slice(2));
+  const { method, url, requestFile } = args;
 
   if (requestFile) {
-    const requests = parseRequestFile(requestFile);
+    const requests = JSON.parse(fs.readFileSync(requestFile, 'utf-8'));
     requests.forEach(request => {
       fetchApi(request.url, request.method, request.headers, request.body).then(response => {
-        console.log(response);
+        console.log(`Response: ${JSON.stringify(response)}`);
       }).catch(error => {
-        console.error(error);
+        console.error(`Error: ${error}`);
       });
     });
-  } else {
-    if (!url) {
-      console.error('URL is required');
-      return;
+  } else if (method && url) {
+    const headers = {};
+    if (args.headers) {
+      headers = JSON.parse(args.headers);
     }
 
-    method = method || 'GET';
-    body = body || null;
+    let body = null;
+    if (args.d) {
+      body = JSON.parse(args.d);
+    }
 
-    fetchApi(url, method, {}, body).then(response => {
-      console.log(response);
+    fetchApi(url, method, headers, body).then(response => {
+      console.log(`Response: ${JSON.stringify(response)}`);
     }).catch(error => {
-      console.error(error);
+      console.error(`Error: ${error}`);
     });
+  } else {
+    console.error('Error: Invalid arguments.
+Usage: api-tester [GET|POST|PUT|DELETE|PATCH] [URL] [-d JSON] [--headers JSON] [--request-file FILE]');
   }
 }
 
-main();
+run();

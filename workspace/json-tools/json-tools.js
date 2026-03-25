@@ -55,7 +55,15 @@ function filter(json, condition) {
 
 // 合并JSON
 function merge(json1, json2) {
-    return JSON.stringify({ ...json1, ...json2 }, null, 2);
+    const result = {
+        ...json1
+    };
+    for (const key in json2) {
+        if (json2.hasOwnProperty(key)) {
+            result[key] = json2[key];
+        }
+    }
+    return JSON.stringify(result, null, 2);
 }
 
 module.exports = { read_file, write_file, format, sort, filter, merge };

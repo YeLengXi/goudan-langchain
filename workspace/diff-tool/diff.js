@@ -6,7 +6,8 @@ const read_file = async (filePath) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(data.split('\n'));
+                resolve(data.split('
+'));
             }
         });
     });
@@ -14,7 +15,8 @@ const read_file = async (filePath) => {
 
 const write_file = async (filePath, content) => {
     return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, content.join('\n'), 'utf8', (err) => {
+        fs.writeFile(filePath, content.join('
+'), 'utf8', (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -33,7 +35,8 @@ const exec_command = async (command) => {
             data += chunk;
         });
         process.on('close', () => {
-            resolve(data.split('\n'));
+            resolve(data.split('
+'));
         });
     });
 };
@@ -44,7 +47,7 @@ const list_directory = async (directoryPath) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(files);
+                resolve(files.map(file => file.split('/')[file.split('/').length - 1]));
             }
         });
     });

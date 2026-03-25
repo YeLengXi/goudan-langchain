@@ -1,77 +1,61 @@
-# Cron Scheduler
+# scheduler.js
 
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('cron-parser');
-const { exec } = require('child_process');
+const { parseCronExpression } = require('./cron-parser');
+const { scheduleTask } = require('./task-scheduler');
 
-class CronScheduler {
-  constructor(configPath) {
-    this.configPath = configPath;
-    this.tasks = [];
-    this.loadConfig();
-  }
+const configFilePath = process.argv[2];
 
-  loadConfig() {
-    try {
-      const config = fs.readFileSync(this.configPath, 'utf8');
-      const parsedConfig = JSON.parse(config);
-      this.tasks = parsedConfig.tasks;
-    } catch (error) {
-      console.error('Error loading configuration:', error);
-    }
-  }
-
-  addTask(name, cron, command) {
-    const task = { name, cron, command };
-    this.tasks.push(task);
-    this.saveConfig();
-  }
-
-  deleteTask(name) {
-    this.tasks = this.tasks.filter(task => task.name !== name);
-    this.saveConfig();
-  }
-
-  saveConfig() {
-    try {
-      const config = JSON.stringify({ tasks: this.tasks }, null, 2);
-      fs.writeFileSync(this.configPath, config, 'utf8');
-    } catch (error) {
-      console.error('Error saving configuration:', error);
-    }
-  }
-
-  start() {
-    this.tasks.forEach(task => {
-      const parser = parse(task.cron);
-      const interval = setInterval(() => {
-        const now = new Date();
-        if (parser.hasNext(now)) {
-          exec(task.command, (error, stdout, stderr) => {
-            if (error) {
-              console.error(`Error executing task ${task.name}: ${error}`);
-              return;
-            }
-            if (stderr) {
-              console.error(`Stderr for task ${task.name}: ${stderr}`);
-              return;
-            }
-            console.log(`Task ${task.name} executed successfully`);
-          });
-        }
-      }, 1000);
-    });
-  }
-}
-
-const args = process.argv.slice(2);
-const configPath = args.find(arg => arg.startsWith('--config='))?.split('=')[1];
-
-if (!configPath) {
-  console.error('Configuration file path is required');
+if (!configFilePath) {
+  console.error('请指定配置文件路径。');
   process.exit(1);
 }
 
-const scheduler = new CronScheduler(configPath);
-scheduler.start();
+const configPath = path.resolve(configFilePath);
+const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+
+// 添加任务
+const addTask = (task) => {
+  scheduleTask(task.cron, async () => {
+    try {
+      await execCommand(task.command);
+      console.log(`任务 ${task.name} 执行成功`);
+    } catch (error) {
+      console.error(`任务 ${task.name} 执行失败: ${error}`);
+      // 可以在这里添加重试逻辑
+    }
+  });
+}
+
+// 删除任务
+const deleteTask = (taskName) => {
+  scheduleTask.delete(taskName);
+}
+
+// 执行命令
+const execCommand = (command) => {
+  return new Promise((resolve, reject) => {
+    const { spawn } = require('child_process');
+    const child = spawn(command, []);
+    let data = '';
+    child.stdout.on('data', (chunk) => { data += chunk; });
+    child.stderr.on('data', (chunk) => { reject(new Error(chunk)); });
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(data);
+      } else {
+        reject(new Error('命令执行错误'));
+      }
+    });
+  });
+}
+
+// 主程序
+const main = () => {
+  config.tasks.forEach(task => {
+    addTask(task);
+  });
+}
+
+main();

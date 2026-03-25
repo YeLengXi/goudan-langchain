@@ -1,1 +1,12 @@
-{"name":"file-monitor","version":"1.0.0"}
+{
+  "name": "file-monitor",
+  "version": "1.0.0",
+  "description": "A file monitoring tool.",
+  "main": "monitor.js",
+  "scripts": {
+    "start": "node monitor.js"
+  },
+  "dependencies": {
+    "fs": "0.0.1-security"
+  }
+}
