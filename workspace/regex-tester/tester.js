@@ -1,27 +1,29 @@
 const readline = require('readline');
+const { exec } = require('child_process');
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-rl.question('Enter the regular expression: ', (regex) => {
-  rl.question('Enter the text to be tested: ', (text) => {
+rl.question('Enter regex pattern: ', (pattern) => {
+  rl.question('Enter text to be tested: ', (text) => {
     try {
-      const pattern = new RegExp(regex);
-      const matches = text.match(pattern);
-      if (matches) {
-        console.log(`Pattern: ${regex}`);
+      const regex = new RegExp(pattern);
+      const match = regex.exec(text);
+
+      if (match) {
+        console.log(`Pattern: ${pattern}`);
         console.log(`Text: ${text}`);
-        matches.forEach((match, index) => {
-          console.log(`Match: ${match}`);
-          console.log(`Position: ${text.indexOf(match) + 1}-${text.indexOf(match) + match.length}`);
-        });
+        console.log(`Match: ${match[0]}`);
+        console.log(`Position: ${match.index}-${match.index + match[0].length - 1}`);
       } else {
-        console.log('No matches found.');
+        console.log('No match found.');
       }
     } catch (error) {
       console.error('Error:', error);
     }
+
     rl.close();
   });
 });

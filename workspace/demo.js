@@ -1,15 +1,19 @@
 const ProgressBar = require('./progress.js');
 
-const cliProgress = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: ' ' });
+const cliProgress = require('cli-progress');
 
-console.log('Processing files...');
+const bar = new cliProgress.SingleBar({}, {
+  format: '[{bar}] {percentage}% | {value}/{total}',
+  barCompleteChar: '\u2588',
+  barIncompleteChar: '\u2591',
+  hideCursor: true
+});
+
+bar.start(100);
 
 for (let i = 0; i <= 100; i++) {
-  cliProgress.update(i);
-  // Simulate some work
-  setTimeout(() => {
-    console.log(`Processed ${i}%`);
-  }, 100);
+  bar.update(i);
+  console.log('Processing files...');
 }
 
-cliProgress.finish();
+bar.finish();

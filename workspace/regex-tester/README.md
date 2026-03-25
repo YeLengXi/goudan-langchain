@@ -1,11 +1,11 @@
 # Regex Tester
 
-This tool allows you to test and debug regular expressions.
+This tool is designed to test and debug regular expressions.
 
 ## Features
 
 - Test regular expressions
-- Show match results
+- Display match results
 - Extract capture groups
 - Regular expression replacement
 - Common regular expression libraries
@@ -13,8 +13,20 @@ This tool allows you to test and debug regular expressions.
 
 ## Usage
 
-To test a regular expression:
+To use this tool, run the following command in your terminal:
 
 ```bash
-node tester.js "/\d+/" --text "hello 123 world"
+node tester.js
+```
+
+Then follow the prompts to enter your regex pattern and text to be tested.
+
+## CLI Interface
+
+```
+node tester.js
+```
+
+Enter the regex pattern when prompted.
+
 ```

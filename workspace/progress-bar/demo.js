@@ -1,14 +1,19 @@
 const ProgressBar = require('./progress.js');
 
-const multi = new ProgressBar.MultiProgressBar();
+const cliProgress = require('cli-progress');
 
-const bar1 = multi.create('Download', 100);
-const bar2 = multi.create('Upload', 100);
+const bar = new cliProgress.SingleBar({}, {
+  format: '[{bar}] {percentage}% | {value}/{total}',
+  barCompleteChar: '\u2588',
+  barIncompleteChar: '\u2591',
+  hideCursor: true
+});
+
+bar.start(100);
 
 for (let i = 0; i <= 100; i++) {
-  bar1.update(i);
-  bar2.update(i);
-  // Do some work
+  bar.update(i);
+  console.log('Processing files...');
 }
 
-multi.render();
+bar.finish();

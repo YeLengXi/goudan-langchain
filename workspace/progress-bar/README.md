@@ -1,21 +1,21 @@
-# Progress Bar Tool
+# progress-bar
 
-This tool provides a command-line progress bar for displaying the progress of long-running tasks.
+This package provides a CLI progress bar tool for displaying the progress of long-running tasks.
 
 ## Installation
 
-To use this tool, ensure you have Node.js installed. Then, run the following command:
+To use this package, you need to install it first:
 
 ```bash
-npm install workspace/progress-bar
+npm install progress-bar
 ```
 
 ## Usage
 
-To use the progress bar, require the `ProgressBar` module and create an instance with the desired options.
+To create a progress bar, you can use the `ProgressBar` class:
 
 ```javascript
-const ProgressBar = require('./progress.js');
+const ProgressBar = require('progress-bar');
 
 const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
 
@@ -27,17 +27,25 @@ for (let i = 0; i <= 100; i++) {
 bar.finish();
 ```
 
-### Options
+## Options
 
-- `total`: The total number of steps (default: 100).
-- `width`: The width of the progress bar (default: 40).
-- `complete`: The character used to represent the completed part of the progress bar (default: '█').
-- `incomplete`: The character used to represent the incomplete part of the progress bar (default: '░').
+- `total`: The total number of steps. Default is 100.
+- `width`: The width of the progress bar. Default is 20.
+- `complete`: The character used to represent the completed part of the progress bar. Default is `=`.
+- `incomplete`: The character used to represent the incomplete part of the progress bar. Default is ` `. 
+- `style`: The style of the progress bar. Default is 'standard'.
 
 ## Examples
 
-```bash
-node demo.js --style standard
-node demo.js --style dots
-node demo.js --multi
+```javascript
+const ProgressBar = require('progress-bar');
+
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
+
+for (let i = 0; i <= 100; i++) {
+  bar.update(i);
+  // Do some work
+}
+
+bar.finish();
 ```
