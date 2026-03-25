@@ -1,28 +1,33 @@
 const fs = require('fs');
-const parser = require('../log-analyzer.cjs');
-const logParser = require('../log-analyzer/日志解析器.js');
 
-const readErrorLog = (filePath) => {
-  const errorLog = fs.readFileSync(filePath, 'utf8');
-  const parsedLogs = parser.parseErrorLog(errorLog);
-  const errorCount = parsedLogs.length;
-  const groupedErrors = parsedLogs.reduce((acc, log) => {
-    if (!acc[log.level]) {
-      acc[log.level] = [];
+const countErrors = (logs) => {
+    const errorTypes = {};
+
+    logs.forEach(log => {
+        if (log.level === 'ERROR') {
+            const errorType = log.message.match(/(.*):/)[1];
+            errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
+        }
+    });
+
+    return errorTypes;
+};
+
+const getMostFrequentError = (errorTypes) => {
+    let mostFrequentError = null;
+    let maxCount = 0;
+
+    for (const errorType in errorTypes) {
+        if (errorTypes[errorType] > maxCount) {
+            mostFrequentError = errorType;
+            maxCount = errorTypes[errorType];
+        }
     }
-    acc[log.level].push(log.message);
-    return acc;
-  }, {});
-  const mostFrequentError = Object.entries(groupedErrors).reduce((acc, [level, messages]) => {
-    return messages.length > acc.messages.length ? { level, messages } : acc;
-  }, { level: 'ERROR', messages: [] }).messages;
-  return {
-    errorCount,
-    groupedErrors,
-    mostFrequentError
-  };
+
+    return mostFrequentError;
 };
 
 module.exports = {
-  readErrorLog
+    countErrors,
+    getMostFrequentError
 }

@@ -1,22 +1,43 @@
-const fs = require('fs');
+const read_file = require('fs').readFileSync;
 
-const exportToJson = (logs) => {
-    const data = JSON.stringify(logs, null, 2);
-    fs.writeFileSync('exported_logs.json', data);
+const parseAppLog = (logContent) => {
+    const lines = logContent.split('
+');
+    const parsedLogs = [];
+
+    lines.forEach(line => {
+        const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+        const level = line.match(/INFO|WARN|ERROR/);
+        const message = line.replace(timestamp, '').replace(level, '').trim();
+
+        parsedLogs.push({
+            timestamp: timestamp[0],
+            level: level[0],
+            message: message
+        });
+    });
+
+    return parsedLogs;
 };
 
-const exportToCsv = (logs) => {
-    const headers = 'Timestamp,Level,Message
-';
-    const rows = logs.map(log => {
-        return `${log.timestamp},${log.level},${log.message}
-`;    }).join('
-');
-    const data = headers + rows;
-    fs.writeFileSync('exported_logs.csv', data);
+const parseApacheLog = (logContent) => {
+    // Apache log parsing logic here
+};
+
+const parseErrorLog = (logContent) => {
+    // Error log parsing logic here
+};
+
+const parseLog = (logContent, type) => {
+    if (type === 'app') {
+        return parseAppLog(logContent);
+    } else if (type === 'apache') {
+        return parseApacheLog(logContent);
+    } else if (type === 'error') {
+        return parseErrorLog(logContent);
+    }
 };
 
 module.exports = {
-    exportToJson,
-    exportToCsv
+    parseLog
 }
