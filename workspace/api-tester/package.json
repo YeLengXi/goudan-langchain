@@ -1,1 +1,5 @@
-{"name":"api-tester","version":"1.0.0","description":"REST API 测试工具","main":"index.js","scripts":{"test":"echo \"Error: no test specified\" && exit 1"},"author":"","license":"ISC"}
+name: api-tester
+version: "1.0.0"
+developmentdependencies: 
+  commander: "^8.0.0"
+  axios: "^0.21.1"
