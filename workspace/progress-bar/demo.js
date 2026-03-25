@@ -1,28 +1,22 @@
 const ProgressBar = require('./progress.js');
 
-// Create a single progress bar
-const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
+const readline = require('readline');
 
-// Update the progress bar
-for (let i = 0; i <= 100; i++) {
-  bar.update(i);
-  // Do some work
-}
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-// Finish the progress bar
-bar.finish();
+rl.question('Enter the total number of tasks: ', (total) => {
+  const bar = new ProgressBar({ total: parseInt(total), width: 40, complete: '█', incomplete: '░', style: 'standard' });
 
-// Create a multi progress bar
-const multi = new MultiProgressBar();
-const bar1 = multi.create('Download', 100);
-const bar2 = multi.create('Upload', 100);
+  for (let i = 0; i < total; i++) {
+    bar.update(i + 1);
+    // Simulate some work
+    setTimeout(() => { bar.update(i + 1); }, 1000);
+  }
 
-// Update the multi progress bar
-for (let i = 0; i <= 100; i++) {
-  bar1.update(i);
-  bar2.update(i);
-  // Do some work
-}
+  bar.finish();
 
-// Finish the multi progress bar
-multi.finish();
+  rl.close();
+});

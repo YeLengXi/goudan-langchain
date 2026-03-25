@@ -1,23 +1,38 @@
-const expect = require('./test-framework/assert.js');
+const fs = require('fs');
+const path = require('path');
+const { describe, it, before, after } = require('./test.js');
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
+const assert = require('assert');
 
-const add = (a, b) => a + b;
-
-const subtract = (a, b) => a - b;
-
-describe('Math operations', () => {
-  before(() => {
-    console.log('Running before all tests');
+const testFiles = (directory) => {
+  const files = fs.readdirSync(directory);
+  files.forEach((file) => {
+    const filePath = path.join(directory, file);
+    if (fs.statSync(filePath).isDirectory()) {
+      testFiles(filePath);
+    } else if (filePath.endsWith('.test.js')) {
+      require(filePath);
+    }
   });
+};
 
-  after(() => {
-    console.log('Running after all tests');
-  });
+const runTests = () => {
+  before(() => {}); // before all tests
+  testFiles('tests');
+  after(() => {}); // after all tests
+  console.log('Tests completed.');
+};
 
-  it('should add numbers', () => {
-    expect(add(1, 2)).toBe(3);
+const watchTests = () => {
+  fs.watch('tests', (event, filename) => {
+    if (event === 'change' && filename.endsWith('.test.js')) {
+      console.log(`File ${filename} changed, running tests...`);
+      runTests();
+    }
   });
+};
 
-  it('should subtract numbers', () => {
-    expect(subtract(5, 2)).toBe(3);
-  });
-});
+module.exports = {
+  runTests,
+  watchTests
+};

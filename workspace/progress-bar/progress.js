@@ -2,28 +2,34 @@ const ProgressBar = require('cli-progress');
 
 class ProgressBar {
   constructor(options) {
-    this.total = options.total;
+    this.total = options.total || 100;
     this.width = options.width || 20;
     this.complete = options.complete || '█';
     this.incomplete = options.incomplete || '░';
+    this.style = options.style || 'standard';
     this.progress = 0;
-    this.start = Date.now();
+    this.start();
   }
 
-  update(current) {
-    this.progress = current;
-    const percentage = (this.progress / this.total) * 100;
-    const completeStr = this.complete.repeat(Math.floor(this.width * (this.progress / this.total)));
-    const incompleteStr = this.incomplete.repeat(this.width - Math.floor(this.width * (this.progress / this.total)));
-    const bar = `[${completeStr}${incompleteStr}] ${percentage.toFixed(0)}%`; 
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(bar);
+  start() {
+    this.bar = new ProgressBar(this.total, {
+      clear: true,
+      format: this.style === 'standard' ? `[{bar}] {percentage}% | ETA: {eta} | {value}/{total} {unit}` : 
+      this.style === 'circle' ? `[{bar}] {percentage}%` : 
+      this.style === 'dots' ? `[{bar}] {percentage}%` : 
+      this.style === 'arrows' ? `[{bar}] {percentage}%` : 
+      `[{bar}] {percentage}%`
+    });
+  }
+
+  update(value) {
+    this.progress = value;
+    this.bar.update(this.progress);
   }
 
   finish() {
-    this.update(this.total);
-    process.stdout.write('
-');
+    this.bar.stop();
   }
 }
+
+module.exports = ProgressBar;

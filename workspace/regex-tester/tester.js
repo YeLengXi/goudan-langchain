@@ -1,27 +1,41 @@
-const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const regexTest = require('./regex-test');
+const commander = require('commander');
 
-rl.question('Enter the regular expression: ', (regex) => {
-  rl.question('Enter the text to be tested: ', (text) => {
-    try {
-      const pattern = new RegExp(regex, 'g');
-      const matches = text.match(pattern);
-      if (matches) {
-        console.log(`Pattern: ${regex}`);
-        console.log(`Text: ${text}`);
-        matches.forEach((match, index) => {
-          console.log(`Match: ${match}`);
-          console.log(`Position: ${text.indexOf(match) + 1}-${text.indexOf(match) + match.length}`);
-        });
-      } else {
-        console.log('No matches found.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-    rl.close();
+const program = new commander.Command();
+
+program
+  .command('test <pattern> --text <text>')
+  .description('Test a regex pattern against some text')
+  .action((pattern, options) => {
+    regexTest.testPattern(pattern, options.text);
   });
-});
+
+program
+  .command('--email <email>')
+  .description('Validate an email address')
+  .action((email) => {
+    regexTest.validateEmail(email);
+  });
+
+program
+  .command('--phone <phone>')
+  .description('Validate a phone number')
+  .action((phone) => {
+    regexTest.validatePhone(phone);
+  });
+
+program
+  .command('--url <url>')
+  .description('Validate a URL')
+  .action((url) => {
+    regexTest.validateUrl(url);
+  });
+
+program
+  .command('replace <pattern> --text <text> --with <replacement>')
+  .description('Replace text using a regex pattern')
+  .action((pattern, options) => {
+    regexTest.replaceText(pattern, options.text, options.replacement);
+  });
+
+program.parse(process.argv);

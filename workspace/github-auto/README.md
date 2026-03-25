@@ -1,10 +1,8 @@
-# github-auto
+# GitHub 自动化工具
 
-一个用于自动化创建、初始化和推送 GitHub 仓库的工具。
+本工具旨在自动化 GitHub 仓库的创建、初始化和推送流程。
 
 ## 安装
-
-首先，您需要安装此工具：
 
 ```bash
 npm install -g github-auto
@@ -15,18 +13,29 @@ npm install -g github-auto
 ### 创建仓库
 
 ```bash
-github-auto create <仓库名> --public
-github-auto create <仓库名> --private --description "描述"
+github-auto create <仓库名> [描述] --public
+github-auto create <仓库名> [描述] --private
 ```
 
-### 初始化
+### 初始化本地仓库
 
 ```bash
-github-auto init --template <模板名>
+github-auto init [模板] [仓库名]
 ```
 
-### 推送
+### 推送到 GitHub
 
 ```bash
 github-auto push
 ```
+
+## 模板
+
+支持多种模板，包括：
+- nodejs
+- python
+- java
+
+## 配置
+
+可在 package.json 中配置自定义模板和设置。

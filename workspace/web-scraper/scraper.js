@@ -1,24 +1,23 @@
 const fetch = require('node-fetch');
-const cheerio = require('cheerio');
+const { JSDOM } = require('jsdom');
 
-const scrape = async (url) => {
+const scraper = async (url) => {
   try {
     const response = await fetch(url);
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    const title = $("title").text();
-    const links = $("a[href]").map((i, link) => $(link).attr('href')).get();
-    const images = $("img[src]").map((i, img) => $(img).attr('src')).get();
+    const text = await response.text();
+    const dom = new JSDOM(text);
+    const title = dom.window.document.title;
+    const links = dom.window.document.querySelectorAll('a[href]').map(link => link.href);
+    const images = dom.window.document.querySelectorAll('img[src]').map(img => img.src);
 
     return {
       title,
       links,
       images
-    }
+    };
   } catch (error) {
-    throw new Error('Failed to scrape the website:', error);
+    console.error(error);
   }
 };
 
-module.exports = scrape;
+module.exports = scraper;

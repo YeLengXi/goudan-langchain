@@ -1,43 +1,43 @@
-const expect = require('./test.js');
+const assert = require('./test.js');
 
 const equal = (actual, expected) => {
   if (actual !== expected) {
-    throw new Error(`Expected ${actual} to be equal to ${expected}`);
+    throw new Error(`Expected ${expected}, but got ${actual}`);
   }
 };
 
 const deepEqual = (actual, expected) => {
   if (!JSON.stringify(actual) === JSON.stringify(expected)) {
-    throw new Error(`Expected ${actual} to be deeply equal to ${expected}`);
+    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
   }
 };
 
 const truthy = (value) => {
   if (!value) {
-    throw new Error(`Expected ${value} to be truthy`);
+    throw new Error('Expected truthy value, but got falsy');
   }
 };
 
 const falsy = (value) => {
   if (value) {
-    throw new Error(`Expected ${value} to be falsy`);
+    throw new Error('Expected falsy value, but got truthy');
   }
 };
 
-const throws = (func, error) => {
+const throws = (fn, error) => {
   try {
-    func();
+    fn();
     throw new Error('Expected function to throw an error');
-  } catch (thrownError) {
-    if (thrownError.message !== error) {
-      throw new Error(`Expected function to throw ${error}, but threw ${thrownError.message}`);
+  } catch (actualError) {
+    if (actualError.message !== error.message) {
+      throw new Error(`Expected ${error.message}, but got ${actualError.message}`);
     }
   }
 };
 
 const contains = (actual, expected) => {
   if (!actual.includes(expected)) {
-    throw new Error(`Expected ${actual} to contain ${expected}`);
+    throw new Error(`Expected ${expected} to be contained in ${actual}`);
   }
 };
 

@@ -1,22 +1,44 @@
-# 加密工具
+# workspace/encrypt-tool/README.md
 
-本工具提供多种文本加密和解密功能。
+# 文本加密解密工具
 
-### 加密算法
+## 目标
+创建一个简单的文本加密解密工具，支持多种加密算法。
 
-- 凯撒密码 (Caesar Cipher)
-  通过将每个字母移动固定数目的位置来加密文本。
+## 安装
+
+```bash
+npm install
+```
+
+## 使用方法
+
+### 加密
+
+```bash
+node encrypt.js "hello world" --method caesar --key 3
+```
+
+### 解密
+
+```bash
+node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
+```
+
+## 支持的加密算法
+
+- Caesar Cipher（凯撒密码）
 - Base64编码
-  将文本转换为Base64编码。
 - ROT13
-  将每个字母旋转13个位置进行加密。
 - 简单XOR加密
-  使用密钥对文本进行XOR加密。
 - AES加密
-  使用AES算法进行加密，需要密钥。
 
-### 使用示例
+## 安全提示
 
-- 加密文本：`node encrypt.js "hello world" --method caesar --key 3`
-- 解密文件：`node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt`
+⚠️ 注意：这些是教育性质的简单加密
+- Caesar/ROT13：仅用于演示
+- Base64：编码，不是加密
+- XOR：简单加密
+- AES：相对安全
 
+不要用于生产环境或敏感数据！

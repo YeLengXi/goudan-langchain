@@ -5,29 +5,19 @@ const diffFiles = (file1, file2, format = 'unified', color = false) => {
   const content1 = fs.readFileSync(file1, 'utf8');
   const content2 = fs.readFileSync(file2, 'utf8');
 
+  const differences = computeDifferences(content1, content2);
+  const formattedDiff = formatDifferences(differences, format, color);
+
+  console.log(formattedDiff);
+};
+
+const computeDifferences = (content1, content2) => {
   const lines1 = content1.split('
 ');
   const lines2 = content2.split('
 ');
 
-  // 比较文件内容
-  const differences = compareLines(lines1, lines2);
-
-  // 根据格式输出结果
-  if (format === 'unified') {
-    return unifiedDiff(differences, color);
-  } else if (format === 'side-by-side') {
-    return sideBySideDiff(differences, color);
-  } else if (format === 'context') {
-    return contextDiff(differences, color);
-  }
-
-  return differences;
-};
-
-const compareLines = (lines1, lines2) => {
-  // 比较每一行并记录差异
-  const differences = [];
+  let differences = [];
   let i = 0;
   let j = 0;
 
@@ -35,15 +25,11 @@ const compareLines = (lines1, lines2) => {
     if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
       i++;
       j++;
-    } else if (i < lines1.length && j < lines2.length && lines1[i] !== lines2[j]) {
-      differences.push({ line1: lines1[i], line2: lines2[j] });
+    } else if (i < lines1.length && lines1[i] !== lines2[j]) {
+      differences.push({ type: 'deleted', line: lines1[i] });
       i++;
-      j++;
-    } else if (i < lines1.length) {
-      differences.push({ line1: lines1[i], line2: null });
-      i++;
-    } else if (j < lines2.length) {
-      differences.push({ line1: null, line2: lines2[j] });
+    } else if (j < lines2.length && lines2[j] !== lines1[i]) {
+      differences.push({ type: 'added', line: lines2[j] });
       j++;
     }
   }
@@ -51,50 +37,38 @@ const compareLines = (lines1, lines2) => {
   return differences;
 };
 
-const unifiedDiff = (differences, color) => {
-  let output = '--- ' + path.basename(differences[0].line1) + '
-+++ ' + path.basename(differences[0].line2) + '
-';
-
-  differences.forEach(diff => {
-    if (diff.line1) {
-      output += '- ' + diff.line1 + '
-';
-    }
-    if (diff.line2) {
-      output += '+ ' + diff.line2 + '
-';
-    }
-  });
-
-  return output;
+const formatDifferences = (differences, format, color) => {
+  if (format === 'unified') {
+    return formatUnified(differences, color);
+  } else if (format === 'context') {
+    return formatContext(differences, color);
+  } else if (format === 'side-by-side') {
+    return formatSideBySide(differences, color);
+  }
 };
 
-const sideBySideDiff = (differences, color) => {
-  let output = '';
-
+const formatUnified = (differences, color) => {
+  let result = "--- ${file1}
++++ ${file2}
+";
   differences.forEach(diff => {
-    if (diff.line1) {
-      output += diff.line1 + ' | ' + diff.line2 + '
-';
-    } else {
-      output += ' | ' + diff.line2 + '
-';
+    if (diff.type === 'deleted') {
+      result += "- ${diff.line}
+";
+    } else if (diff.type === 'added') {
+      result += "+ ${diff.line}
+";
     }
   });
-
-  return output;
+  return result;
 };
 
-const contextDiff = (differences, color) => {
-  let output = '';
+const formatContext = (differences, color) => {
+  // Implement context format
+};
 
-  differences.forEach(diff => {
-    output += ' ' + diff.line1 + '
-';
-  });
-
-  return output;
+const formatSideBySide = (differences, color) => {
+  // Implement side-by-side format
 };
 
 module.exports = { diffFiles };

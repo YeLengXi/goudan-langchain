@@ -1,10 +1,4 @@
-/!/usr/bin/env node
-
-
-
 const fs = require('fs');
-
-
 
 // Default configuration
 const DEFAULT_CONFIG = {
@@ -15,8 +9,6 @@ const DEFAULT_CONFIG = {
   formatArrays: true
 };
 
-
-
 function formatCode(code, config = DEFAULT_CONFIG) {
   let formatted = code;
 
@@ -26,8 +18,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
 
   // Step 1: Format arrow functions - add spaces
   if (config.formatArrowFunctions) {
-    // Add space after = in arrow function: (a,b)=
-(
+    // Add space after = in arrow function: (a,b)=> => (a,b) =>
     formatted = formatted.replace(/(\w)=\((.*?)\)=>/g, '$1 = ($2) =>');
   }
 
@@ -44,8 +35,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
 
   // Clean up multiple newlines
-  formatted = formatted.replace(/
-{3,}/g, '\n\n');
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
 
   // Process indentation
   const lines = formatted.split('\n');
@@ -107,8 +97,7 @@ function parseArgs(args) {
     }
   }
 
-  return { config, files };
-}
+  return { config, files };}
 
 function printHelp() {
   console.log('JavaScript Code Formatter v2.1');
@@ -171,5 +160,4 @@ function main() {
 if (require.main === module) {
   main();
 }
-
 module.exports = { formatCode };

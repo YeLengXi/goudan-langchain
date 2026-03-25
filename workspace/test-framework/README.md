@@ -4,12 +4,18 @@ This is a simple JavaScript unit testing framework.
 
 ## Installation
 
-No installation required. Just require the `test.js` and `assert.js` files in your project.
+To use this framework, you need to install it in your project.
+
+```bash
+npm install workspace-test-framework
+```
 
 ## Usage
 
+### Basic Structure
+
 ```javascript
-const { describe, it, expect } = require('./test-framework/test.js');
+const { describe, it, expect } = require('workspace-test-framework');
 
 describe('Math operations', () => {
   it('should add numbers', () => {
@@ -20,18 +26,9 @@ describe('Math operations', () => {
     expect(subtract(5, 2)).toBe(3);
   });
 });
-
 ```
 
-## API
-
-- `describe(name, callback)` - Defines a test suite.
-- `it(name, callback)` - Defines a test case.
-- `before(callback)` - Defines a hook that runs before each test case.
-- `after(callback)` - Defines a hook that runs after each test case.
-- `expect` - Provides assertion methods such as `equal`, `deepEqual`, `truthy`, `falsy`, `throws`, `contains`.
-
-## CLI
+### CLI
 
 You can run tests using the following commands:
 
@@ -40,3 +37,6 @@ You can run tests using the following commands:
 - `node test.js --verbose`
 - `node test.js --watch`
 
+## License
+
+MIT

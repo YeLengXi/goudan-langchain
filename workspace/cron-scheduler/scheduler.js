@@ -1,45 +1,61 @@
-const { parse } = require('cron-parser');
+const { CronJob } = require('cron');
 
-class Scheduler {
-  constructor(configPath) {
-    this.configPath = configPath;
-    this.tasks = [];
-    this.parser = parse;
-  }
+const fs = require('fs');
+const path = require('path');
 
-  async loadConfig() {
-    const config = await read_file(this.configPath);
-    this.tasks = config.tasks.map(task => ({
-      ...task,
-      nextRun: this.parser.parse(task.cron)
-    }));
-  }
+const configFilePath = 'tasks.json';
 
-  async addTask(task) {
-    const nextRun = this.parser.parse(task.cron);
-    this.tasks.push({
-      ...task,
-      nextRun
-    });
-  }
+let tasks = [];
 
-  async removeTask(taskName) {
-    this.tasks = this.tasks.filter(task => task.name !== taskName);
-  }
+function loadConfig() {
+  const configPath = path.join(__dirname, configFilePath);
+  const configContent = fs.readFileSync(configPath, 'utf8');
+  const config = JSON.parse(configContent);
 
-  async run() {
-    while (true) {
-      const now = new Date();
-      const task = this.tasks.find(task => now >= task.nextRun);
-      if (task) {
-        console.log(`Running task ${task.name} at ${now.toISOString()}`);
-        await exec_command(task.command);
-        task.nextRun = this.parser.parse(task.cron);
-      }
-      const delay = task ? Math.max(0, task.nextRun - now) : 1000 * 60 * 60;
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
+  tasks = config.tasks || [];
 }
 
-module.exports = Scheduler;
+function parseCronExpression(cronExpression) {
+  // 简单的cron表达式解析
+  const parts = cronExpression.split(' ');
+  return {
+    minute: parts[0],
+    hour: parts[1],
+    day: parts[2],
+    month: parts[3],
+    weekday: parts[4]
+  };
+}
+
+function scheduleTasks() {
+  tasks.forEach(task => {
+    const cronConfig = parseCronExpression(task.cron);
+    const job = new CronJob(
+      cronConfig,
+      () => {
+        console.log(`执行任务: ${task.name}`);
+        execCommand(task.command);
+      },
+      null,
+      true
+    );
+    job.start();
+  });
+}
+
+function execCommand(command) {
+  require('child_process').exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`执行命令出错: ${error}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`错误输出: ${stderr}`);
+      return;
+    }
+    console.log(`命令输出: ${stdout}`);
+  });
+}
+
+loadConfig();
+scheduleTasks();

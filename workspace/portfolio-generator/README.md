@@ -6,12 +6,12 @@ This is a static website generator for creating personal portfolios.
 
 - Configuration file support
 - Template system
-- Generation functionality
-- Preview functionality
+- Generation feature
+- Preview feature
 
 ## Installation
 
-To install dependencies, run:
+To install the generator, run:
 
 ```bash
 npm install
@@ -19,12 +19,8 @@ npm install
 
 ## Usage
 
+To generate the website, run:
+
 ```bash
 npm start
 ```
-
-This will generate the website in the `dist` directory.
-
-## License
-
-MIT

@@ -8,20 +8,21 @@ const it = (name, callback) => {
   try {
     console.log(`  ${name}`);
     callback();
-    console.log('  ✓');
   } catch (error) {
-    console.error(`  ✗ ${name}
-    ${error}`);
+    console.error(`  ✖ ${name}
+    ${error}
   }
 };
 
 const before = (callback) => {
-  console.log(`Before: ${callback.name}`);
+  console.log(`
+Before all tests:`);
   callback();
 };
 
 const after = (callback) => {
-  console.log(`After: ${callback.name}`);
+  console.log(`
+After all tests:`);
   callback();
 };
 

@@ -29,21 +29,21 @@ const server = http.createServer((req, res) => {
           return;
         }
 
-        res.writeHead(200, { 'Content-Type': mime.getType(filePath) });
+        res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
         fs.createReadStream(filePath).pipe(res);
       });
     } else {
-      res.writeHead(200, { 'Content-Type': mime.getType(filePath) });
+      res.writeHead(200, { 'Content-Type': mime.getType(filePath) || 'text/plain' });
       fs.createReadStream(filePath).pipe(res);
     }
   });
 });
 
-console.log(`Starting HTTP server...
+server.listen(PORT, () => {
+  console.log(`Starting HTTP server...
 - Port: ${PORT}
 - Root: ${DIR}
-- URL: http://localhost:${PORT}`);
-
-server.listen(PORT, () => {
-  console.log('Server is running');
+- URL: http://localhost:${PORT}
+Press Ctrl+C to stop
+`);
 });
