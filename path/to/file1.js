@@ -1,8 +1,22 @@
-const calculator = {
-    add: (a, b) => a + b,
-    subtract: (a, b) => a - b,
-    multiply: (a, b) => a * b,
-    divide: (a, b) => b !== 0 ? a / b : 'Error: Division by zero',
-};
+// file1.js
+// 计算器的核心逻辑
 
-module.exports = calculator;
+function calculate(operation, num1, num2) {
+    switch (operation) {
+        case '+':
+            return num1 + num2;
+        case '-':
+            return num1 - num2;
+        case '*':
+            return num1 * num2;
+        case '/':
+            if (num2 === 0) {
+                throw new Error('Division by zero is not allowed.');
+            }
+            return num1 / num2;
+        default:
+            throw new Error('Invalid operation.');
+    }
+}
+
+module.exports = calculate;
