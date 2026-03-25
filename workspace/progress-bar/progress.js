@@ -1,25 +1,30 @@
-const ProgressBar = require('cli-progress');
+const ProgressBar = require('./progress.js');
 
-class ProgressBar {
-  constructor(options) {
-    this.total = options.total || 100;
-    this.width = options.width || 40;
-    this.complete = options.complete || '█';
-    this.incomplete = options.incomplete || '░';
-    this.progress = 0;
-    this.start_time = Date.now();
+const cliProgress = require('cli-progress');
+
+class MultiProgressBar {
+  constructor() {
+    this.bars = [];
   }
 
-  update(current) {
-    this.progress = current;
-    const completeStr = this.complete.repeat(Math.floor(this.width * (current / this.total)));
-    const incompleteStr = this.incomplete.repeat(this.width - Math.floor(this.width * (current / this.total)));
-    const percentage = (current / this.total * 100).toFixed(2);
-    const elapsed = (Date.now() - this.start_time) / 1000;
-    const eta = elapsed * (this.total / current - 1);
-    const speed = current / elapsed;
-    console.log(`Processing files... [${completeStr}${incompleteStr}] ${percentage}% | ETA: ${Math.floor(eta / 60)}:${Math.floor(eta % 60)} | ${current}/${this.total} files | ${speed.toFixed(2)} files/s`);
+  create(label, total) {
+    const bar = new cliProgress.Single(total, { clearOnComplete: true, hideCursor: true });
+    bar.start();
+    this.bars.push({ bar, label });
+    return bar;
+  }
+
+  update(bars) {
+    bars.forEach(bar => {
+      bar.bar.update(bar.bar.current);
+    });
+  }
+
+  finish() {
+    this.bars.forEach(bar => {
+      bar.bar.finish();
+    });
   }
 }
 
-module.exports = ProgressBar;
+module.exports = { ProgressBar, MultiProgressBar };

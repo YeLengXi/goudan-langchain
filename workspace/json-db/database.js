@@ -1,29 +1,71 @@
-  throw new Error('Table does not exist');
-    }
-    const record = this.tables[table_name].find(r => r.id === id);
-    if (record) {
-      Object.assign(record, data);
-      await this.save();
-    } else {
-      throw new Error('Record not found');
-    }
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const appendFile = util.promisify(fs.appendFile);
+
+class DB {
+  constructor(filePath) {
+    this.filePath = filePath;
+    this.data = this.load();
   }
 
-  async delete(table_name, id) {
-    if (!this.tables[table_name]) {
-      throw new Error('Table does not exist');
+  async load() {
+    try {
+      const data = await readFile(this.filePath, { encoding: 'utf8' });
+      return JSON.parse(data);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return {};
+      } else {
+        throw error;
+      }
     }
-    this.tables[table_name] = this.tables[table_name].filter(r => r.id !== id);
-    await this.save();
   }
 
   async save() {
-    await writeFile(this.file_path, JSON.stringify(this.tables, null, 2), 'utf8');
+    await writeFile(this.filePath, JSON.stringify(this.data, null, 2), { encoding: 'utf8' });
   }
 
-  generateId(table_name) {
-    const table = this.tables[table_name];
-    return table.length > 0 ? Math.max(...table.map(r => r.id)) + 1 : 1;
+  async createTable(tableName) {
+    if (!this.data.tables) {
+      this.data.tables = {};
+    }
+    if (!this.data.tables[tableName]) {
+      this.data.tables[tableName] = [];
+    }
+    await this.save();
+  }
+
+  async insert(tableName, record) {
+    const table = this.data.tables[tableName];
+    record.id = table.length + 1;
+    table.push(record);
+    await this.save();
+  }
+
+  async find(tableName, query) {
+    const table = this.data.tables[tableName];
+    return table.filter(record => this.matchRecord(record, query));
+  }
+
+  async update(tableName, id, data) {
+    const table = this.data.tables[tableName];
+    const index = table.findIndex(record => record.id === id);
+    if (index !== -1) {
+      table[index] = { ...table[index], ...data };
+      await this.save();
+    }
+  }
+
+  async delete(tableName, id) {
+    const table = this.data.tables[tableName];
+    const index = table.findIndex(record => record.id === id);
+    if (index !== -1) {
+      table.splice(index, 1);
+      await this.save();
+    }
   }
 
   matchRecord(record, query) {

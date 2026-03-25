@@ -1,21 +1,37 @@
 # GitHub 自动化工具
 
-## 功能
+本工具旨在自动化 GitHub 仓库的创建、初始化和推送流程。
 
-- 创建 GitHub 仓库
-- 初始化本地项目
-- 推送项目到 GitHub
+## 安装
 
-## 使用方法
+首先，您需要安装本工具。
 
-- 创建仓库：github-auto create <仓库名> --public
-- 创建仓库：github-auto create <仓库名> --private
-- 初始化项目：github-auto init <模板>
-- 推送项目：github-auto push
+```bash
+npm install -g github-auto
+```
 
-## 参数
+## 使用
 
-- --public：创建公开仓库
-- --private：创建私有仓库
-- --description：仓库描述
-- <模板>：可选的模板类型
+### 创建仓库
+
+```bash
+github-auto create <仓库名> --public
+github-auto create <仓库名> --private --description "描述"
+```
+
+### 初始化本地仓库
+
+```bash
+github-auto init --template <模板名>
+```
+
+### 推送到 GitHub
+
+```bash
+github-auto push
+```
+
+## 注意
+
+- 您需要有一个 GitHub 账号和 Personal Access Token。
+- 在创建仓库时，请确保您有足够的权限。

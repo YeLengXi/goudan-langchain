@@ -4,12 +4,13 @@ const path = require('path');
 const url = require('url');
 const mime = require('mime');
 
-const PORT = process.argv.slice(2).find(arg => arg.startsWith('--port'))?.split('=')[1] || 8080;
-const DIR = process.argv.slice(2).find(arg => arg.startsWith('--dir'))?.split('=')[1] || './public';
+const hostname = 'localhost';
+const port = process.argv[2] || 8080;
+const rootDir = process.argv[3] || './public';
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  const filePath = path.join(DIR, parsedUrl.pathname);
+  const filePath = path.join(rootDir, parsedUrl.pathname);
 
   fs.stat(filePath, (err, stats) => {
     if (err) {
@@ -39,10 +40,10 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
+server.listen(port, () => {
   console.log(`Starting HTTP server...
-- Port: ${PORT}
-- Root: ${DIR}
-- URL: http://localhost:${PORT}
-Press Ctrl+C to stop`);
+- Port: ${port}
+- Root: ${rootDir}
+- URL: http://${hostname}:${port}
+`);
 });

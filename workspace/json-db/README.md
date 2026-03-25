@@ -1,78 +1,52 @@
-## JSON数据库工具
+## README
 
-这个简单的数据库工具是基于JSON文件实现的，支持CRUD操作和查询。
+欢迎使用JSON数据库工具！
 
-## 文件结构
-
-- `database.js` - 数据库主程序
-- `README.md` - 使用文档
-- `test.js` - 测试文件
+本工具基于JSON文件实现了一个简单的数据库，支持CRUD操作和查询。
 
 ## 安装
 
 确保你已经安装了Node.js。
 
-## 使用
+## 使用方法
 
-1. 创建数据库文件：
+1. 初始化数据库：
+   node database.js init
 
-   ```bash
+2. 创建表：
    node database.js create <table_name>
-   ```
 
-2. 插入记录：
-
-   ```bash
+3. 插入数据：
    node database.js insert <table_name> --data '<data>'
-   ```
 
-3. 查询记录：
-
-   ```bash
+4. 查询数据：
    node database.js find <table_name> --query '<query>'
-   ```
 
-4. 更新记录：
-
-   ```bash
+5. 更新数据：
    node database.js update <table_name> --id <id> --data '<data>'
-   ```
 
-5. 删除记录：
+6. 删除数据：
+   node database.js delete <table_name> --id <id>'
 
-   ```bash
-   node database.js delete <table_name> --id <id>
-   ```
-
-6. 保存数据库：
-
-   ```bash
+7. 保存数据：
    node database.js save
-   ```
 
 ## 示例
 
-```javascript
-const DB = require('./database');
+创建一个名为'users'的表：
+   node database.js create users
 
-// 初始化
-const db = new DB('./data.json');
+插入一条数据：
+   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
 
-// 创建表
-db.createTable('users');
+查询年龄为30的用户：
+   node database.js find users --query '{\"age\":30}'
 
-// 插入
-db.insert('users', { name: 'Alice', age: 30 });
+更新id为1的用户的年龄：
+   node database.js update users --id 1 --data '{\"age\":31}'
 
-// 查询
-const users = db.find('users', { age: 30 });
+删除id为1的用户：
+   node database.js delete users --id 1
 
-// 更新
-db.update('users', 1, { age: 31 });
-
-// 删除
-db.delete('users', 1);
-
-// 保存
-db.save();
-```
+保存数据：
+   node database.js save

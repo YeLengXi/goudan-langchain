@@ -1,10 +1,8 @@
-// This is the main program of the API tester.
-// It parses CLI arguments, sends HTTP requests, and handles responses.
-
-const fetch = require('node-fetch');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const { parse } = require('minimist');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -12,31 +10,32 @@ const rl = readline.createInterface({
 });
 
 async function main() {
-  const args = process.argv.slice(2);
+  const args = parse(process.argv.slice(2));
 
-  if (args.length === 0) {
-    console.log('Usage: api-tester <method> <url> [options]');
-    process.exit(1);
+  if (args._[0] === 'GET') {
+    const url = args._[1];
+    const options = {
+      method: 'GET'
+    };
+    const response = await fetch(url, options);
+    console.log(await response.json());
   }
 
-  const [method, url] = args.splice(0, 2);
-  const options = args.reduce((acc, arg) => {
-    const [key, value] = arg.split('=');
-    acc[key] = value;
-    return acc;
-  }, {});
-
-  try {
-    const response = await fetch(url, {
-      method,
-      headers: options.headers ? JSON.parse(options.headers) : {},
-      body: options.body ? JSON.parse(options.body) : null
-    });
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error(error);
+  if (args._[0] === 'POST') {
+    const url = args._[1];
+    const data = JSON.parse(args.data);
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    };
+    const response = await fetch(url, options);
+    console.log(await response.json());
   }
+
+  // Add more methods and parsing logic here
 }
 
-main();
+main().catch(console.error);

@@ -1,20 +1,28 @@
+# Demo Program for CLI Progress Bar Tool
+
 const ProgressBar = require('./progress.js');
+const MultiProgressBar = require('./progress.js');
 
 const cliProgress = require('cli-progress');
 
-const multiProgress = new cliProgress.MultiBar({ clearOnComplete: true, hideCursor: true }, [1]);
+class Demo {
+  constructor() {
+    this.multi = new MultiProgressBar();
+  }
 
-const downloadBar = multiProgress.create('Download', 100);
-const uploadBar = multiProgress.create('Upload', 100);
+  run() {
+    const bar1 = this.multi.create('Download', 100);
+    const bar2 = this.multi.create('Upload', 100);
 
-let downloadProgress = 0;
-let uploadProgress = 0;
+    for (let i = 0; i <= 100; i++) {
+      bar1.update(i);
+      bar2.update(i);
+      setTimeout(() => {}, 100);
+    }
 
-function updateProgress() {
-  downloadProgress += 5;
-  uploadProgress += 10;
-  downloadBar.update(downloadProgress);
-  uploadBar.update(uploadProgress);
+    this.multi.finish();
+  }
 }
 
-setInterval(updateProgress, 1000);
+const demo = new Demo();
+ demo.run();

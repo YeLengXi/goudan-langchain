@@ -1,12 +1,11 @@
 {
-  "name": "package.json",
+  "name": "portfolio-generator",
   "version": "1.0.0",
-  "description": "A portfolio generator for developers",
+  "description": "A static website generator for creating personal portfolios.",
   "main": "index.js",
   "scripts": {
-    "generate": "node index.js"
+    "start": "node index.js"
   },
-  "dependencies": {
-    "express": "^4.17.1"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

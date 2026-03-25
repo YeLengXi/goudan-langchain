@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node scraper.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "web-scraper",
+    "scraper"
+  ],
+  "dependencies": {
+    "jsdom": "^16.3.0"
+  }
 }

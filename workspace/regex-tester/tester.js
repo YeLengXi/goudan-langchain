@@ -4,20 +4,50 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-rl.question('Enter the regular expression: ', (regex) => {
-  rl.question('Enter the text to be tested: ', (text) => {
-    const pattern = new RegExp(regex);
-    let match;
+const args = process.argv.slice(2);
 
-    if ((match = pattern.exec(text)) !== null) {
-      console.log(`Pattern: ${regex}`);
+let pattern = '';
+let text = '';
+let withText = '';
+
+args.forEach(arg => {
+  if (arg.startsWith('--')) {
+    switch (arg) {
+      case '--text':
+        text = args[args.indexOf(arg) + 1];
+        break;
+      case 'replace':
+        pattern = args[args.indexOf(arg) + 1];
+        withText = args[args.indexOf(arg) + 2];
+        break;
+      default:
+        pattern = arg;
+        break;
+    }
+  }
+});
+
+try {
+  if (pattern && text) {
+    const matches = text.match(new RegExp(pattern));
+    if (matches) {
+      console.log(`Pattern: ${pattern}`);
       console.log(`Text: ${text}`);
-      console.log(`Match: ${match[0]}`);
-      console.log(`Position: ${match.index}-${match.index + match[0].length - 1}`);
+      console.log(`Match: ${matches[0]}`);
+      console.log(`Position: ${text.indexOf(matches[0])}-${text.indexOf(matches[0]) + matches[0].length - 1}`);
     } else {
       console.log('No match found.');
     }
+  }
 
-    rl.close();
-  });
-});
+  if (pattern && withText && text) {
+    const replaced = text.replace(new RegExp(pattern, 'g'), withText);
+    console.log(`Pattern: ${pattern}`);
+    console.log(`Text: ${text}`);
+    console.log(`Replaced Text: ${replaced}`);
+  }
+} catch (error) {
+  console.error('Error:', error.message);
+}
+
+rl.close();

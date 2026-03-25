@@ -1,51 +1,60 @@
-# 加密工具
+// 加密工具
 
-这个工具提供多种加密和解密算法，包括凯撒密码、Base64、ROT13、XOR和AES。
+const crypto = require('crypto');
+const fs = require('fs');
 
-## 安装
+const methods = {
+  caesar: (text, key) => {
+    return text.split('').map(char => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0);
+        code = code >= 65 && code <= 90 ? code + key : code + key - 32;
+        code = code > 90 ? code - 26 : code < 65 ? code + 26 : code;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
 
-```bash
-npm install
-```
+  base64: text => {
+    return Buffer.from(text).toString('base64');
+  },
 
-## 使用
+  rot13: text => {
+    return text.split('').map(char => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0);
+        code = code >= 97 && code <= 122 ? code + 13 : code - 13;
+        code = code > 122 ? code - 26 : code < 97 ? code + 26 : code;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
 
-### 加密
+  xor: text => {
+    let key = Buffer.alloc(text.length, 0x5a);
+    return Buffer.from(text).concat(key).toString('hex');
+  },
 
-加密文本或文件。
+  aes: (text, key) => {
+    const cipher = crypto.createCipher('aes-256-cbc', key);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+  }
+};
 
-```bash
-node encrypt.js "hello world" --method caesar --key 3
+const encrypt = (text, method, key, output) => {
+  if (!methods[method]) {
+    throw new Error('Unsupported method');
+  }
+  const encryptedText = methods[method](text, key);
+  if (output) {
+    fs.writeFileSync(output, encryptedText);
+  } else {
+    console.log(encryptedText);
+  }
+};
 
-node encrypt.js "hello" --method base64
-
-node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
-
-```
-
-### 解密
-
-解密文本或文件。
-
-```bash
-node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
-
-```
-
-## 加密算法
-
-- 凯撒密码：将字母移动固定位置。
-- Base64：将二进制数据转换为ASCII字符。
-- ROT13：将字母旋转13个位置。
-- XOR：使用密钥进行异或运算。
-- AES：高级加密标准。
-
-## 安全提示
-
-⚠️ 注意：这些是教育性质的简单加密
-- Caesar/ROT13：仅用于演示
-- Base64：编码，不是加密
-- XOR：简单加密
-- AES：相对安全
-
-不要用于生产环境或敏感数据！
+module.exports = { encrypt };

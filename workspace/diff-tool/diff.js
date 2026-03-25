@@ -1,55 +1,81 @@
 const fs = require('fs');
 const path = require('path');
 
-const formatDiff = (oldContent, newContent, format = 'unified') => {
-  // Implementation of diff formatting
+const diffFiles = (file1, file2, options) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file1, 'utf8', (err, content1) => {
+      if (err) {
+        return reject(err);
+      }
+      fs.readFile(file2, 'utf8', (err, content2) => {
+        if (err) {
+          return reject(err);
+        }
+        const differences = compareContent(content1, content2);
+        const formattedDiff = formatDiff(differences, options.format, options.color);
+        resolve(formattedDiff);
+      });
+    });
+  });
 };
 
-const compareFiles = (filePath1, filePath2, format, color) => {
-  const content1 = fs.readFileSync(filePath1, 'utf8');
-  const content2 = fs.readFileSync(filePath2, 'utf8');
+const compareContent = (content1, content2) => {
+  // TODO: 实现文件内容比较逻辑
+  return []; // 返回一个空数组作为示例
+};
 
-  const diff = formatDiff(content1, content2, format);
-
-  if (color) {
-    // Add color to the diff output
+const formatDiff = (differences, format, color) => {
+  if (format === 'unified') {
+    return formatUnified(differences, color);
+  } else if (format === 'context') {
+    return formatContext(differences, color);
+  } else if (format === 'side-by-side') {
+    return formatSideBySide(differences, color);
+  } else {
+    return differences.join('
+');
   }
-
-  console.log(diff);
 };
 
-const compareDirectories = (dirPath1, dirPath2, format, color) => {
-  // Implementation of directory comparison
+const formatUnified = (differences, color) => {
+  // TODO: 实现统一格式的diff输出
+  return differences.join('
+'); // 返回一个空数组作为示例
 };
 
-const parseArgs = () => {
+const formatContext = (differences, color) => {
+  // TODO: 实现上下文格式的diff输出
+  return differences.join('
+'); // 返回一个空数组作为示例
+};
+
+const formatSideBySide = (differences, color) => {
+  // TODO: 实现并排格式的diff输出
+  return differences.join('
+'); // 返回一个空数组作为示例
+};
+
+const main = () => {
   const args = process.argv.slice(2);
-  let [file1, file2, , color] = args;
-  let format = 'unified';
 
-  if (color) {
-    format = 'unified';
-  }
-
-  if (!file1 || !file2) {
+  if (args.length < 2) {
     console.log('Usage: node diff.js <file1> <file2> [--format <format>] [--color]');
     return;
   }
 
-  if (args.includes('--format')) {
-    const formatIndex = args.indexOf('--format');
-    format = args[formatIndex + 1];
-  }
+  const [file1, file2] = args;
+  const options = {
+    format: args.includes('--format') ? args[args.indexOf('--format') + 1] : 'unified',
+    color: args.includes('--color'),
+  };
 
-  const color = args.includes('--color');
-
-  if (fs.existsSync(file1) && fs.existsSync(file2)) {
-    compareFiles(file1, file2, format, color);
-  } else if (fs.existsSync(dirPath1) && fs.existsSync(dirPath2)) {
-    compareDirectories(dirPath1, dirPath2, format, color);
-  } else {
-    console.log('Files or directories not found.');
-  }
+  diffFiles(file1, file2, options)
+    .then((diff) => {
+      console.log(diff);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
-parseArgs();
+main();

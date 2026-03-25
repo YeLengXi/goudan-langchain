@@ -1,5 +1,6 @@
 const DB = require('./database');
 
+// 初始化
 const db = new DB('./data.json');
 
 // 创建表

@@ -1,34 +1,68 @@
-const equal = (actual, expected) => {
-  if (actual === expected) {
-    return true;
+function equal(actual, expected) {
+  if (actual !== expected) {
+    throw new Error(
+      "expected: " + expected + 
+      " but got: " + actual
+    );
   }
-  return false;
-};
+}
 
-const deepEqual = (actual, expected) => {
-  if (actual === expected) {
-    return true;
+function deepEqual(actual, expected) {
+  if (!equal(actual, expected)) {
+    try {
+      equal(JSON.stringify(actual), JSON.stringify(expected));
+    } catch (e) {
+      throw new Error(
+        "expected deep equal: " + expected + 
+        " but got: " + actual
+      );
+    }
   }
-  return false;
-};
+}
 
-const truthy = (value) => {
-  return !!value;
-};
+function truthy(actual) {
+  if (!actual) {
+    throw new Error(
+      "expected truthy value, but got: " + actual
+    );
+  }
+}
 
-const falsy = (value) => {
-  return !value;
-};
+function falsy(actual) {
+  if (actual) {
+    throw new Error(
+      "expected falsy value, but got: " + actual
+    );
+  }
+}
 
-const throws = (fn, error) => {
+function throws(block, expectedError) {
   try {
-    fn();
-    return false;
-  } catch (e) {
-    return e === error;
+    block();
+  } catch (error) {
+    if (error !== expectedError) {
+      throw new Error(
+        "expected to throw: " + expectedError + 
+        " but threw: " + error
+      );
+    }
   }
-};
+}
 
-const contains = (actual, expected) => {
-  return actual.includes(expected);
+function contains(array, item) {
+  if (!array.includes(item)) {
+    throw new Error(
+      "expected to contain: " + item + 
+      " but got: " + array
+    );
+  }
+}
+
+module.exports = {
+  equal,
+  deepEqual,
+  truthy,
+  falsy,
+  throws,
+  contains
 };

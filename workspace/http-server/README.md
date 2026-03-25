@@ -4,13 +4,13 @@ This is a simple HTTP server that serves static files from a specified directory
 
 ## Features
 
-- Serves files from a specified directory.
-- Supports directory listing.
-- Automatically detects MIME types.
-- Supports CORS.
-- Logs requests.
-- Handles errors (404, 500, etc.).
-- Graceful shutdown.
+- Specify port and root directory
+- Support directory indexing
+- Automatic MIME type detection
+- CORS support
+- Request logging
+- Error handling (404, 500, etc.)
+- Graceful shutdown
 
 ## Usage
 

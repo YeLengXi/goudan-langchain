@@ -1,15 +1,13 @@
-{
-  "requests": [
-    {
-      "method": "GET",
-      "url": "https://api.example.com/users"
-    },
-    {
-      "method": "POST",
-      "url": "https://api.example.com/users",
-      "data": {
-        "name": "John"
-      }
+[
+  {
+    "method": "GET",
+    "url": "https://api.example.com/users"
+  },
+  {
+    "method": "POST",
+    "url": "https://api.example.com/users",
+    "body": {
+      "name": "John"
     }
-  ]
-}
+  }
+]
