@@ -1,45 +1,26 @@
 const fs = require('fs');
-const path = require('path');
-
-const ERROR_TYPES = ['TypeError', 'SyntaxError', 'RangeError'];
-
-const countErrors = (logs) => {
-  const errorCounts = {
-    TypeError: 0,
-    SyntaxError: 0,
-    RangeError: 0
-  };
-
-  logs.forEach(log => {
-    ERROR_TYPES.forEach(errorType => {
-      if (log.includes(errorType)) {
-        errorCounts[errorType] += 1;
-      }
-    });
-  });
-
-  return errorCounts;
-};
-
-const getMostFrequentError = (errorCounts) => {
-  let mostFrequentError = {
-    name: '',
-    count: 0
-  };
-
-  for (const errorType in errorCounts) {
-    if (errorCounts[errorType] > mostFrequentError.count) {
-      mostFrequentError = {
-        name: errorType,
-        count: errorCounts[errorType]
-      };
-    }
-  }
-
-  return mostFrequentError;
-};
 
 module.exports = {
-  countErrors,
-  getMostFrequentError
+  countErrors: (logs) => {
+    const errorTypes = {};
+    logs.forEach(log => {
+      if (log.level === 'ERROR') {
+        const errorType = log.message.match(/Error: ([^\n]+)/)[1];
+        errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
+      }
+    });
+    return errorTypes;
+  },
+
+  getMostFrequentError: (errorTypes) => {
+    let mostFrequentError = null;
+    let maxCount = 0;
+    for (const errorType in errorTypes) {
+      if (errorTypes[errorType] > maxCount) {
+        mostFrequentError = errorType;
+        maxCount = errorTypes[errorType];
+      }
+    }
+    return mostFrequentError;
+  }
 }

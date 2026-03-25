@@ -3,81 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio</title>
+  <title>{{name}}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      color: #333;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .header {
-      text-align: center;
-    }
-    .bio {
-      margin-top: 20px;
-    }
-    .skills {
-      margin-top: 20px;
-    }
-    .skills ul {
-      list-style-type: none;
-      padding: 0;
-    }
-    .skills li {
-      display: inline-block;
-      margin-right: 10px;
-    }
-    .projects {
-      margin-top: 20px;
-    }
-    .project {
-      margin-bottom: 20px;
-    }
-    .social {
-      margin-top: 20px;
-    }
-    .social a {
-      margin-right: 10px;
+      background-color: {{theme_color}};
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>{{name}}</h1>
-      <p>{{position}}</p>
-    </div>
-    <div class="bio">
-      {{bio}}
-    </div>
-    <div class="skills">
-      <h2>Skills</h2>
-      <ul>
-        {{#each skills}}
-          <li>{{this}}</li>
-        {{/each}}
-      </ul>
-    </div>
-    <div class="projects">
-      <h2>Projects</h2>
-      {{#each projects}}
-        <div class="project">
-          <h3>{{name}}</h3>
-          <p>{{description}}</p>
-          <a href="{{link}}">View Project</a>
-        </div>
-      {{/each}}
-    </div>
-    <div class="social">
-      <h2>Connect</h2>
-      {{#each social}}
-        <a href="{{this}}">{{this}}</a>
-      {{/each}}
-    </div>
-  </div>
+  <h1>{{name}}</h1>
+  <h2>{{position}}</h2>
+  <p>{{bio}}</p>
+  <ul>
+    {{#skills}}
+      <li>{{.}}</li>
+    {{/skills}}
+  </ul>
+  <h2>Projects</h2>
+  <ul>
+    {{#projects}}
+      <li>{{name}} - {{description}}</li>
+    {{/projects}}
+  </ul>
+  <h2>Social Links</h2>
+  <ul>
+    {{#social_links}}
+      <li><a href="{{url}}" target="_blank">{{name}}</a></li>
+    {{/social_links}}
+  </ul>
 </body>
 </html>

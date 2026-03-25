@@ -1,21 +1,51 @@
-const fs = require('fs');
-
-const exportToJson = (logs) => {
-  const data = JSON.stringify(logs, null, 2);
-  fs.writeFileSync('exported_logs.json', data);
-};
-
-const exportToCsv = (logs) => {
-  const headers = Object.keys(logs[0]).join(',
-');
-  const rows = logs.map(log => Object.values(log).join(',')).join('
-');
-  const csvData = headers + '
-' + rows;
-  fs.writeFileSync('exported_logs.csv', csvData);
-};
+const read_file = require('fs').readFileSync;
 
 module.exports = {
-  exportToJson,
-  exportToCsv
+  parseAppLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)[0];
+      const level = line.match(/INFO|WARN|ERROR/)[0];
+      const message = line.replace(timestamp + ' ', '').trim();
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  },
+
+  parseApacheLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const timestamp = line.match(/\d{2}/)[0] + '/' + line.match(/\d{2}/)[1] + '/' + line.match(/\d{4}/)[0] + ' ';
+      const level = 'ACCESS';
+      const message = line.replace(timestamp, '').trim();
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  },
+
+  parseErrorLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)[0];
+      const level = 'ERROR';
+      const message = line.replace(timestamp + ' ', '').trim();
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  }
 }
