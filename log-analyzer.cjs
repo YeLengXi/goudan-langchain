@@ -1,12 +1,12 @@
-const { read_file, write_file, exec_command, list_directory } = require('./tools');
+const { read_file, write_file, exec_command, list_directory } = require('./utils.js');
 
 // 日志解析器
-const parser = {
-  parseAppLog: (log) => {
+const logParser = {
+  parseApplicationLog: (log) => {
     // 解析应用日志
   },
-  parseApacheLog: (log) => {
-    // 解析Apache日志
+  parseAccessLog: (log) => {
+    // 解析访问日志
   },
   parseErrorLog: (log) => {
     // 解析错误日志
@@ -21,7 +21,7 @@ const errorStats = {
   groupErrorsByType: (logs) => {
     // 按类型分组
   },
-  showMostFrequentErrors: (logs) => {
+  displayMostFrequentErrors: (logs) => {
     // 显示最频繁的错误
   }
 };
@@ -42,10 +42,10 @@ const searchEngine = {
 // 报告生成器
 const reportGenerator = {
   exportToJson: (logs) => {
-    // 导出为JSON
+    // 导出为 JSON
   },
   exportToCsv: (logs) => {
-    // 导出为CSV
+    // 导出为 CSV
   },
   generateStatisticsReport: (logs) => {
     // 生成统计报告
@@ -53,7 +53,7 @@ const reportGenerator = {
 };
 
 module.exports = {
-  parser,
+  logParser,
   errorStats,
   searchEngine,
   reportGenerator

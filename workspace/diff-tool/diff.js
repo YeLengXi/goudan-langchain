@@ -1,44 +1,42 @@
 const fs = require('fs');
 const path = require('path');
-const { promisify } = require('util');
-const readFileAsync = promisify(fs.readFile);
-const writeFileAsync = promisify(fs.writeFile);
-const statAsync = promisify(fs.stat);
 
-const diffFiles = async (file1, file2, format = 'unified', color = false) => {
-  const content1 = await readFileAsync(file1, 'utf8');
-  const content2 = await readFileAsync(file2, 'utf8');
+const diffFiles = (filePath1, filePath2, options) => {
+  const { format = 'unified', color = false } = options;
 
-  const unifiedDiff = generateUnifiedDiff(content1, content2);
-  const contextDiff = generateContextDiff(content1, content2);
-  const sideBySideDiff = generateSideBySideDiff(content1, content2);
+  // 读取文件内容
+  const content1 = fs.readFileSync(filePath1, 'utf8');
+  const content2 = fs.readFileSync(filePath2, 'utf8');
 
-  switch (format) {
-    case 'unified':
-      return color ? highlight(unifiedDiff) : unifiedDiff;
-    case 'context':
-      return color ? highlight(contextDiff) : contextDiff;
-    case 'side-by-side':
-      return color ? highlight(sideBySideDiff) : sideBySideDiff;
-    default:
-      return unifiedDiff;
+  // 比较文件内容
+  const differences = compareFiles(content1, content2);
+
+  // 根据格式输出结果
+  if (format === 'unified') {
+    return formatUnifiedDiff(differences, color);
+  } else if (format === 'context') {
+    return formatContextDiff(differences, color);
+  } else if (format === 'side-by-side') {
+    return formatSideBySideDiff(differences, color);
   }
+
+  return differences;
 };
 
-const generateUnifiedDiff = (content1, content2) => {
-  // Implementation of unified diff
+const compareFiles = (content1, content2) => {
+  // TODO: 实现文件比较逻辑
 };
 
-const generateContextDiff = (content1, content2) => {
-  // Implementation of context diff
+const formatUnifiedDiff = (differences, color) => {
+  // TODO: 实现统一格式输出
 };
 
-const generateSideBySideDiff = (content1, content2) => {
-  // Implementation of side-by-side diff
+const formatContextDiff = (differences, color) => {
+  // TODO: 实现上下文格式输出
 };
 
-const highlight = (diff) => {
-  // Implementation of color highlighting
+const formatSideBySideDiff = (differences, color) => {
+  // TODO: 实现并排格式输出
 };
 
 module.exports = { diffFiles };
