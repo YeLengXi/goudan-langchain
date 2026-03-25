@@ -1,36 +1,73 @@
-const fs = require('fs');
-const path = require('path');
+const read_file = require('fs').readFileSync;
 
-// 报告生成器
-function generateReport(logData, format) {
-  if (format === 'json') {
-    const jsonData = JSON.stringify(logData, null, 2);
-    fs.writeFileSync('report.json', jsonData);
-  } else if (format === 'csv') {
-    const csvData = logData.map(log => {
-      return [log.timestamp, log.level, log.message].join(',');
-    }).join('
+const parseAppLog = (logContent) => {
+  const lines = logContent.split('
 ');
-    fs.writeFileSync('report.csv', csvData);
-  }
-}
+  const parsedLogs = [];
 
-// 主函数
-function main() {
-  const filePath = process.argv[2];
-  const options = process.argv.slice(3);
+  lines.forEach(line => {
+    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
+    const level = line.match(/INFO|WARN|ERROR/);
+    const message = line.match(/.+/);
 
-  const logData = fs.readFileSync(filePath, 'utf8');
-  const parsedData = parseLog(logData);
-
-  options.forEach(option => {
-    switch (option) {
-      case '--export':
-        const [_, format] = option.split('=');
-        generateReport(parsedData, format);
-        break;
+    if (timestamp && level && message) {
+      parsedLogs.push({
+        timestamp: timestamp[0],
+        level: level[0],
+        message: message[0]
+      });
     }
   });
-}
 
-main();
+  return parsedLogs;
+};
+
+const parseApacheLog = (logContent) => {
+  const lines = logContent.split('
+');
+  const parsedLogs = [];
+
+  lines.forEach(line => {
+    const timestamp = line.match(/\d{2}/);
+    const ip = line.match(/(\d{1,3}\.){3}\d{1,3}/);
+    const method = line.match(/(GET|POST|PUT|DELETE)/);
+    const url = line.match(/\/);
+    const status = line.match(/\d{3}/);
+
+    if (timestamp && ip && method && url && status) {
+      parsedLogs.push({
+        timestamp: timestamp[0],
+        ip: ip[0],
+        method: method[0],
+        url: url[0],
+        status: status[0]
+      });
+    }
+  });
+
+  return parsedLogs;
+};
+
+const parseErrorLog = (logContent) => {
+  const lines = logContent.split('
+');
+  const parsedLogs = [];
+
+  lines.forEach(line => {
+    const stackTrace = line.match(/at .+/);
+
+    if (stackTrace) {
+      parsedLogs.push({
+        stackTrace: stackTrace[0]
+      });
+    }
+  });
+
+  return parsedLogs;
+};
+
+module.exports = {
+  parseAppLog,
+  parseApacheLog,
+  parseErrorLog
+}

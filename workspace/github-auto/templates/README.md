@@ -1,10 +1,10 @@
-# README.md
+# README 模板
 
 这是一个 README 模板的示例。
 
 ## 项目描述
 
-这里是项目的描述。
+[项目名称]
 
 ## 安装
 
@@ -12,16 +12,16 @@
 npm install
 ```
 
-## 使用方法
+## 使用
 
 ```bash
-npm run example
+node index.js
 ```
 
 ## 贡献
 
-请查看 CONTRIBUTING.md 文件。
+请参考 .github/CONTRIBUTING.md
 
 ## 许可证
 
-MIT
+[许可证名称]
