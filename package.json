@@ -1,0 +1,20 @@
+{
+  "name": "goudan-langchain",
+  "version": "1.0.0",
+  "description": "Goudan - AI Developer Agent using LangChain and ZhipuAI",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": ["ai", "agent", "langchain", "zhipuai", "developer"],
+  "author": "goudan",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

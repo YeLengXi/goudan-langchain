@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.env
+logs/*.log
+.DS_Store
+*.swp
+*.swo
+workspace/.git/
+workspace/results/
