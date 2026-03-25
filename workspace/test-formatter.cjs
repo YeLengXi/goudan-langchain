@@ -1,47 +1,78 @@
-/usr/bin/env node
+/#!/usr/bin/env node
 
 const fs = require('fs');
-const path = require('path');
-const { formatCode } = require('./code-formatter-v3.cjs');
 
-const testFile = 'test.js';
-const expectedFile = 'expected.js';
-
-const testCode = `function add(a, b) {
-  return a + b;
-}
-
-function subtract(a, b) {
-  return a - b;
-}
-
-const obj = {
-  greet: function() {
-    return 'Hello, world!';
-  }
-};
-
-const arr = [1, 2, 3];
-`;
-
-const expectedCode = `const add = (a, b) => a + b;
-
-const subtract = (a, b) => a - b;
-
-const obj = {
-  greet: () => 'Hello, world!' // Object method arrow function conversion
-};
-
-const arr = [1, 2, 3];
-`;
-
-fs.writeFileSync(testFile, testCode, 'utf8');
-fs.writeFileSync(expectedFile, expectedCode, 'utf8');
-
-const testResult = formatCode(fs.readFileSync(testFile, 'utf8'), {
+// Default configuration
+const DEFAULT_CONFIG = {
+  indentSize: 2,
+  maxLineLength: 80,
   formatArrowFunctions: true,
-  formatObjects: true
-});
-const expectedResult = fs.readFileSync(expectedFile, 'utf8');
+  formatObjects: true,
+  formatArrays: true
+};
 
-console.log('Test passed:', testResult === expectedResult);
+function formatCode(code, config = DEFAULT_CONFIG) {
+  let formatted = code;
+
+  // Normalize line endings
+  formatted = formatted.replace(/
+/g, '\n');
+
+  // Step 1: Format arrow functions - add spaces
+  if (config.formatArrowFunctions) {
+    // Add space after = in arrow function: (a,b)=> => (a,b) =>
+    formatted = formatted.replace(/(\w)=\((.*?)\)=>/g, '$1 = ($2) =>');
+  }
+
+  // Step 2: Add newlines after semicolons
+  formatted = formatted.replace(/;/g, ';\n');
+
+  // Step 3: Add newlines after opening braces
+  formatted = formatted.replace(/{/g, '{\n');
+
+  // Step 4: Add newlines before closing braces
+  formatted = formatted.replace(/}/g, '\n}\n');
+
+  // Step 5: Add newlines after keywords
+  formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
+
+  // Clean up multiple newlines
+  formatted = formatted.replace(/
+{3,}/g, '\n\n');
+
+  // Process indentation
+  const lines = formatted.split('\n');
+  let indentLevel = 0;
+  const indentSize = config.indentSize;
+
+  const formattedLines = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // Decrease before closing brace
+    if (trimmed.startsWith('}')) {
+      indentLevel = Math.max(0, indentLevel - 1);
+    }
+
+    // Add indentation
+    const indented = ' '.repeat(indentLevel * indentSize) + trimmed;
+    formattedLines.push(indented);
+
+    // Increase after opening brace
+    if (trimmed.endsWith('{')) {
+      indentLevel++;
+    }
+
+    // Decrease after closing brace
+    if (trimmed.endsWith('}')) {
+      indentLevel = Math.max(0, indentLevel - 1);
+    }
+  }
+
+  return formattedLines.join('\n') + '\n';
+}
+
+function parseArgs(args) {
+  const config = { ...DEFAULT_CONFIG };

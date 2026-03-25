@@ -1,35 +1,29 @@
-const fs = require('fs');const path = require('path');const { promisify } = require('util');const exec = promisify(exec);const read_file = require('./read_file');const write_file = require('./write_file');const list_directory = require('./list_directory');const exec_command = require('./exec_command');class CLI {
-  constructor() {
-    this.githubAuto = new GitHubAuto();
-  }
+const { exec_command } = require('./utils');const { GitHubAPI } = require('./github-api');const { TemplateSystem } = require('./template-system');const { CLI } = require('./cli');
 
-  run(command, args) {
-    switch (command) {
-      case 'create':
-        this.create(args);
-        break;
-      case 'init':
-        this.init(args);
-        break;
-      case 'push':
-        this.push(args);
-        break;
-      default:
-        console.log('Unknown command');
-    }
-  }
+module.exports = {
+  create: async (options) => {
+    const { name, isPrivate, description } = options;
+    const repository = await GitHubAPI.createRepository(name, isPrivate);
+    await TemplateSystem.applyTemplate('default', name);
+    exec_command(`git init ${name}`);
+    exec_command(`git remote add origin ${repository.clone_url}`);
+    exec_command(`git add .`);
+    exec_command(`git commit -m 'Initial commit'`);
+    exec_command(`git push -u origin main`);
+  },
 
-  create(args) {
-    // Implement create logic here
-  }
+  init: async (options) => {
+    const { template } = options;
+    const repositoryName = 'my-project';
+    await TemplateSystem.applyTemplate(template, repositoryName);
+    exec_command(`git init ${repositoryName}`);
+    exec_command(`echo 'Hello, world!' > ${repositoryName}/index.js`);
+    exec_command(`git add .");
+    exec_command(`git commit -m 'Initial commit' ${repositoryName}`);
+  },
 
-  init(args) {
-    // Implement init logic here
+  push: async () => {
+    const repositoryName = 'my-project';
+    exec_command(`git push origin main ${repositoryName}`);
   }
-
-  push(args) {
-    // Implement push logic here
-  }
-}
-
-module.exports = CLI;
+};

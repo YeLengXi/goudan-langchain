@@ -1,22 +1,22 @@
-const fs = require('fs');const path = require('path');const { promisify } = require('util');const exec = promisify(exec);const read_file = require('./read_file');const write_file = require('./write_file');const list_directory = require('./list_directory');const exec_command = require('./exec_command');class TemplateSystem {
-  constructor() {
-    this.templates = {
-      'README': fs.readFileSync(path.join(__dirname, 'templates', 'README.md'), 'utf8'),
-      '.gitignore': {
-        'nodejs': fs.readFileSync(path.join(__dirname, 'templates', '.gitignore.nodejs'), 'utf8'),
-        'python': fs.readFileSync(path.join(__dirname, 'templates', '.gitignore.python'), 'utf8')
-      },
-      'LICENSE': {
-        'MIT': fs.readFileSync(path.join(__dirname, 'templates', 'LICENSE.MIT'), 'utf8'),
-        'Apache': fs.readFileSync(path.join(__dirname, 'templates', 'LICENSE.Apache'), 'utf8'),
-        'GPL': fs.readFileSync(path.join(__dirname, 'templates', 'LICENSE.GPL'), 'utf8')
-      }
-    };
-  }
+const { write_file, list_directory } = require('./utils');const { GitHubAPI } = require('./github-api');const README_TEMPLATES = {
+  'default': 'defaultREADME.md',
+  'nodejs': 'nodejsREADME.md'
+};const GITIGNORE_TEMPLATES = {
+  'default': 'default.gitignore',
+  'nodejs': 'nodejs.gitignore'
+};const LICENSES = {
+  'MIT': 'MIT_LICENSE.txt',
+  'Apache': 'APACHE_LICENSE.txt',
+  'GPL': 'GPL_LICENSE.txt'
+};
 
-  getTemplate(name, type) {
-    return this.templates[name][type] || null;
+module.exports = {
+  applyTemplate: async (templateType, repositoryName) => {
+    const readmeContent = read_file(README_TEMPLATES[templateType]).trim();
+    const gitignoreContent = read_file(GITIGNORE_TEMPLATES[templateType]).trim();
+    const licenseContent = read_file(LICENSES[templateType]).trim();
+    write_file(`./${repositoryName}/README.md`, readmeContent);
+    write_file(`./${repositoryName}/.gitignore`, gitignoreContent);
+    write_file(`./${repositoryName}/LICENSE`, licenseContent);
   }
-}
-
-module.exports = TemplateSystem;
+};
