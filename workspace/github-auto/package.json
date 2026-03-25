@@ -1,14 +1,1 @@
-{
-  "name": "github-auto",
-  "version": "1.0.0",
-  "description": "GitHub repository automation tool",
-  "main": "index.js",
-  "scripts": {
-    "create": "node index.js create",
-    "init": "node index.js init",
-    "push": "node index.js push"
-  },
-  "devDependencies": {
-    "axios": "^0.21.1"
-  }
-}
+{"name":"github-auto","version":"1.0.0","description":"GitHub 自动化工具","main":"index.js","scripts":{"create":"./index.js create","init":"./index.js init","push":"./index.js push"},"bin":{"github-auto":"./index.js"},"repository":{"type":"git","url":"https://github.com/your-username/github-auto"},"author":"Your Name","license":"ISC"}

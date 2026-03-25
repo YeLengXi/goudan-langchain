@@ -1,19 +1,17 @@
-const calculator = {
-    add: function(a, b) {
-        return a + b;
-    },
-    subtract: function(a, b) {
-        return a - b;
-    },
-    multiply: function(a, b) {
-        return a * b;
-    },
-    divide: function(a, b) {
-        if (b === 0) {
-            throw new Error('Division by zero is not allowed.');
-        }
-        return a / b;
-    }
-};
+// file1.js
 
-module.exports = calculator;
+// 功能点1: 计算两个数的和
+function add(a, b) {
+  return a + b;
+}
+
+// 功能点2: 打印欢迎信息
+function welcomeMessage(name) {
+  console.log(`Welcome, ${name}!`);
+}
+
+// 导出模块
+module.exports = {
+  add,
+  welcomeMessage
+};
