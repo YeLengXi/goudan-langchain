@@ -1,21 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
-const app = express();
-const port = 3000;
 
-app.use(express.static('dist'));
+const portfolioFilePath = path.join(__dirname, 'portfolio.json');
+const templateFilePath = path.join(__dirname, 'templates/default.html');
+const outputDir = path.join(__dirname, 'output');
 
-const template = fs.readFileSync(path.join(__dirname, 'templates', 'default.html'), 'utf-8');
+fs.mkdirSync(outputDir, { recursive: true });
 
-app.get('/', (req, res) => {
-  const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'portfolio.json'), 'utf-8'));
-  const filledTemplate = template.replace(/{{(.*?)}}/g, (match, key) => {
-    return config[key] || match;
-  });
-  res.send(filledTemplate);
-});
+function generateWebsite() {
+    const portfolio = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf-8'));
+    const template = fs.readFileSync(templateFilePath, 'utf-8');
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-});
+    const outputHtml = template.replace('{{name}}', portfolio.name).replace('{{position}}', portfolio.position).replace('{{bio}}', portfolio.bio).replace(/{{#each skills}}/g, '').replace(/{{/each}}/g, '').replace(/{{#each projects}}/g, '').replace(/{{/each}}/g, '').replace(/{{#each social_links}}/g, '').replace(/{{/each}}/g, '');
+
+    fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml);
+}
+
+generateWebsite();

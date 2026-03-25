@@ -1,45 +1,48 @@
 const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const { parse } = require('minimist');
+const { program } = require('commander');
 
-const DEFAULT_REQUEST_FILE = 'examples/requests.json';
+program
+  .version('1.0.0')
+  .description('A simple API tester for command line');
 
-function fetchApi(url, method, headers, body) {
-  return new Promise((resolve, reject) => {
+program
+  .command('GET <url>')
+  .description('Send a GET request to the specified URL')
+  .action((url) => {
+    https.get(url, (response) => {
+      let data = '';
+      response.on('data', (chunk) => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        console.log(data);
+      });
+    }).on('error', (error) => {
+      console.error(error);
+    });
+  });
+
+program
+  .command('POST <url> -d <data>')
+  .description('Send a POST request to the specified URL with JSON data')
+  .action((url, data) => {
     const options = {
-      method,
-      headers
-    }
-
-    if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       }
     }
-
-    https.get(url, response => {
-      const data = [];
-      response.on('data', chunk => data.push(chunk));
-      response.on('end', () => {
-        const resBody = Buffer.concat(data).toString();
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: resBody
-        });
+    https.request(url, options, (response) => {
+      let data = '';
+      response.on('data', (chunk) => {
+        data += chunk;
       });
-    }).on('error', error => reject(error));
+      response.on('end', () => {
+        console.log(data);
+      });
+    }).on('error', (error) => {
+      console.error(error);
+    });
   });
-}
 
-function parseRequestFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
-}
-
-module.exports = {
-  fetchApi,
-  parseRequestFile
-}
+program.parse(process.argv);

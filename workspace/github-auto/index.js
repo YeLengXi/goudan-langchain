@@ -1,7 +1,4 @@
-const { create, init, push } = require('./commands');
+# index.js
 
-module.exports = {
-  create,
-  init,
-  push
-};
+主程序文件。
+

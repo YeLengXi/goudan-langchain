@@ -1,77 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    .header {
-      text-align: center;
-    }
-    .profile {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 5px;
-    }
-    .skills {
-      background-color: #fff;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 5px;
-    }
-    .projects {
-      background-color: #fff;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 5px;
-    }
-    .project {
-      margin-bottom: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+        }
+        .profile {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .skills {
+            background-color: #eee;
+            padding: 20px;
+        }
+        .projects {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>John Doe</h1>
-      <h2>Frontend Developer</h2>
+    <div class="container">
+        <div class="header">
+            <h1>{{name}}</h1>
+            <p>{{position}}</p>
+        </div>
+        <div class="profile">
+            <h2>About Me</h2>
+            <p>{{bio}}</p>
+        </div>
+        <div class="skills">
+            <h2>Skills</h2>
+            <ul>
+                {{#each skills}}
+                <li>{{this}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="projects">
+            <h2>Projects</h2>
+            <ul>
+                {{#each projects}}
+                <li>{{name}} - {{description}}</li>
+                {{/each}}
+            </ul>
+        </div>
+        <div class="social-links">
+            <h2>Social Links</h2>
+            <ul>
+                {{#each social_links}}
+                <li><a href="{{this}}">{{this}}</a></li>
+                {{/each}}
+            </ul>
+        </div>
     </div>
-    <div class="profile">
-      <h3>Bio</h3>
-      <p>I am a frontend developer with 5 years of experience in building modern web applications.</p>
-    </div>
-    <div class="skills">
-      <h3>Skills</h3>
-      <ul>
-        <li>HTML</li>
-        <li>CSS</li>
-        <li>JavaScript</li>
-        <li>React</li>
-        <li>Vue</li>
-      </ul>
-    </div>
-    <div class="projects">
-      <h3>Projects</h3>
-      <div class="project">
-        <h4>Project 1</h4>
-        <p>A web application for managing tasks.</p>
-        <a href="https://example.com/project1">Visit Project</a>
-      </div>
-      <div class="project">
-        <h4>Project 2</h4>
-        <p>A responsive website for a company.</p>
-        <a href="https://example.com/project2">Visit Project</a>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
