@@ -1,18 +1,17 @@
-# ProgressBar
+# CLI进度条工具
 
-A command-line progress bar tool for displaying the progress of long-running tasks.
+## 简介
+本工具提供命令行进度条功能，可以显示长时间运行任务的进度。
 
-## Installation
-
-To use this tool, you need to have Node.js installed.
+## 安装
 
 ```bash
 npm install progress-bar
 ```
 
-## Usage
+## 使用方法
 
-To use the progress bar, you can require the 'progress.js' module and create a new instance of `ProgressBar`. Here's an example:
+### 创建单个进度条
 
 ```javascript
 const ProgressBar = require('./progress.js');
@@ -21,28 +20,38 @@ const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
-  // Do some work here
+  // 做一些工作
 }
 
-bar.finish();
-```
 
-## Options
+### 创建多进度条
 
-- `total`: The total number of steps. Default is 100.
-- `width`: The width of the progress bar. Default is 20.
-- `complete`: The character used to represent the completed part of the progress bar. Default is '█'.
-- `incomplete`: The character used to represent the incomplete part of the progress bar. Default is '░'.
-- `style`: The style of the progress bar. Available styles are 'standard', 'circle', 'dots', and 'arrows'. Default is 'standard'.
+```javascript
+const ProgressBar = require('./progress.js');
 
-## CLI Interface
+const multi = new ProgressBar.MultiProgressBar();
 
-The tool also provides a CLI interface. You can use the following commands to display different styles of progress bars:
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
+
+for (let i = 0; i <= 100; i++) {
+  bar1.update(i);
+  bar2.update(i);
+  // 做一些工作
+}
+
+
+## 参数
+
+- total: 总进度数
+- width: 进度条宽度
+- complete: 完成部分的字符
+- incomplete: 不完成部分的字符
+
+## CLI接口
 
 ```bash
 node demo.js --style standard
 node demo.js --style dots
-node demo.js --style circle
-node demo.js --style arrows
 node demo.js --multi
 ```

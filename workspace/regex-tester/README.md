@@ -1,58 +1,50 @@
 # Regex Tester
 
-This tool allows you to test and debug regular expressions.
-
-## Installation
-
-To use this tool, make sure you have Node.js installed. Then, run the following command in your terminal:
-
-```bash
-npm install
-```
+This is a simple regex tester tool that allows you to test regex patterns, extract capture groups, replace text, and validate common patterns like email, phone, URL, IP address, and date format.
 
 ## Usage
 
-- To test a regex pattern against some text:
-  
-  ```bash
-  node tester.js <pattern> --text <text>
-  ```
-  
-- To validate an email address:
-  
-  ```bash
-  node tester.js --email <email>
-  ```
-  
-- To validate a phone number:
-  
-  ```bash
-  node tester.js --phone <phone>
-  ```
-  
-- To validate a URL:
-  
-  ```bash
-  node tester.js --url <url>
-  ```
-  
-- To replace text using a regex pattern:
-  
-  ```bash
-  node tester.js replace <pattern> --text <text> --with <replacement>
-  ```
+To use the tool, run the following command:
+
+```bash
+node tester.js <command> <options>
+```
+
+### Commands
+
+- `testRegex` - Test a regex pattern against some text.
+    - `--regex <pattern>` - The regex pattern to test.
+    - `--text <text>` - The text to test against.
+
+- `testEmail` - Validate an email address.
+    - `--email <email>` - The email address to validate.
+
+- `testPhone` - Validate a phone number.
+    - `--phone <phone>` - The phone number to validate.
+
+- `testUrl` - Validate a URL.
+    - `--url <url>` - The URL to validate.
+
+- `replaceText` - Replace text using a regex pattern.
+    - `--regex <pattern>` - The regex pattern to use for replacement.
+    - `--text <text>` - The text to replace.
+    - `--with <replacement>` - The replacement text.
 
 ## Examples
 
 ```bash
-$ node tester.js "/\d+/" --text "hello 123 world"
-Pattern: /\d+/
-Text: hello 123 world
-Match: 123
-Position: 6-9
+# Test regex pattern
+node tester.js testRegex --regex "/\d+/" --text "hello 123 world"
 
-$ node tester.js --email "test@example.com"
-Pattern: ^[\^\s@]+@[\^\s@]+\.[\^\s@]+$
-Input: test@example.com
-Valid: ✅ true
+# Validate email address
+node tester.js --email "test@example.com"
+
+# Validate phone number
+node tester.js --phone "13800138000"
+
+# Validate URL
+node tester.js --url "https://example.com"
+
+# Replace text
+node tester.js replace --regex "/\s+/g" --text "hello   world" --with "+"
 ```

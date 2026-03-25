@@ -12,7 +12,7 @@ npm install workspace-test-framework
 
 ## Usage
 
-### Basic Structure
+You can use the framework to write and run tests.
 
 ```javascript
 const { describe, it, expect } = require('workspace-test-framework');
@@ -27,16 +27,3 @@ describe('Math operations', () => {
   });
 });
 ```
-
-### CLI
-
-You can run tests using the following commands:
-
-- `node test.js example.test.js`
-- `node test.js tests/`
-- `node test.js --verbose`
-- `node test.js --watch`
-
-## License
-
-MIT

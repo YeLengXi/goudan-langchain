@@ -1,56 +1,75 @@
 const fs = require('fs');
-const { JSDOM } = require('jsdom');
-const dom = new JSDOM();
-const { JSONParser } = dom.window;
+const { program } = require('commander');
 
-const read_file = (file_path) => {
-  const data = fs.readFileSync(file_path, 'utf8');
+const format = (json, indent) => {
   try {
-    return JSONParser.parse(data);
+    const formattedJson = JSON.stringify(JSON.parse(json), null, indent);
+    return formattedJson;
   } catch (error) {
     throw new Error('Invalid JSON');
   }
 };
 
-const write_file = (file_path, content) => {
-  fs.writeFileSync(file_path, content, 'utf8');
-};
-
-const format = (json, indent = 2) => {
-  return JSON.stringify(json, null, indent);
-};
-
 const sort = (json, key) => {
-  if (!json || !Array.isArray(json)) {
-    throw new Error('Invalid input');
+  try {
+    const data = JSON.parse(json);
+    data.sort((a, b) => {
+      if (a[key] < b[key]) return -1;
+      if (a[key] > b[key]) return 1;
+      return 0;
+    });
+    return JSON.stringify(data, null, 2);
+  } catch (error) {
+    throw new Error('Invalid JSON');
   }
-  return json.sort((a, b) => a[key].localeCompare(b[key]));
 };
 
 const filter = (json, condition) => {
-  if (!json || !Array.isArray(json)) {
-    throw new Error('Invalid input');
+  try {
+    const data = JSON.parse(json);
+    return JSON.stringify(data.filter(item => eval(condition)), null, 2);
+  } catch (error) {
+    throw new Error('Invalid JSON');
   }
-  return json.filter(item => {
-    const value = item[condition.split(' ')[0]];
-    const operator = condition.split(' ')[1];
-    const expected = condition.split(' ')[2];
-    return operator === '==' ? value === expected : value > expected;
-  });
 };
 
 const merge = (json1, json2) => {
-  return JSON.stringify({
-    ...json1,
-    ...json2
-  });
+  try {
+    const obj1 = JSON.parse(json1);
+    const obj2 = JSON.parse(json2);
+    return JSON.stringify(Object.assign({}, obj1, obj2), null, 2);
+  } catch (error) {
+    throw new Error('Invalid JSON');
+  }
 };
 
-module.exports = {
-  read_file,
-  write_file,
-  format,
-  sort,
-  filter,
-  merge
-};
+program
+  .command('format <json> [indent]')
+  .description('Format JSON data')
+  .action((json, indent) => {
+    console.log(format(json, indent || 2));
+  })
+  .option('--indent <number>', 'specify the indent number');
+
+program
+  .command('sort <json> --key <key>')
+  .description('Sort JSON data by key')
+  .action((json, key) => {
+    console.log(sort(json, key));
+  });
+
+program
+  .command('filter <json> --condition <condition>')
+  .description('Filter JSON data by condition')
+  .action((json, condition) => {
+    console.log(filter(json, condition));
+  });
+
+program
+  .command('merge <json1> <json2>')
+  .description('Merge two JSON data')
+  .action((json1, json2) => {
+    console.log(merge(json1, json2));
+  });
+
+program.parse(process.argv);

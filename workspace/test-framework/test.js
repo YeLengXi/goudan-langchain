@@ -1,29 +1,27 @@
-const describe = (name, callback) => {
-  console.log(`
-${name}`);
-  callback();
+const describe = (name, fn) => {
+  console.log(
+    `
+${name}
+`);
+  fn();
 };
 
-const it = (name, callback) => {
+const it = (name, fn) => {
   try {
-    console.log(`  ${name}`);
-    callback();
+    fn();
+    console.log(`  ✓ ${name}`);
   } catch (error) {
-    console.error(`  ✖ ${name}
-    ${error}
+    console.error(`  ✗ ${name}
+    ${error}`);
   }
 };
 
-const before = (callback) => {
-  console.log(`
-Before all tests:`);
-  callback();
+const before = (fn) => {
+  fn();
 };
 
-const after = (callback) => {
-  console.log(`
-After all tests:`);
-  callback();
+const after = (fn) => {
+  fn();
 };
 
 module.exports = { describe, it, before, after };

@@ -1,38 +1,29 @@
-const fs = require('fs');
-const path = require('path');
-const { describe, it, before, after } = require('./test.js');
+const { describe, it, expect } = require('./test.js');
+
 const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
-const assert = require('assert');
 
-const testFiles = (directory) => {
-  const files = fs.readdirSync(directory);
-  files.forEach((file) => {
-    const filePath = path.join(directory, file);
-    if (fs.statSync(filePath).isDirectory()) {
-      testFiles(filePath);
-    } else if (filePath.endsWith('.test.js')) {
-      require(filePath);
-    }
+describe('Example tests', () => {
+  it('should test equality', () => {
+    expect(1).toEqual(1);
   });
-};
 
-const runTests = () => {
-  before(() => {}); // before all tests
-  testFiles('tests');
-  after(() => {}); // after all tests
-  console.log('Tests completed.');
-};
-
-const watchTests = () => {
-  fs.watch('tests', (event, filename) => {
-    if (event === 'change' && filename.endsWith('.test.js')) {
-      console.log(`File ${filename} changed, running tests...`);
-      runTests();
-    }
+  it('should test deep equality', () => {
+    expect({ a: 1 }).toEqual({ a: 1 });
   });
-};
 
-module.exports = {
-  runTests,
-  watchTests
-};
+  it('should test truthiness', () => {
+    expect(true).toBeTruthy();
+  });
+
+  it('should test falsiness', () => {
+    expect(false).toBeFalsy();
+  });
+
+  it('should test throws', () => {
+    expect(() => { throw new Error('test error'); }).toThrow('test error');
+  });
+
+  it('should test contains', () => {
+    expect(['a', 'b', 'c']).toContain('b');
+  });
+});

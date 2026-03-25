@@ -2,39 +2,51 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 
-const parseConfig = (configPath) => {
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config;
+const configPath = process.argv[2] || 'config.json';
+
+// 读取配置文件
+const readConfig = async () => {
+  try {
+    const config = await read_file(configPath);
+    return JSON.parse(config);
+  } catch (error) {
+    console.error('Error reading config file:', error);
+    process.exit(1);
+  }
 };
 
+// 执行命令
 const executeCommand = (command, file) => {
-  const replacedCommand = command.replace(\{file\}, file);
-  console.log(`Executing: ${replacedCommand}`);
-  exec(replacedCommand, (error, stdout, stderr) => {
+  const cmd = command.replace(/{file}/g, file);
+  exec(cmd, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error: ${error}`);
-      console.error(`Stderr: ${stderr}`);
+      console.error(`Error executing command: ${cmd}`, error);
+      return;
     }
+    console.log(stdout);
   });
 };
 
-const monitorDirectory = (directoryPath) => {
-  fs.watch(directoryPath, (eventType, filename) => {
-    if (eventType === 'rename' && filename) {
-      const config = parseConfig(path.join(directoryPath, 'config.json'));
-      const command = config.events[eventType];
-      if (command) {
-        executeCommand(command, filename);
+// 监控目录
+const monitorDirectory = async (config) => {
+  const watchDir = config.watchDir;
+  const events = config.events;
+  try {
+    fs.watch(watchDir, (event, filename) => {
+      if (events[event]) {
+        executeCommand(events[event], filename);
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error('Error watching directory:', error);
+    process.exit(1);
+  }
 };
 
-const main = () => {
-  const args = process.argv.slice(2);
-  const configPath = args.find(arg => arg.startsWith('--config '))?.split('--config ')[1] || 'config.json';
-  const config = parseConfig(configPath);
-  monitorDirectory(config.watchDir);
+// 主程序
+const main = async () => {
+  const config = await readConfig();
+  monitorDirectory(config);
 };
 
 main();

@@ -1,61 +1,61 @@
-const { CronJob } = require('cron');
+# 定时任务调度器
 
-const fs = require('fs');
-const path = require('path');
+本调度器可以根据cron表达式定时执行任务。
 
-const configFilePath = 'tasks.json';
+## 使用说明
 
-let tasks = [];
+1. 创建一个配置文件，例如 tasks.json，内容如下：
 
-function loadConfig() {
-  const configPath = path.join(__dirname, configFilePath);
-  const configContent = fs.readFileSync(configPath, 'utf8');
-  const config = JSON.parse(configContent);
-
-  tasks = config.tasks || [];
-}
-
-function parseCronExpression(cronExpression) {
-  // 简单的cron表达式解析
-  const parts = cronExpression.split(' ');
-  return {
-    minute: parts[0],
-    hour: parts[1],
-    day: parts[2],
-    month: parts[3],
-    weekday: parts[4]
-  };
-}
-
-function scheduleTasks() {
-  tasks.forEach(task => {
-    const cronConfig = parseCronExpression(task.cron);
-    const job = new CronJob(
-      cronConfig,
-      () => {
-        console.log(`执行任务: ${task.name}`);
-        execCommand(task.command);
-      },
-      null,
-      true
-    );
-    job.start();
-  });
-}
-
-function execCommand(command) {
-  require('child_process').exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行命令出错: ${error}`);
-      return;
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
-    if (stderr) {
-      console.error(`错误输出: ${stderr}`);
-      return;
-    }
-    console.log(`命令输出: ${stdout}`);
-  });
+  ]
 }
+```
 
-loadConfig();
-scheduleTasks();
+2. 运行调度器：
+
+   ```bash
+   node scheduler.js --config tasks.json
+   ```
+
+3. 查看帮助：
+
+   ```bash
+   node scheduler.js --help
+   ```
+
+## CLI接口
+
+   ```bash
+   node scheduler.js --config <config_file>
+   ```
+
+## 配置文件示例
+
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
+    }
+  ]
+}
+```
