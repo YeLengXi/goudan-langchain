@@ -1,35 +1,53 @@
-# 定时任务调度器
+# scheduler.js
 
-这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
+const cron = require('cron');
+const fs = require('fs');
+const path = require('path');
 
-## 功能
+const configPath = process.argv[2];
 
-- 解析cron表达式
-- 定时执行任务
-- 支持多个任务
-- 任务执行历史
-- 错误处理和重试
-
-## 使用说明
-
-1. 创建一个配置文件（例如：tasks.json），并定义任务。
-2. 运行调度器：`node scheduler.js --config tasks.json`
-
-## 配置文件示例
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
-    }
-  ]
+// 解析cron表达式
+function parseCronExpression(expression) {
+  return cron.parseExpression(expression);
 }
-```
+
+// 执行任务
+function executeTask(task) {
+  try {
+    const child = require('child_process').exec(task.command);
+    child.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`);
+    });
+    child.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+    child.on('close', (code) => {
+      console.log(`Task ${task.name} exited with code ${code}`);
+    });
+  } catch (error) {
+    console.error(`Error executing task ${task.name}: ${error}`);
+  }
+}
+
+// 读取配置文件
+function readConfig() {
+  const content = fs.readFileSync(configPath, 'utf8');
+  const config = JSON.parse(content);
+  return config;
+}
+
+// 主函数
+function main() {
+  const config = readConfig();
+  const tasks = config.tasks;
+  tasks.forEach(task => {
+    const cronJob = cron.job(task.cron, () => {
+      console.log(`Executing task ${task.name} at ${new Date().toISOString()}`);
+      executeTask(task);
+    }, null, true);
+    cronJob.start();
+  });
+}
+
+// 运行主函数
+main();
