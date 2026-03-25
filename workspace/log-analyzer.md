@@ -1,38 +1,45 @@
-# 日志分析器
+# 日志解析器
 
-# 功能要求
+## 应用日志解析
+```javascript
+// 解析应用日志
+function parseAppLog(log) {
+  const parts = log.split(' '); // 分割日志字符串
+  const timestamp = parts[0]; // 获取时间戳
+  const level = parts[1]; // 获取日志级别
+  const message = parts.slice(2).join(' '); // 获取消息
+  return { timestamp, level, message }; // 返回解析结果
+}
 
-### 1. 日志解析
-- 支持多种日志格式
-  - 应用日志（时间戳 + 级别 + 消息）
-  - 访问日志（Apache 格式）
-  - 错误日志（堆栈跟踪）
+## 访问日志解析
+```javascript
+// 解析访问日志
+function parseAccessLog(log) {
+  // 使用正则表达式解析日志
+  const regex = /^((?:\d{2}/\d{2}/\d{2}:\d{2}:\d{2}) - ) ([A-Z]+) - ((?:\d{3}.\d{3}.\d{3}.\d{3}) - ) ([^\n]+) \[(.*?)\] "(.*?)" (\d{3}) (-|) (\d+) (\d+) "(.*?)" "(.*?)"$/
+  const match = log.match(regex);
+  if (match) {
+    const timestamp = match[1];
+    const method = match[6];
+    const url = match[7];
+    const status = match[8];
+    const bytes = match[9];
+    return { timestamp, method, url, status, bytes }; // 返回解析结果
+  }
+}
 
-### 2. 错误统计
-- 统计错误数量
-- 按类型分组
-- 显示最频繁的错误
-
-### 3. 搜索功能
-- 按关键词搜索
-- 按时间范围过滤
-- 按日志级别过滤
-
-### 4. 导出功能
-- 导出为 JSON
-- 导出为 CSV
-- 生成统计报告
-
-## 文件结构
-```
-log-analyzer.cjs
-├── 日志解析器
-├── 错误统计器
-├── 搜索引擎
-└── 报告生成器
-```
-## 使用示例
-```bash
-node log-analyzer.cjs app.log --error --export json
-node log-analyzer.cjs app.log --search "timeout" --export csv
-```
+## 错误日志解析
+```javascript
+// 解析错误日志
+function parseErrorLog(log) {
+  // 使用正则表达式解析堆栈跟踪
+  const regex = /at (.*?) \((.*?)\)/g;
+  let matches = [];
+  let match;
+  while ((match = regex.exec(log)) !== null) {
+    const file = match[1];
+    const line = match[2];
+    matches.push({ file, line });
+  }
+  return { stack: matches }; // 返回解析结果
+}
