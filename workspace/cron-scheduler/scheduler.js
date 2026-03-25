@@ -1,61 +1,30 @@
-# scheduler.js
+# Cron Scheduler
 
-const fs = require('fs');
-const path = require('path');
-const { parseCronExpression } = require('./cron-parser');
-const { scheduleTask } = require('./task-scheduler');
+This is a simple cron job scheduler that can execute tasks based on cron expressions.
 
-const configFilePath = process.argv[2];
+## Features
 
-if (!configFilePath) {
-  console.error('请指定配置文件路径。');
-  process.exit(1);
-}
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-const configPath = path.resolve(configFilePath);
-const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+## Configuration
 
-// 添加任务
-const addTask = (task) => {
-  scheduleTask(task.cron, async () => {
-    try {
-      await execCommand(task.command);
-      console.log(`任务 ${task.name} 执行成功`);
-    } catch (error) {
-      console.error(`任务 ${task.name} 执行失败: ${error}`);
-      // 可以在这里添加重试逻辑
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
-  });
+  ]
 }
-
-// 删除任务
-const deleteTask = (taskName) => {
-  scheduleTask.delete(taskName);
-}
-
-// 执行命令
-const execCommand = (command) => {
-  return new Promise((resolve, reject) => {
-    const { spawn } = require('child_process');
-    const child = spawn(command, []);
-    let data = '';
-    child.stdout.on('data', (chunk) => { data += chunk; });
-    child.stderr.on('data', (chunk) => { reject(new Error(chunk)); });
-    child.on('close', (code) => {
-      if (code === 0) {
-        resolve(data);
-      } else {
-        reject(new Error('命令执行错误'));
-      }
-    });
-  });
-}
-
-// 主程序
-const main = () => {
-  config.tasks.forEach(task => {
-    addTask(task);
-  });
-}
-
-main();
+```

@@ -1,69 +1,85 @@
 const fs = require('fs');
-const util = require('util');
+const { promisify } = require('util');
+const read_file = promisify(fs.readFile);
+const write_file = promisify(fs.writeFile);
+const exec_command = require('child_process').exec;
+const list_directory = require('fs').readdir;
 
-// 读取文件内容
-function read_file(file_path) {
-    return new Promise((resolve, reject) => {
-        fs.readFile(file_path, 'utf8', (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(JSON.parse(data));
-            }
-        });
-    });
-}
+// JSON processing functions
 
-// 写入文件内容
-function write_file(file_path, content) {
-    return new Promise((resolve, reject) => {
-        fs.writeFile(file_path, JSON.stringify(content, null, 2), 'utf8', (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
-}
-
-// 格式化JSON
 function format(json, indent) {
-    return JSON.stringify(json, null, indent);
+  return JSON.stringify(json, null, indent);
 }
 
-// 排序JSON
 function sort(json, key) {
-    return json.sort((a, b) => {
-        if (a[key] < b[key]) {
-            return -1;
-        }
-        if (a[key] > b[key]) {
-            return 1;
-        }
-        return 0;
-    });
+  return JSON.parse(JSON.stringify(json)).sort((a, b) => {
+    if (a[key] < b[key]) return -1;
+    if (a[key] > b[key]) return 1;
+    return 0;
+  });
 }
 
-// 过滤JSON
 function filter(json, condition) {
-    return json.filter(item => {
-        const evalCondition = new Function('item', `return ${condition};`);
-        return evalCondition(item);
-    });
+  return json.filter(item => {
+    const jsdom = new JSDOM(`<html><body>${JSON.stringify(item)}</body></html>`);
+    const document = jsdom.window.document;
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(document.body.innerHTML, "text/xml");
+    const result = eval(condition);
+    return result;
+  });
 }
 
-// 合并JSON
 function merge(json1, json2) {
-    const result = {
-        ...json1
-    };
-    for (const key in json2) {
-        if (json2.hasOwnProperty(key)) {
-            result[key] = json2[key];
-        }
-    }
-    return JSON.stringify(result, null, 2);
+  return JSON.parse(JSON.stringify(json1)).concat(json2);
 }
 
-module.exports = { read_file, write_file, format, sort, filter, merge };
+// CLI interface
+
+const args = process.argv.slice(2);
+const command = args[0];
+const file = args[1];
+const options = args.slice(2);
+
+switch (command) {
+  case 'format':
+    (async () => {
+      try {
+        const data = await read_file(file);
+        const json = JSON.parse(data);
+        const formatted = format(json, parseInt(options[0]) || 2);
+        console.log(formatted);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })()
+    break;
+  case 'sort':
+    (async () => {
+      try {
+        const data = await read_file(file);
+        const json = JSON.parse(data);
+        const key = options[0];
+        const sorted = sort(json, key);
+        console.log(JSON.stringify(sorted, null, 2));
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })()
+    break;
+  case 'filter':
+    (async () => {
+      try {
+        const data = await read_file(file);
+        const json = JSON.parse(data);
+        const condition = options[0];
+        const filtered = filter(json, condition);
+        console.log(JSON.stringify(filtered, null, 2));
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })()
+    break;
+  default:
+    console.log('Unknown command');
+}
