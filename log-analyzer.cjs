@@ -13,27 +13,30 @@ const parseLogFile = (logFileContent) => {
 };
 
 // 主函数
-const main = async () => {
+const main = () => {
   const filePath = process.argv[2];
   const options = process.argv.slice(3);
+
+  if (!filePath) {
+    console.log('Please provide a log file path.');
+    return;
+  }
 
   const logFileContent = readLogFile(filePath);
   const parsedLogFile = parseLogFile(logFileContent);
 
-  for (const option of options) {
-    switch (option) {
-      case '--error':
-        console.log('Error count:', parsedLogFile.length);
-        break;
-      case '--search':
-        console.log('Search results:', parsedLogFile);
-        break;
-      case '--export':
-        const exportFormat = options[1];
-        const exportedLogFile = parsedLogFile;
-        fs.writeFileSync(`exported-${path.basename(filePath, path.extname(filePath))}.${exportFormat}`, exportedLogFile);
-        break;
-    }
+  if (options.includes('--error')) {
+    console.log('Error count:', parsedLogFile.length);
+  }
+
+  if (options.includes('--search')) {
+    console.log('Search results:', parsedLogFile);
+  }
+
+  if (options.includes('--export')) {
+    const exportFormat = options[1];
+    const exportedLogFile = parsedLogFile;
+    fs.writeFileSync(`exported-${path.basename(filePath, path.extname(filePath))}.${exportFormat}`, exportedLogFile);
   }
 };
 
