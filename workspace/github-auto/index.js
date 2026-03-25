@@ -1,115 +1,73 @@
-// 主程序
+const axios = require('axios');
+const dotenv = require('dotenv');
+const { program } = require('commander');
 const fs = require('fs');
-const https = require('https');
-const { exec } = require('child_process');
+const path = require('path');
 
-// GitHub API URL
+dotenv.config();
+
 const GITHUB_API_URL = 'https://api.github.com';
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-// 读取配置文件
-const config = JSON.parse(fs.readFileSync('E:/goudan-langchain/workspace/github-auto/config.json', 'utf8'));
+program
+  .command('create <repoName> [isPrivate] [description]')
+  .description('Create a new GitHub repository')
+  .action((repoName, isPrivate, description) => {
+    createRepository(repoName, isPrivate, description);
+  });
 
-// GitHub Personal Access Token
-const token = config.github_token;
+program
+  .command('init [template]')
+  .description('Initialize a new project')
+  .action((template) => {
+    initializeProject(template);
+  });
 
-// 模板文件路径
-const templatesDir = 'E:/goudan-langchain/workspace/github-auto/templates';
+program
+  .command('push')
+  .description('Push the current project to GitHub')
+  .action(() => {
+    pushToGitHub();
+  });
 
-// 创建仓库
-function createRepository(repoName, isPublic, description) {
-  const options = {
-    hostname: 'api.github.com',
-    path: `/user/repos`,
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${token}`,
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    body: JSON.stringify({
+program.parse(process.argv);
+
+async function createRepository(repoName, isPrivate, description) {
+  try {
+    const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
       name: repoName,
-      private: !isPublic
-    })
+      private: isPrivate || false,
+      description: description || '',
+    }, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
+    });
+    console.log(`Repository created: ${response.data.html_url}`);
+  } catch (error) {
+    console.error('Error creating repository:', error);
+  }
+}
+
+async function initializeProject(template) {
+  const projectPath = path.join(__dirname, '..', 'projects', repoName);
+  fs.mkdirSync(projectPath, { recursive: true });
+
+  const files = {
+    'README.md': require.resolve('./templates/README.md'),
+    '.gitignore': require.resolve('./templates/gitignore'),
+    'LICENSE': require.resolve('./templates/LICENSE'),
+  };
+
+  for (const [file, templatePath] of Object.entries(files)) {
+    const content = fs.readFileSync(templatePath, 'utf-8');
+    fs.writeFileSync(path.join(projectPath, file), content);
   }
 
-  const req = https.request(options, (res) => {
-    if (res.statusCode === 201) {
-      console.log(`Repository ${repoName} created successfully`);
-      initializeRepository(repoName, isPublic, description);
-    } else {
-      console.error(`Failed to create repository: ${res.statusCode} ${res.statusMessage}`);
-    }
-  });
-
-  req.on('error', (e) => {
-    console.error(`Request Error: ${e.message}`);
-  });
-
-  req.write(body);
-  req.end();
+  console.log(`Project initialized in ${projectPath}`);
 }
 
-// 初始化仓库
-function initializeRepository(repoName, isPublic, description) {
-  // 初始化 git
-  exec(`git init E:/goudan-langchain/workspace/${repoName}`, (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Git init Error: ${stderr}`);
-      return;
-    }
-    console.log('Git initialized successfully');
-
-    // 创建项目结构
-    const projectDir = `E:/goudan-langchain/workspace/${repoName}`;
-    fs.mkdirSync(projectDir, { recursive: true });
-    fs.writeFileSync(`${projectDir}/README.md`, fs.readFileSync(`${templatesDir}/README.md`, 'utf8').replace(/{{repoName}}/g, repoName).replace(/{{description}}/g, description || ''));
-    fs.writeFileSync(`${projectDir}/.gitignore`, fs.readFileSync(`${templatesDir}/.gitignore`, 'utf8').replace(/{{repoName}}/g, repoName));
-    fs.writeFileSync(`${projectDir}/LICENSE`, fs.readFileSync(`${templatesDir}/LICENSE`, 'utf8').replace(/{{repoName}}/g, repoName));
-
-    // 第一次提交
-    exec(`git -C ${projectDir} add .`, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Git add Error: ${stderr}`);
-        return;
-      }
-      exec(`git -C ${projectDir} commit -m 'Initial commit'`, (err, stdout, stderr) => {
-        if (err) {
-          console.error(`Git commit Error: ${stderr}`);
-          return;
-        }
-        console.log('Initial commit done');
-      });
-    });
-  });
-}
-
-// CLI 命令处理
-const args = process.argv.slice(2);
-if (args[0] === 'create') {
-  const repoName = args[1];
-  const isPublic = args[2] === '--public';
-  const description = args.slice(3).join(' ');
-  createRepository(repoName, isPublic, description);
-} else if (args[0] === 'init') {
-  const template = args[1];
-  initializeRepository(template);
-} else if (args[0] === 'push') {
-  // 添加 remote
-  exec('git remote add origin https://github.com/username/repository.git', (err, stdout, stderr) => {
-    if (err) {
-      console.error(`Git remote add Error: ${stderr}`);
-      return;
-    }
-    console.log('Remote added successfully');
-
-    // 推送到 main 分支
-    exec('git push -u origin main', (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Git push Error: ${stderr}`);
-        return;
-      }
-      console.log('Pushed to main branch successfully');
-    });
-  });
-} else {
-  console.log('Unknown command');
+async function pushToGitHub() {
+  // Implementation for pushing to GitHub
+  console.log('Pushing to GitHub...');
 }

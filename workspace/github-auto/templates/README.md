@@ -1,10 +1,10 @@
-# README.md 模板
+# README.md
 
-这是一个 README.md 的模板，将被用于初始化新仓库。
+这是一个 README 模板的示例。
 
-## {{repoName}}
+## 项目描述
 
-{{description}}
+这里是项目的描述。
 
 ## 安装
 
@@ -12,8 +12,14 @@
 npm install
 ```
 
-## 运行
+## 使用
 
-```bash
-node index.js
-```
+这里是项目的使用说明。
+
+## 贡献
+
+欢迎贡献代码。
+
+## 许可证
+
+MIT

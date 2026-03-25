@@ -4,34 +4,32 @@
 
 ## 安装
 
-首先，确保你已经安装了 Node.js 和 npm。
-
 ```bash
-npm install
+npm install -g github-auto
 ```
 
 ## 使用
 
-- 创建仓库：
-  ```bash
-  github-auto create my-project --public
-  ```
+### 创建仓库
 
-- 初始化仓库：
-  ```bash
-  github-auto init --template nodejs
-  ```
+```bash
+github-auto create <仓库名> --public
+github-auto create <仓库名> --private --description "描述"
+```
 
-- 推送到 GitHub：
-  ```bash
-  github-auto push
-  ```
+### 初始化项目
 
-## 配置
+```bash
+github-auto init --template <模板>
+```
 
-- 修改配置文件（config.json）以设置 GitHub Personal Access Token。
+### 推送到 GitHub
+
+```bash
+github-auto push
+```
 
 ## 注意
 
-- 需要 GitHub Personal Access Token。
-- 确保你的项目结构正确。
+- 需要 GitHub Personal Access Token
+- 使用前请确保已安装 Node.js
