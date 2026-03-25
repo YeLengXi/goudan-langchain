@@ -1,73 +1,64 @@
-# Cron Scheduler
+const cron = require('node-cron');
+const fs = require('fs');
+const path = require('path');
 
-This is a simple cron scheduler implemented in Node.js.
+const configFilePath = process.argv[2];
 
-## Features
-
-- Cron expression parsing
-- Task scheduling and execution
-- Support for multiple tasks
-- Task execution history
-- Error handling and retry
-
-## Configuration
-
-The scheduler uses a JSON configuration file to define tasks. The format of the configuration file is as follows:
-
-```json
-{
-  "tasks": [
-    {
-      "name": "task_name",
-      "cron": "cron_expression",
-      "command": "command_to_execute"
-    },
-    // Add more tasks here
-  ]
+// Parse the cron expression
+function parseCronExpression(expression) {
+  const parts = expression.split(' ');
+  return {
+    minute: parseInt(parts[0], 10),
+    hour: parseInt(parts[1], 10),
+    day: parseInt(parts[3], 10),
+    month: parseInt(parts[4], 10),
+    dayOfWeek: parseInt(parts[5], 10)
+  };
 }
-```
 
-Each task is defined by a name, a cron expression, and a command to execute. The cron expression specifies when the task should be executed, and the command specifies what command to run.
-
-## Usage
-
-To use the scheduler, run the following command:
-
-```bash
-node scheduler.js --config tasks.json
-```
-
-Replace `tasks.json` with the path to your configuration file.
-
-## Example
-
-Here is an example configuration file:
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
+// Execute a task
+function executeTask(task) {
+  console.log(`Executing task: ${task.name} at ${new Date().toLocaleString()}`);
+  require('child_process').exec(task.command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing task: ${task.name}`, error);
+      return;
     }
-  ]
+    if (stderr) {
+      console.error(`Stderr from task: ${task.name}`, stderr);
+      return;
+    }
+    console.log(`Stdout from task: ${task.name}`, stdout);
+  });
 }
-```
 
-This configuration file defines two tasks: `backup` and `cleanup`. The `backup` task is scheduled to run at 2 AM every day, and the `cleanup` task is scheduled to run every 6 hours.
+// Load and parse the configuration file
+function loadConfig() {
+  const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+  return config.tasks.map(task => ({
+    ...task,
+    cronData: parseCronExpression(task.cron)
+  }));
+}
 
-## Testing
+// Schedule tasks
+function scheduleTasks(tasks) {
+  tasks.forEach(task => {
+    cron.schedule(task.cronData, () => {
+      executeTask(task);
+    });
+  });
+}
 
-To test the scheduler, you can run the following command:
+// Main function
+function main() {
+  try {
+    const tasks = loadConfig();
+    scheduleTasks(tasks);
+    console.log('Scheduler started.');
+  } catch (error) {
+    console.error('Error starting scheduler', error);
+  }
+}
 
-```bash
-node scheduler.js --config tests/scheduler.test.json
-```
-
-Replace `scheduler.test.json` with the path to your test configuration file.
+main();
