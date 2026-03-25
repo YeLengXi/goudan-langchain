@@ -1,77 +1,92 @@
+// 主程序
+# GitHub 自动化工具
+
+const axios = require('axios');
 const fs = require('fs');
-const https = require('https');
+const path = require('path');
 const { exec } = require('child_process');
 
-const apiUrl = 'https://api.github.com';
-const token = 'YOUR_GITHUB_TOKEN';
+const GITHUB_API_URL = 'https://api.github.com';
+const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN';
 
-const headers = {
-    'Authorization': `token ${token}`,
-    'Accept': 'application/vnd.github.v3+json'
-};
-
-function createRepo(name, isPublic, description) {
-    const options = {
-        hostname: 'api.github.com',
-        path: `/user/repos`,
-        method: 'POST',
-        headers: headers
+// 创建 GitHub 仓库
+async function createRepository(repoName, isPublic, description) {
+  const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
+    name: repoName,
+    private: !isPublic
+  }, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`
     }
+  });
 
-    const data = {
-        name: name,
-        private: !isPublic
-    }
-
-    if (description) {
-        data.description = description;
-    }
-
-    const req = https.request(options, (res) => {
-        if (res.statusCode === 201) {
-            console.log('Repository created successfully');
-            initGit();
-        } else {
-            console.error('Failed to create repository');
-        }
-    });
-
-    req.on('error', (e) => {
-        console.error(`Request Error: ${e.message}`);
-    });
-
-    req.write(JSON.stringify(data));
-    req.end();
+  return response.data; 
 }
 
-function initGit() {
-    exec('git init', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error initializing git: ${error.message}`);
-            return;
-        }
-        console.log('Git initialized successfully');
-        createProjectStructure();
-    });
+// 初始化本地仓库
+async function initLocalRepository(repoName) {
+  exec(`git init ${repoName}`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log('Local repository initialized.');
+  });
+
+  // 创建项目结构
+  const projectStructure = {
+    'index.js': '',
+    'README.md': '',
+    '.gitignore': '',
+    'LICENSE': ''
+  };
+
+  Object.keys(projectStructure).forEach(file => {
+    fs.writeFileSync(
+      path.join(repoName, file),
+      projectStructure[file]
+    );
+  });
+
+  // 初始化 git
+  exec(`git add .`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log('Initial files added to git.');
+  });
+
+  exec(`git commit -m 'Initial commit'`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log('Initial commit done.');
+  });
 }
 
-function createProjectStructure() {
-    const projectStructure = {
-        'README.md': '# Project Name
-',
-        '.gitignore': 'node_modules/
-',
-        'LICENSE': 'MIT
-'
+// 推送到 GitHub
+async function pushToGitHub(repoName) {
+  exec(`git remote add origin https://${GITHUB_TOKEN}@github.com/${repoName}.git`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
     }
+    console.log('Remote origin added.');
+  });
 
-    Object.keys(projectStructure).forEach((file) => {
-        fs.writeFileSync(file, projectStructure[file]);
-    });
-    console.log('Project structure created successfully');
+  exec(`git push -u origin main`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log('Pushed to GitHub.');
+  });
 }
 
 module.exports = {
-    createRepo: createRepo,
-    initGit: initGit
-}
+  createRepository,
+  initLocalRepository,
+  pushToGitHub
+};
