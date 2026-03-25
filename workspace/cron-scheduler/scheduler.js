@@ -1,34 +1,31 @@
-const cron = require('node-cron');
+const { parseCronExpression } = require('cron-parser');
+
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
-const configFilePath = process.argv[2] || 'tasks.json';
+const configFilePath = process.argv[2];
 
 // 解析cron表达式
-function parseCronExpression(expression) {
-  const tokens = expression.split(' ');
-  return {
-    minute: tokens[0],
-    hour: tokens[1],
-    day: tokens[2],
-    month: tokens[3],
-    dayOfWeek: tokens[4]
-  };
+function parseCronExpression(cronString) {
+  const parser = parseCronExpression(cronString);
+  return parser;
 }
 
 // 执行任务
 function executeTask(task) {
-  console.log(`执行任务: ${task.name} - ${new Date().toISOString()}`);
-  exec_command(task.command);
-}
-
-// 调度任务
-function scheduleTasks(tasks) {
-  tasks.forEach(task => {
-    const cronExpression = parseCronExpression(task.cron);
-    cron.schedule(cronExpression, () => {
-      executeTask(task);
-    });
+  const { command } = task;
+  console.log(`Executing task: ${command}`);
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing task: ${error}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Error output: ${stderr}`);
+      return;
+    }
+    console.log(`Task executed successfully: ${stdout}`);
   });
 }
 
@@ -41,13 +38,13 @@ function readConfigFile(filePath) {
 
 // 主程序
 function main() {
-  try {
-    const config = readConfigFile(configFilePath);
-    const tasks = config.tasks;
-    scheduleTasks(tasks);
-  } catch (error) {
-    console.error('错误:', error);
-  }
+  const config = readConfigFile(configFilePath);
+  const tasks = config.tasks || [];
+  tasks.forEach(task => {
+    const cronParser = parseCronExpression(task.cron);
+    const nextRun = cronParser.next();
+    console.log(`Next run time: ${nextRun}`);
+  });
 }
 
 main();

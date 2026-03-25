@@ -2,41 +2,40 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const { createServer } = require('http');
+const { readFileSync } = require('fs');
+const { promisify } = require('util');
+const statAsync = promisify(fs.stat);
 
 const PORT = process.argv.slice(2).find(arg => arg.startsWith('--port')).split('=')[1] || 8080;
 const DIR = process.argv.slice(2).find(arg => arg.startsWith('--dir')).split('=')[1] || './public';
 
-const server = http.createServer((req, res) => {
-  const parsedUrl = url.parse(req.url, true);
-  const filePath = path.join(DIR, parsedUrl.pathname);
+const server = createServer(async (req, res) => {
+  try {
+    const parsedUrl = url.parse(req.url, true);
+    const filePath = path.join(DIR, parsedUrl.pathname);
 
-  fs.stat(filePath, (err, stats) => {
-    if (err) {
+    const stats = await statAsync(filePath);
+    if (stats.isDirectory()) {
+      filePath += '/index.html';
+      stats = await statAsync(filePath);
+    }
+
+    if (!stats) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('404 Not Found
 ');
       return;
     }
 
-    if (stats.isDirectory()) {
-      filePath += '/index.html';
-      fs.stat(filePath, (err, stats) => {
-        if (err) {
-          res.writeHead(404, { 'Content-Type': 'text/plain' });
-          res.end('404 Not Found
+    const mime = getMime(filePath);
+    res.writeHead(200, { 'Content-Type': mime });
+    fs.createReadStream(filePath).pipe(res);
+  } catch (err) {
+    res.writeHead(500, { 'Content-Type': 'text/plain' });
+    res.end('500 Internal Server Error
 ');
-          return;
-        }
-
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        fs.createReadStream(filePath).pipe(res);
-      });
-    } else {
-      const mime = getMime(filePath);
-      res.writeHead(200, { 'Content-Type': mime });
-      fs.createReadStream(filePath).pipe(res);
-    }
-  });
+  }
 });
 
 function getMime(filePath) {
