@@ -1,5 +1,14 @@
 name: api-tester
 version: "1.0.0"
-developmentdependencies: 
-  commander: "^8.0.0"
-  axios: "^0.21.1"
+description: A command-line API testing tool.
+main": "index.js"
+scripts": {
+  "test": "node index.js"
+}
+keywords": [
+  "api-tester",
+  "rest-api",
+  "cli"
+]
+author: Goudan
+license: MIT

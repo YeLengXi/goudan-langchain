@@ -1,31 +1,31 @@
-# README.md Template
+# README Template
 
 This is a template for the README file of a GitHub repository.
 
 ## Project Name
 
-<Insert project name here>
+[Project Name]
 
 ## Description
 
-<Insert project description here>
+[Description]
 
-## Features
+## Table of Contents
 
-<Insert list of project features here>
+[TOC]
 
 ## Installation
 
-<Insert installation instructions here>
+[Installation Instructions]
 
 ## Usage
 
-<Insert usage instructions here>
+[Usage Instructions]
 
 ## Contributing
 
-<Insert contribution guidelines here>
+[Contribution Guidelines]
 
 ## License
 
-[Insert license information here]
+[License Information]

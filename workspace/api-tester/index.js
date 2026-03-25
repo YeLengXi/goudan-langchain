@@ -1,1 +1,58 @@
-const axios = require('axios');const commander = require('commander');const fs = require('fs');const path = require('path');const { program } = require('commander');const { read_file, write_file, exec_command, list_directory } = require('./utils');program.version('1.0.0').description('A CLI tool for testing REST APIs');program.command('GET <url>').description('Perform a GET request').action(async (url) => {  const response = await axios.get(url);  console.log(JSON.stringify(response.data, null, 2));});program.command('POST <url> -d <data>').description('Perform a POST request').action(async (url, data) => {  const response = await axios.post(url, data);  console.log(JSON.stringify(response.data, null, 2));});program.command('PUT <url> -d <data>').description('Perform a PUT request').action(async (url, data) => {  const response = await axios.put(url, data);  console.log(JSON.stringify(response.data, null, 2));});program.command('DELETE <url>').description('Perform a DELETE request').action(async (url) => {  const response = await axios.delete(url);  console.log(JSON.stringify(response.data, null, 2));});program.command('PATCH <url> -d <data>').description('Perform a PATCH request').action(async (url, data) => {  const response = await axios.patch(url, data);  console.log(JSON.stringify(response.data, null, 2));});program.command('--request-file <file>').description('Load requests from a file').action(async (file) => {  const requests = JSON.parse(read_file(file));  requests.forEach(async (request) => {    const { method, url, data } = request;    const response = await axios[method](url, data);    console.log(JSON.stringify(response.data, null, 2));  });});program.parse(process.argv);
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const { parse } = require('minimist');
+
+const API_TESTER_PATH = path.join(__dirname, '../examples/requests.json');
+
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const contentType = ['application/json', 'multipart/form-data'];
+
+async function fetchApi(url, method, headers, body) {
+  const options = {
+    method,
+    headers
+  }
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    options.body = JSON.stringify(body);
+    options.headers['Content-Type'] = 'application/json';
+  }
+
+  try {
+    const start = Date.now();
+    const response = await https.get(url, options);
+    const endTime = Date.now();
+    const data = await response.json();
+    console.log(`Response Time: ${endTime - start}ms`);
+    console.log(`Status Code: ${response.statusCode}`);
+    console.log('Headers:', response.headers);
+    console.log('Data:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+function parseArgs(args) {
+  const parsedArgs = parse(args);
+  const { method, url, _ } = parsedArgs;
+  const headers = parsedArgs.headers || {};
+  let body = parsedArgs.body;
+
+  if (body) {
+    try {
+      body = JSON.parse(body);
+    } catch (error) {
+      console.error('Invalid JSON:', error);
+      process.exit(1);
+    }
+  }
+
+  return { method, url, headers, body }; 
+}
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const { method, url, headers, body } = parseArgs(args);
+  fetchApi(url, method, headers, body);
+}

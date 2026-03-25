@@ -1,55 +1,38 @@
+const { parseLog } = require('./log-analyzer');
+const { countErrors, findMostFrequentError } = require('./error-statistics');
+const { searchLogs } = require('./search-engine');
+const { exportToJson, exportToCsv } = require('./report-generator');
+
+const analyzeLog = (logFilePath, options) => {
+    const log = read_file(logFilePath, 'utf8');
+    const logs = parseLog('app', log);
+
+    if (options.error) {
+        const errorTypes = countErrors(logs);
+        const mostFrequentError = findMostFrequentError(errorTypes);
+        console.log(`Most frequent error: ${mostFrequentError}`);
+    }
+
+    if (options.search) {
+        const { keyword, startTime, endTime, level } = options.search;
+        const filteredLogs = searchLogs(logs, keyword, startTime, endTime, level);
+        console.log(filteredLogs);
+    }
+
+    if (options.export) {
+        const { format } = options.export;
+        if (format === 'json') {
+            const jsonLogs = exportToJson(logs);
+            console.log(jsonLogs);
+        } else if (format === 'csv') {
+            const csvLogs = exportToCsv(logs);
+            console.log(csvLogs);
+        }
+    }
+};
+
 const read_file = require('fs').readFileSync;
 
-const parseAppLog = (logData) => {
-  const lines = logData.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-    const level = line.match(/INFO|WARN|ERROR/);
-    const message = line.replace(timestamp, '').replace(level, '').trim();
-
-    parsedLogs.push({ timestamp, level, message });
-  });
-
-  return parsedLogs;
-};
-
-const parseApacheLog = (logData) => {
-  const lines = logData.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{2}-\d{2}-\d{4}:\d{2}:\d{2}:\d{2}/);
-    const level = 'ACCESS';
-    const message = line.replace(timestamp, '').trim();
-
-    parsedLogs.push({ timestamp, level, message });
-  });
-
-  return parsedLogs;
-};
-
-const parseErrorLog = (logData) => {
-  const lines = logData.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-    const level = 'ERROR';
-    const message = line.replace(timestamp, '').trim();
-
-    parsedLogs.push({ timestamp, level, message });
-  });
-
-  return parsedLogs;
-};
-
 module.exports = {
-  parseAppLog,
-  parseApacheLog,
-  parseErrorLog
+    analyzeLog
 }
