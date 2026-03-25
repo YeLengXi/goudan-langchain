@@ -1,22 +1,24 @@
-// file1.js - A simple calculator that performs addition, subtraction, multiplication, and division.
-
-function calculate(num1, num2, operator) {
-  switch (operator) {
-    case '+':
-      return num1 + num2;
-    case '-':
-      return num1 - num2;
-    case '*':
-      return num1 * num2;
-    case '/':
-      if (num2 === 0) {
-        throw new Error('Cannot divide by zero.');
-      }
-      return num1 / num2;
-    default:
-      throw new Error('Invalid operator.');
-  }
+function add(a, b) {
+    return a + b;
 }
 
-// Export the calculate function for use in other files
-module.exports = calculate;
+function subtract(a, b) {
+    return a - b;
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+
+function divide(a, b) {
+    if (b === 0) {
+        return 'Error: Division by zero';
+    }
+    return a / b;
+}
+
+// Example usage:
+console.log(add(5, 3)); // 8
+console.log(subtract(5, 3)); // 2
+console.log(multiply(5, 3)); // 15
+console.log(divide(5, 3)); // 1.666...
