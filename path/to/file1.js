@@ -1,8 +1,23 @@
 // file1.js
-// A simple JavaScript file that contains a function to calculate the sum of two numbers.
-function addNumbers(a, b) {
+// 计算器核心逻辑
+
+function add(a, b) {
     return a + b;
 }
 
-// Export the function so it can be used in other files
-module.exports = addNumbers;
+function subtract(a, b) {
+    return a - b;
+}
+
+function multiply(a, b) {
+    return a * b;
+}
+
+function divide(a, b) {
+    if (b === 0) {
+        return 'Error: Division by zero';
+    }
+    return a / b;
+}
+
+module.exports = { add, subtract, multiply, divide };
