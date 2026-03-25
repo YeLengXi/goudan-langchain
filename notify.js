@@ -1,5 +1,5 @@
-// goudan 邮件通知系统
-const nodemailer = require('nodemailer');
+// goudan 邮件通知系统 (ES6 模块版本)
+import nodemailer from 'nodemailer';
 
 // 邮件配置
 const EMAIL_CONFIG = {
@@ -17,7 +17,7 @@ const RECIPIENT_EMAIL = '77037708@qq.com';
 // 创建邮件传输器
 let transporter = null;
 
-function initEmail() {
+export function initEmail() {
   try {
     transporter = nodemailer.createTransport({
       service: EMAIL_CONFIG.service,
@@ -32,7 +32,7 @@ function initEmail() {
 }
 
 // 发送邮件通知
-async function sendNotification(subject, text, html = null) {
+export async function sendNotification(subject, text, html = null) {
   if (!transporter) {
     console.error('邮件系统未初始化');
     return false;
@@ -57,7 +57,7 @@ async function sendNotification(subject, text, html = null) {
 }
 
 // 任务完成通知
-async function notifyTaskCompleted(taskId, taskName, result) {
+export async function notifyTaskCompleted(taskId, taskName, result) {
   const subject = `✅ 任务完成: ${taskName}`;
   const text = `
 goudan 完成了一个任务！
@@ -93,7 +93,7 @@ goudan AI Agent
 }
 
 // 新文件创建通知
-async function notifyFileCreated(fileName, filePath) {
+export async function notifyFileCreated(fileName, filePath) {
   const subject = `📄 新文件创建: ${fileName}`;
   const text = `
 goudan 创建了一个新文件！
@@ -122,7 +122,7 @@ goudan AI Agent
 }
 
 // Git 提交通知
-async function notifyGitCommit(commitHash, commitMessage) {
+export async function notifyGitCommit(commitHash, commitMessage) {
   const subject = `✅ Git 提交: ${commitHash}`;
   const text = `
 goudan 提交了代码！
@@ -151,7 +151,7 @@ goudan AI Agent
 }
 
 // 收入统计通知
-async function notifyEarnings(tasksCompleted, totalEarnings) {
+export async function notifyEarnings(tasksCompleted, totalEarnings) {
   const subject = `💰 收入更新: ¥${totalEarnings.toFixed(2)}`;
   const text = `
 goudan 的收入统计！
@@ -184,7 +184,7 @@ goudan AI Agent
 }
 
 // 错误通知
-async function notifyError(errorType, errorMessage) {
+export async function notifyError(errorType, errorMessage) {
   const subject = `❌ 错误: ${errorType}`;
   const text = `
 goudan 遇到了错误！
@@ -217,7 +217,7 @@ goudan AI Agent
 }
 
 // 启动通知
-async function notifyStartup() {
+export async function notifyStartup() {
   const subject = `🚀 goudan 已启动`;
   const text = `
 goudan 已开始工作！
@@ -250,14 +250,3 @@ goudan AI Agent
 
   await sendNotification(subject, text, html);
 }
-
-module.exports = {
-  initEmail,
-  sendNotification,
-  notifyTaskCompleted,
-  notifyFileCreated,
-  notifyGitCommit,
-  notifyEarnings,
-  notifyError,
-  notifyStartup
-};
