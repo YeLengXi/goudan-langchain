@@ -1,1 +1,1 @@
-{"name":"github-auto","version":"1.0.0","description":"GitHub repository automation tool","main":"index.js","scripts":{"start":"node index.js"},"dependencies":{}]
+{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"create":"node index.js create","init":"node index.js init","push":"node index.js push"},"author":"Goudan"}

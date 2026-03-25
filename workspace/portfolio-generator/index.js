@@ -1,24 +1,15 @@
 const fs = require('fs');
 const path = require('path');
+const ejs = require('ejs');
 
-// Read the portfolio configuration file
-const portfolioConfigPath = path.join(__dirname, 'portfolio.json');
-const portfolioConfig = JSON.parse(fs.readFileSync(portfolioConfigPath, 'utf8'));
+const portfolioFilePath = path.join(__dirname, 'portfolio.json');
+const templateFilePath = path.join(__dirname, 'templates/default.html');
+const outputDir = path.join(__dirname, 'output');
 
-// Read the template file
-const templatePath = path.join(__dirname, 'templates/default.html');
-const templateContent = fs.readFileSync(templatePath, 'utf8');
+fs.mkdirSync(outputDir, { recursive: true });
 
-// Replace template placeholders with portfolio information
-const generatedHtml = templateContent.replace(/{{(.*?)}}/g, (match, key) => {
-  if (key in portfolioConfig) {
-    return portfolioConfig[key];
-  }
-  return match;
-});
+const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf-8'));
+const template = fs.readFileSync(templateFilePath, 'utf-8');
+const outputHtml = ejs.render(template, portfolioData);
 
-// Write the generated HTML to the output file
-const outputHtmlPath = path.join(__dirname, 'output/index.html');
-fs.writeFileSync(outputHtmlPath, generatedHtml, 'utf8');
-
-console.log('Website generated successfully!');
+fs.writeFileSync(path.join(outputDir, 'index.html'), outputHtml);
