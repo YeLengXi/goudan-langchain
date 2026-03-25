@@ -1,27 +1,29 @@
-const ProgressBar = require('./progress.js');
+# demo.js
 
-const cliProgress = require('cli-progress');
+const ProgressBar = require('./progress-bar/progress.js');
 
-class MultiProgressBar {
-  constructor() {
-    this.bars = [];
-  }
+// 单个进度条
+const bar = new ProgressBar({
+  total: 100,
+  width: 40,
+  complete: '█',
+  incomplete: '░'
+});
 
-  create(label, total) {
-    const bar = new cliProgress.Bar({
-      format: '[{bar}] {percentage}% | {label} | {value}/{total}',
-      barCompleteChar: '\u2588',
-      barIncompleteChar: '\u2591',
-      width: 30,
-      total
-    });
-    this.bars.push({ bar, label, total });
-    return bar;
-  }
+// 更新进度条
+setInterval(() => {
+  bar.update(Math.floor(Math.random() * 101));
+}, 100);
 
-  update() {
-    this.bars.forEach(bar => {
-      bar.update(bar.total);
-    });
-  }
-}
+// 多进度条
+const MultiProgressBar = require('./progress-bar/progress.js').MultiProgressBar;
+
+const multi = new MultiProgressBar();
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
+
+// 更新多进度条
+setInterval(() => {
+  bar1.update(Math.floor(Math.random() * 101));
+  bar2.update(Math.floor(Math.random() * 101));
+}, 100);

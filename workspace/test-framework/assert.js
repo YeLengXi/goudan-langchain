@@ -1,46 +1,43 @@
+# assert.js
 const equal = (actual, expected) => {
-  if (actual === expected) {
-    return true;
+  if (actual !== expected) {
+    throw new Error(`Expected ${expected}, but got ${actual}`);
   }
-  if (typeof actual !== 'object' && typeof expected !== 'object') {
-    return false;
-  }
-  if (Array.isArray(actual) && Array.isArray(expected)) {
-    if (actual.length !== expected.length) {
-      return false;
-    }
-    for (let i = 0; i < actual.length; i++) {
-      if (!equal(actual[i], expected[i])) {
-        return false;
-      }
-    }
-    return true;
-  }
-  if (Object.keys(actual).length !== Object.keys(expected).length) {
-    return false;
-  }
-  for (let key in actual) {
-    if (!expected.hasOwnProperty(key) || !equal(actual[key], expected[key])) {
-      return false;
-    }
-  }
-  return true;
 }
 
-const deepEqual = equal;
+const deepEqual = (actual, expected) => {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+  }
+}
 
-const truthy = value => !!value;
-const falsy = value => !value;
+const truthy = (value) => {
+  if (!value) {
+    throw new Error('Expected truthy value, but got falsy');
+  }
+}
 
-const throws = (fn, error) => {
+const falsy = (value) => {
+  if (value) {
+    throw new Error('Expected falsy value, but got truthy');
+  }
+}
+
+const throws = (func, expectedError) => {
   try {
-    fn();
-    return false;
-  } catch (actualError) {
-    return equal(actualError, error);
+    func();
+    throw new Error('Expected to throw an error');
+  } catch (error) {
+    if (error.message !== expectedError) {
+      throw new Error(`Expected ${expectedError}, but got ${error.message}`);
+    }
   }
 }
 
-const contains = (actual, expected) => equal(actual, expected) || actual.includes(expected);
+const contains = (actual, expected) => {
+  if (!actual.includes(expected)) {
+    throw new Error(`Expected ${expected} to be in ${actual}`);
+  }
+}
 
 module.exports = { equal, deepEqual, truthy, falsy, throws, contains };

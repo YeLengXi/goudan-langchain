@@ -1,75 +1,60 @@
-# 任务16: 正则表达式测试器
+# 正则表达式测试器
 
-## 目标
+这是一个用于测试和调试正则表达式的工具。
 
-创建一个正则表达式测试和调试工具。
+## 安装
 
-## 必须创建的文件
+首先，确保你已经安装了 Node.js。
 
-1. `workspace/regex-tester/tester.js` - 测试器主程序
-2. `workspace/regex-tester/README.md` - 使用文档
-3. `workspace/regex-tester/test.html` - 可视化界面（可选）
-
-## 工作流程
-
-立即执行以下操作：
-
-1. 实现正则表达式测试：
-   - 匹配测试
-   - 捕获组提取
-   - 替换功能
-   - 分割功能
-2. 实现调试功能：
-   - 高亮匹配结果
-   - 显示捕获组
-   - 错误提示
-3. 实现常用正则库：
-   - 邮箱验证
-   - 手机号验证
-   - URL验证
-   - IP地址验证
-   - 日期格式
-4. 实现CLI接口
-5. 添加使用示例
-
-## 功能要求
-
-- 测试正则表达式
-- 显示匹配结果
-- 提取捕获组
-- 正则替换
-- 常用正则库
-- 错误处理
-
-## CLI接口
+然后，将此工具克隆到你的本地环境中：
 
 ```bash
-node tester.js "/\d+/" --text "hello 123 world"
-node tester.js --email "test@example.com"
-node tester.js --phone "13800138000"
-node tester.js --url "https://example.com"
-node tester.js replace "/\s+/g" --text "hello   world" --with "+"
-```
+ git clone https://github.com/your-username/regex-tester.git
+ cd regex-tester
+ npm install
+ ```
 
-## 输出示例
+## 使用
+
+运行以下命令来测试正则表达式：
 
 ```bash
-$ node tester.js "/\d+/" --text "hello 123 world"
-Pattern: /\d+/
-Text: hello 123 world
-Match: 123
-Position: 6-9
-
-$ node tester.js --email "test@example.com"
-Pattern: /^[\^\s@]+@[\^\s@]+\.[\^\s@]+$/
-Input: test@example.com
-Valid: ✅ true
+ node tester.js "/\d+\/" --text "hello 123 world"
 ```
 
-## 重要
+你可以使用以下选项来测试不同的功能：
 
-- 包含常用正则库
-- 添加正则语法说明
-- 提供测试用例
-- 包含错误提示
-- 添加详细注释
+- `--text <text>`: 要测试的文本
+- `--email <email>`: 验证邮箱
+- `--phone <phone>`: 验证手机号
+- `--url <url>`: 验证 URL
+- `--ip <ip>`: 验证 IP 地址
+- `--date <date>`: 验证日期格式
+- `--replace <regex>`: 替换文本
+- `--with <replacement>`: 替换为的文本
+
+## 示例
+
+```bash
+# 测试匹配
+ node tester.js "/\d+\/" --text "hello 123 world"
+
+# 验证邮箱
+ node tester.js --email "test@example.com"
+
+# 验证手机号
+ node tester.js --phone "13800138000"
+
+# 验证 URL
+ node tester.js --url "https://example.com"
+
+# 验证 IP 地址
+ node tester.js --ip "192.168.1.1"
+
+# 验证日期格式
+ node tester.js --date "2021-12-31"
+
+# 替换文本
+ node tester.js replace "/\s+/g" --text "hello   world" --with "+"
+
+```

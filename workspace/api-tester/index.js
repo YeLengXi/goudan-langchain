@@ -1,76 +1,51 @@
-const https = require('https');
+// Main program of the API tester
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
 
-const API_TESTER_PATH = path.join(__dirname, 'examples/requests.json');
+// Parse command line arguments
+const args = process.argv.slice(2);
 
-function fetchApi(url, method, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method,
-      headers
-    }
+// Parse request method
+const method = args[0];
 
-    if (body) {
-      options.body = body;
-    }
+// Parse URL
+const url = args[1];
 
-    https.get(url, response => {
-      const { statusCode } = response;
-      const headers = response.headers;
-      const chunks = [];
-      response.on('data', chunk => {
-        chunks.push(chunk);
-      });
-      response.on('end', () => {
-        const body = Buffer.concat(chunks).toString();
-        resolve({ statusCode, headers, body });
-      });
-    }).on('error', error => {
-      reject(error);
-    });
-  });
+// Parse request data
+let data;
+if (args.includes('-d')) {
+  const dataIndex = args.indexOf('-d') + 1;
+  data = JSON.parse(args[dataIndex]);
 }
 
-function parseArgs(args) {
-  const parsedArgs = parse(args);
-  return parsedArgs;
+// Parse request headers
+let headers = {};
+if (args.includes('-h')) {
+  const headersIndex = args.indexOf('-h') + 1;
+  headers = JSON.parse(args[headersIndex]);
 }
 
-function run() {
-  const args = parseArgs(process.argv.slice(2));
-  const { method, url, requestFile } = args;
-
-  if (requestFile) {
-    const requests = JSON.parse(fs.readFileSync(requestFile, 'utf-8'));
-    requests.forEach(request => {
-      fetchApi(request.url, request.method, request.headers, request.body).then(response => {
-        console.log(`Response: ${JSON.stringify(response)}`);
-      }).catch(error => {
-        console.error(`Error: ${error}`);
-      });
+// Make HTTP request
+async function makeRequest() {
+  try {
+    const response = await fetch(url, {
+      method: method,
+      headers: headers,
+      body: data ? JSON.stringify(data) : null
     });
-  } else if (method && url) {
-    const headers = {};
-    if (args.headers) {
-      headers = JSON.parse(args.headers);
-    }
-
-    let body = null;
-    if (args.d) {
-      body = JSON.parse(args.d);
-    }
-
-    fetchApi(url, method, headers, body).then(response => {
-      console.log(`Response: ${JSON.stringify(response)}`);
-    }).catch(error => {
-      console.error(`Error: ${error}`);
-    });
-  } else {
-    console.error('Error: Invalid arguments.
-Usage: api-tester [GET|POST|PUT|DELETE|PATCH] [URL] [-d JSON] [--headers JSON] [--request-file FILE]');
+    const responseTime = new Date().getTime() - Date.now();
+    const responseData = await response.json();
+    console.log(`Response Time: ${responseTime}ms`);
+    console.log(`Status Code: ${response.status}`);
+    console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
+    console.log(`Response Data: ${JSON.stringify(responseData, null, 2)}`);
+    // Save response to file
+    fs.writeFileSync(path.join(__dirname, 'response.json'), JSON.stringify(responseData, null, 2));
+  } catch (error) {
+    console.error('Error:', error);
   }
 }
 
-run();
+// Run the program
+makeRequest();

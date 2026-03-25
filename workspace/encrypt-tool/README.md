@@ -1,43 +1,52 @@
-# 任务14: 文本加密解密工具
+# 使用文档
 
-## 目标
+## 简介
 
-创建一个简单的文本加密解密工具，支持多种加密算法。
+本工具提供多种文本加密和解密功能，包括凯撒密码、Base64编码、ROT13、XOR加密和AES加密。
 
-## 必须创建的文件
+## 安装
 
-1. `workspace/encrypt-tool/encrypt.js` - 加密工具
-2. `workspace/encrypt-tool/decrypt.js` - 解密工具
-3. `workspace/encrypt-tool/README.md` - 使用文档
+确保你的环境中已安装Node.js。
 
-## 工作流程
+## 使用方法
 
-立即执行以下操作：
-
-1. 实现加密算法：
-   - Caesar Cipher（凯撒密码）
-   - Base64编码
-   - ROT13
-   - 简单XOR加密
-   - AES加密（使用crypto模块）
-2. 实现解密功能
-3. 实现文件加密/解密
-4. 实现CLI接口
-5. 添加使用示例
-
-## 功能要求
-
-- 多种加密算法
-- 文件加密/解密
-- 密钥管理
-- 错误处理
-- 安全提示
-
-## CLI接口
+### 加密
 
 ```bash
 node encrypt.js "hello world" --method caesar --key 3
+
+# 使用Base64编码
 node encrypt.js "hello" --method base64
+
+# 使用AES加密
 node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
-node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
+
 ```
+
+### 解密
+
+```bash
+node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
+
+```
+
+## 加密方法
+
+- `caesar`：凯撒密码加密
+- `base64`：Base64编码
+- `rot13`：ROT13加密
+- `xor`：XOR加密
+- `aes`：AES加密
+
+## 参数
+
+- `--method`：指定加密或解密方法
+- `--key`：指定加密密钥（对于某些加密方法，如AES，这是必需的）
+- `--output`：指定输出文件路径（对于加密操作，这是可选的）
+
+## 注意
+
+- 本工具提供的加密方法仅为演示目的，不应用于生产环境或敏感数据。
+- AES加密需要提供密钥，其他加密方法可能不需要。
+- 对于加密操作，如果未指定输出文件路径，则输出到控制台。
+

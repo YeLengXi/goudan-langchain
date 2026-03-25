@@ -1,76 +1,67 @@
+# 数据库主程序
+
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const appendFile = util.promisify(fs.appendFile);
 
 class DB {
-  constructor(file_path) {
-    this.file_path = file_path;
+  constructor(filePath) {
+    this.filePath = filePath;
     this.tables = {};
     this.init();
   }
 
-  init() {
-    const data = fs.readFileSync(this.file_path, 'utf8');
+  async init() {
+    const data = await readFile(this.filePath, 'utf8');
     if (data) {
       this.tables = JSON.parse(data);
     }
   }
 
-  createTable(table_name) {
-    if (!this.tables[table_name]) {
-      this.tables[table_name] = {
-        records: [],
-        next_id: 1
-      };
-      this.save();
+  async createTable(tableName) {
+    if (!this.tables[tableName]) {
+      this.tables[tableName] = [];
+      await writeFile(this.filePath, JSON.stringify(this.tables), 'utf8');
     }
   }
 
-  insert(table_name, record) {
-    const table = this.tables[table_name];
-    if (!table) {
-      throw new Error('Table not found');
-    }
-    record.id = table.next_id++;
-    table.records.push(record);
-    this.save();
+  async insert(tableName, record) {
+    const table = this.tables[tableName];
+    record.id = table.length + 1;
+    table.push(record);
+    await writeFile(this.filePath, JSON.stringify(this.tables), 'utf8');
   }
 
-  find(table_name, query) {
-    const table = this.tables[table_name];
-    if (!table) {
-      throw new Error('Table not found');
-    }
-    return table.records.filter(record => this.match(record, query));
+  async find(tableName, query) {
+    const table = this.tables[tableName];
+    return table.filter(record => {
+      return Object.keys(query).every(key => record[key] === query[key]);
+    });
   }
 
-  update(table_name, id, data) {
-    const table = this.tables[table_name];
-    if (!table) {
-      throw new Error('Table not found');
+  async update(tableName, id, data) {
+    const table = this.tables[tableName];
+    const index = table.findIndex(record => record.id === id);
+    if (index !== -1) {
+      table[index] = { ...table[index], ...data };
+      await writeFile(this.filePath, JSON.stringify(this.tables), 'utf8');
     }
-    const record = table.records.find(record => record.id === id);
-    if (!record) {
-      throw new Error('Record not found');
-    }
-    Object.assign(record, data);
-    this.save();
   }
 
-  delete(table_name, id) {
-    const table = this.tables[table_name];
-    if (!table) {
-      throw new Error('Table not found');
+  async delete(tableName, id) {
+    const table = this.tables[tableName];
+    const index = table.findIndex(record => record.id === id);
+    if (index !== -1) {
+      table.splice(index, 1);
+      await writeFile(this.filePath, JSON.stringify(this.tables), 'utf8');
     }
-    table.records = table.records.filter(record => record.id !== id);
-    this.save();
   }
 
-  save() {
-    fs.writeFileSync(this.file_path, JSON.stringify(this.tables, null, 2), 'utf8');
-  }
-
-  match(record, query) {
-    return Object.keys(query).every(key => record[key] === query[key]);
+  async save() {
+    await writeFile(this.filePath, JSON.stringify(this.tables), 'utf8');
   }
 }
 

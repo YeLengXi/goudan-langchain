@@ -1,17 +1,23 @@
+// This is the main program of the portfolio generator.
+// It reads the portfolio configuration, generates the HTML and CSS,
+// and serves the generated website.
+
+const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const ejs = require('ejs');
 
-const portfolioPath = path.join(__dirname, 'portfolio.json');
-const templatePath = path.join(__dirname, 'templates/default.html');
-const outputPath = path.join(__dirname, 'output');
+const app = express();
+const port = 3000;
 
-const portfolio = JSON.parse(fs.readFileSync(portfolioPath, 'utf-8'));
+app.get('/', (req, res) => {
+  const portfolio = JSON.parse(fs.readFileSync('portfolio.json', 'utf8'));
+  const template = fs.readFileSync('templates/default.html', 'utf8');
+  const html = template.replace(/{{(.*?)}}/g, (match, key) => {
+    return portfolio[key] || '';
+  });
+  res.send(html);
+});
 
-if (!fs.existsSync(outputPath)) {
-  fs.mkdirSync(outputPath);
-}
-
-const html = ejs.render(fs.readFileSync(templatePath, 'utf-8'), portfolio);
-
-fs.writeFileSync(path.join(outputPath, 'index.html'), html);
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}/`);
+});

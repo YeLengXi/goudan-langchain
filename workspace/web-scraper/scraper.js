@@ -1,22 +1,26 @@
-module.exports = {
-	async scrapePage(url) {
-		try {
-			const response = await fetch(url);
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-			const text = await response.text();
-			const title = text.match(/<title>(.*?)</title>/)[1];
-			const links = text.match(/<a [^>]*href="([^"]*)"/g);
-			const images = text.match(/<img [^>]*src="([^"]*)"/g);
-			return {
-				title,
-				links,
-				images
-			};
-		}
-		catch (error) {
-			console.error('Error fetching the page:', error);
-		}
-	}
+const fetch = require('node-fetch');
+
+const regexTitle = /<title>(.*?)</title>/i;
+const regexLinks = /<a [^>]*href="([^"]+)"/gi;
+const regexImages = /<img [^>]*src="([^"]+)"/gi;
+
+const scraper = async (url) => {
+  try {
+    const response = await fetch(url);
+    const html = await response.text();
+
+    const title = html.match(regexTitle)[1];
+    const links = html.match(regexLinks).map((match) => match[1]);
+    const images = html.match(regexImages).map((match) => match[1]);
+
+    return {
+      title,
+      links,
+      images
+    };
+  } catch (error) {
+    throw new Error('Failed to fetch or parse the webpage');
+  }
 };
+
+module.exports = scraper;

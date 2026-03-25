@@ -1,0 +1,12 @@
+{
+  "name": "regex-tester",
+  "version": "1.0.0",
+  "description": "A regex tester tool.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "devDependencies": {
+    "readline": "^1.0.0"
+  }
+}

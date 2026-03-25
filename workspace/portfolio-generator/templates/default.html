@@ -17,28 +17,31 @@
     .header {
       text-align: center;
     }
+    .header h1 {
+      margin: 0;
+    }
     .bio {
       margin-top: 20px;
     }
     .skills {
       margin-top: 20px;
     }
+    .skills h2 {
+      margin: 0;
+    }
     .skills ul {
       list-style-type: none;
       padding: 0;
     }
-    .skills li {
-      display: inline-block;
-      margin-right: 10px;
-      padding: 5px 10px;
-      background-color: #ddd;
-      border-radius: 5px;
-    }
     .projects {
       margin-top: 20px;
     }
-    .project {
-      margin-bottom: 20px;
+    .projects h2 {
+      margin: 0;
+    }
+    .projects ul {
+      list-style-type: none;
+      padding: 0;
     }
     .social {
       margin-top: 20px;
@@ -55,7 +58,7 @@
       <p>{{position}}</p>
     </div>
     <div class="bio">
-      {{bio}}
+      <p>{{bio}}</p>
     </div>
     <div class="skills">
       <h2>Skills</h2>
@@ -67,19 +70,17 @@
     </div>
     <div class="projects">
       <h2>Projects</h2>
-      {{#each projects}}
-        <div class="project">
-          <h3>{{name}}</h3>
-          <p>{{description}}</p>
-          <a href="{{link}}" target="_blank">View Project</a>
-        </div>
-      {{/each}}
+      <ul>
+        {{#each projects}}
+          <li>{{name}} - {{description}}</li>
+        {{/each}}
+      </ul>
     </div>
     <div class="social">
       <h2>Connect</h2>
-      {{#each social}}
-        <a href="{{this}}" target="_blank">{{this}}</a>
-      {{/each}}
+      <a href="{{GitHub}}">GitHub</a>
+      <a href="{{LinkedIn}}">LinkedIn</a>
+      <a href="{{Email}}">Email</a>
     </div>
   </div>
 </body>

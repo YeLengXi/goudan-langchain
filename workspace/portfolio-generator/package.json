@@ -6,10 +6,7 @@
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [
-    "portfolio",
-    "generator",
-    "website"
-  ],
-  "author": "Goudan"
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
 }

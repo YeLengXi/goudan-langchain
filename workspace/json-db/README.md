@@ -1,81 +1,74 @@
-## JSON数据库工具
+## README.md
 
-这是一个简单的基于JSON文件的数据库，支持CRUD操作和查询。
+欢迎使用JSON数据库工具！
 
-### 安装
+以下是该工具的基本使用说明：
 
-确保你已经安装了Node.js。
+### 初始化数据库
 
-### 使用
+```bash
+node database.js init
+```
 
-1. 初始化数据库：
-   ```bash
-   node database.js init
-   ```
+### 创建表
 
-2. 创建表：
-   ```bash
-   node database.js create <table_name>
-   ```
+```bash
+node database.js create [table_name]
+```
 
-3. 插入记录：
-   ```bash
-   node database.js insert <table_name> --data '<data>'
-   ```
+### 插入记录
 
-4. 查询记录：
-   ```bash
-   node database.js find <table_name> --query '<query>'
-   ```
+```bash
+node database.js insert [table_name] --data '[{\"key\":\"value\"}]'
+```
 
-5. 更新记录：
-   ```bash
-   node database.js update <table_name> --id <id> --data '<data>'
-   ```
+### 查询记录
 
-6. 删除记录：
-   ```bash
-   node database.js delete <table_name> --id <id>
-   ```
+```bash
+node database.js find [table_name] --query '[{\"key\":\"value\"}]'
+```
 
-7. 保存数据库：
-   ```bash
-   node database.js save
-   ```
+### 更新记录
 
-### 示例
+```bash
+node database.js update [table_name] --id [id] --data '[{\"key\":\"value\"}]'
+```
 
-1. 创建数据库：
-   ```bash
-   node database.js init
-   ```
+### 删除记录
 
-2. 创建表：
-   ```bash
-   node database.js create users
-   ```
+```bash
+node database.js delete [table_name] --id [id]
+```
 
-3. 插入记录：
-   ```bash
-   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
-   ```
+### 保存数据库
 
-4. 查询记录：
-   ```bash
-   node database.js find users --query '{\"age\":30}'
-   ```
+```bash
+node database.js save
+```
 
-5. 更新记录：
-   ```bash
-   node database.js update users --id 1 --data '{\"age\":31}'
-   ```
+### 使用示例
 
-6. 删除记录：
-   ```bash
-   node database.js delete users --id 1
-   ```
+```javascript
+const DB = require('./database');
 
-7. 保存数据库：
-   ```bash
-   node database.js save
-   ```
+// 初始化
+const db = new DB('./data.json');
+
+// 创建表
+db.createTable('users');
+
+// 插入
+db.insert('users', { name: 'Alice', age: 30 });
+
+// 查询
+const users = db.find('users', { age: 30 });
+
+// 更新
+db.update('users', 1, { age: 31 });
+
+// 删除
+db.delete('users', 1);
+
+// 保存
+db.save();
+```
