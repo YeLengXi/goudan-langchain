@@ -1,23 +1,8 @@
-// file1.js
-// 计算器核心逻辑
+const calculator = {
+    add: (a, b) => a + b,
+    subtract: (a, b) => a - b,
+    multiply: (a, b) => a * b,
+    divide: (a, b) => b !== 0 ? a / b : 'Error: Division by zero',
+};
 
-function add(a, b) {
-    return a + b;
-}
-
-function subtract(a, b) {
-    return a - b;
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-function divide(a, b) {
-    if (b === 0) {
-        return 'Error: Division by zero';
-    }
-    return a / b;
-}
-
-module.exports = { add, subtract, multiply, divide };
+module.exports = calculator;
