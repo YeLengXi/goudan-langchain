@@ -1,39 +1,44 @@
-const { parse } = require('node-cron');
+const { parse } = require('cron-parser');
 
 const tasks = [];
 
 function addTask(name, cron, command) {
+  const parser = parse(cron, {
+    iterator: true
+  });
+  const interval = parser.next().value;
+  const timer = setInterval(() => {
+    console.log(`Executing task: ${name}`);
+    execCommand(command);
+  }, interval);
   tasks.push({
     name,
     cron,
-    command
+    command,
+    timer
   });
 }
 
-function deleteTask(name) {
-  tasks = tasks.filter(task => task.name !== name);
+function removeTask(name) {
+  const task = tasks.find(t => t.name === name);
+  if (task) {
+    clearInterval(task.timer);
+    tasks.splice(tasks.indexOf(task), 1);
+  }
 }
 
-function executeTask(task) {
-  console.log(`Executing task: ${task.name} at ${new Date().toISOString()}`);
-  require('child_process').exec(task.command, (error, stdout, stderr) => {
+function execCommand(command) {
+  require('child_process').exec(command, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Error executing task: ${task.name}`, error);
+      console.error(`Error executing command: ${error}`);
       return;
     }
     if (stderr) {
-      console.error(`Error output from task: ${task.name}`, stderr);
+      console.error(`Stderr: ${stderr}`);
       return;
     }
-    console.log(`Task ${task.name} executed successfully`);
+    console.log(`Stdout: ${stdout}`);
   });
 }
 
-function scheduleTasks() {
-  tasks.forEach(task => {
-    const job = parse(task.cron, () => executeTask(task), true);
-    job.start();
-  });
-}
-
-module.exports = { addTask, deleteTask, scheduleTasks };
+module.exports = { addTask, removeTask };
