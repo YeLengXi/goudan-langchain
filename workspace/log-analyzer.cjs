@@ -1,38 +1,36 @@
-const { parseLog } = require('./log-analyzer');
-const { countErrors, findMostFrequentError } = require('./error-statistics');
-const { searchLogs } = require('./search-engine');
-const { exportToJson, exportToCsv } = require('./report-generator');
+const fs = require('fs');
+const path = require('path');
 
-const analyzeLog = (logFilePath, options) => {
-    const log = read_file(logFilePath, 'utf8');
-    const logs = parseLog('app', log);
-
-    if (options.error) {
-        const errorTypes = countErrors(logs);
-        const mostFrequentError = findMostFrequentError(errorTypes);
-        console.log(`Most frequent error: ${mostFrequentError}`);
-    }
-
-    if (options.search) {
-        const { keyword, startTime, endTime, level } = options.search;
-        const filteredLogs = searchLogs(logs, keyword, startTime, endTime, level);
-        console.log(filteredLogs);
-    }
-
-    if (options.export) {
-        const { format } = options.export;
-        if (format === 'json') {
-            const jsonLogs = exportToJson(logs);
-            console.log(jsonLogs);
-        } else if (format === 'csv') {
-            const csvLogs = exportToCsv(logs);
-            console.log(csvLogs);
-        }
-    }
-};
-
-const read_file = require('fs').readFileSync;
-
-module.exports = {
-    analyzeLog
+// 报告生成器
+function generateReport(logData, format) {
+  if (format === 'json') {
+    const jsonData = JSON.stringify(logData, null, 2);
+    fs.writeFileSync('report.json', jsonData);
+  } else if (format === 'csv') {
+    const csvData = logData.map(log => {
+      return [log.timestamp, log.level, log.message].join(',');
+    }).join('
+');
+    fs.writeFileSync('report.csv', csvData);
+  }
 }
+
+// 主函数
+function main() {
+  const filePath = process.argv[2];
+  const options = process.argv.slice(3);
+
+  const logData = fs.readFileSync(filePath, 'utf8');
+  const parsedData = parseLog(logData);
+
+  options.forEach(option => {
+    switch (option) {
+      case '--export':
+        const [_, format] = option.split('=');
+        generateReport(parsedData, format);
+        break;
+    }
+  });
+}
+
+main();

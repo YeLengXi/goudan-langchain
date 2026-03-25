@@ -1,7 +1,7 @@
 {
   "name": "github-auto",
   "version": "1.0.0",
-  "description": "GitHub repository automation tool",
+  "description": "GitHub 仓库自动化工具",
   "main": "index.js",
   "scripts": {
     "create": "node index.js create",
@@ -11,7 +11,7 @@
   "keywords": [
     "github",
     "automation",
-    "repository"
+    "cli"
   ],
   "author": "Your Name <your.email@example.com>",
   "license": "ISC"
