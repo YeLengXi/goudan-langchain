@@ -1,12 +1,16 @@
 [
   {
-    "method": "GET",
-    "url": "https://api.example.com/users"
+    "url": "https://api.example.com/users",
+    "method": "GET"
   },
   {
-    "method": "POST",
+    "url": "https://api.example.com/users/1",
+    "method": "DELETE"
+  },
+  {
     "url": "https://api.example.com/users",
-    "body": {
+    "method": "POST",
+    "data": {
       "name": "John"
     }
   }

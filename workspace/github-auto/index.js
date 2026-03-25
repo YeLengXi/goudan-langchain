@@ -1,39 +1,32 @@
-// This is the main program of the GitHub automation tool.
-//
-// Dependencies:
-// - axios
-
-const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-
-const githubApiUrl = 'https://api.github.com';
-const personalAccessToken = 'YOUR_GITHUB_ACCESS_TOKEN';
+const { apiUrl, gitUrl, personalAccessToken } = require('./config');
+const axios = require('axios');
 
 const createRepository = async (name, isPublic, description) => {
-  const response = await axios.post(`${githubApiUrl}/user/repos`, {
+  const response = await axios.post(`${apiUrl}/user/repos`, {
     name,
     private: !isPublic
   }, {
     headers: {
-      'Authorization': `token ${personalAccessToken}
+      Authorization: `token ${personalAccessToken}`
     }
   });
 
-  return response.data;
+  return response.data.clone_url;
 };
 
-const initializeLocalRepository = async (repoUrl) => {
-  const repoName = path.basename(repoUrl, '.git');
+const initializeLocalRepository = async (url) => {
+  const repoName = url.split('/').pop();
   const repoPath = path.join(__dirname, repoName);
   fs.mkdirSync(repoPath, { recursive: true });
 
-  fs.writeFileSync(path.join(repoPath, 'README.md'), '# Welcome to {{repo_name}}');
+  fs.writeFileSync(path.join(repoPath, 'README.md'), '# Welcome to {{repoName}}');
   fs.writeFileSync(path.join(repoPath, '.gitignore'), 'node_modules/
 ');
   fs.writeFileSync(path.join(repoPath, 'LICENSE'), 'MIT License
 
-Copyright (c) 2023 {{repo_name}}
+Copyright (c) 2023 {{repoName}}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the \"Software\"), to deal
@@ -57,19 +50,49 @@ IN THE SOFTWARE.
   return repoPath;
 };
 
-const addRemoteAndPush = async (repoPath, repoUrl) => {
-  const repoName = path.basename(repoUrl, '.git');
-  const originUrl = `https://${personalAccessToken}@github.com/${personalAccessToken}/${repoName}.git`; 
+const pushToGitHub = async (repoPath) => {
+  const { exec } = require('child_process');
 
-  exec_command(`git init ${repoPath}`);
-  exec_command(`git remote add origin ${originUrl}`);
-  exec_command(`git add .
-  git commit -m 'Initial commit'
-  git push -u origin main`);
+  exec(`git init ${repoPath}`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    exec(`git add . ${repoPath}`, (err, stdout, stderr) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+
+      exec(`git commit -m 'Initial commit' ${repoPath}`, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        exec(`git remote add origin ${gitUrl}/${repoName}`, (err, stdout, stderr) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          exec(`git push -u origin main`, (err, stdout, stderr) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+
+            console.log('Repository pushed to GitHub successfully.');
+          });
+        });
+      });
+    });
+  });
 };
 
 module.exports = {
   createRepository,
   initializeLocalRepository,
-  addRemoteAndPush
+  pushToGitHub
 };

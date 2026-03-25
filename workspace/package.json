@@ -16,6 +16,5 @@
     "ejs": "^5.0.1",
     "express": "^5.2.1",
     "minimist": "^1.2.8"
-  },
-  "devDependencies": {}
+  }
 }
