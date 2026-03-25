@@ -1,36 +1,31 @@
-# CLI Progress Bar Tool
+# progress-bar
 
-This tool provides a command-line progress bar for long-running tasks.
+This is a CLI progress bar tool for displaying the progress of long-running tasks.
 
-## Features
+## Installation
 
-- Dynamic updates
-- Percentage display
-- ETA calculation
-- Multiple styles
-- Multiple progress bars
-- Colorful output
+To use this tool, you need to install it locally.
+
+```bash
+npm install workspace/progress-bar
+```
 
 ## Usage
 
-To use this tool, you need to have Node.js installed.
+To use the progress bar, you can require the `ProgressBar` class from the `progress.js` file.
 
-### Installation
+```javascript
+const ProgressBar = require('./progress.js');
 
-1. Clone the repository:
-   git clone https://github.com/your-username/progress-bar-tool
-2. Navigate to the project directory:
-   cd progress-bar-tool
-3. Install dependencies:
-   npm install
+// Create a new progress bar
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
 
-### Running the Tool
+// Update the progress bar
+for (let i = 0; i <= 100; i++) {
+  bar.update(i);
+  // Do some work
+}
 
-To run the tool, use the following commands:
-
-- To run a standard progress bar:
-  node demo.js --style standard
-- To run a dot-style progress bar:
-  node demo.js --style dots
-- To run multiple progress bars:
-  node demo.js --multi
+// Finish the progress bar
+bar.finish();
+```

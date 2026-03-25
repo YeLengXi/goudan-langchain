@@ -1,78 +1,100 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
 
-const diff = (files, options) => {
-  if (files.length !== 2) {
-    console.error('Please provide exactly two files or directories.');
-    return;
+const diffFiles = (file1, file2, format = 'unified', color = false) => {
+  const content1 = fs.readFileSync(file1, 'utf8');
+  const content2 = fs.readFileSync(file2, 'utf8');
+
+  const lines1 = content1.split('
+');
+  const lines2 = content2.split('
+');
+
+  // 比较文件内容
+  const differences = compareLines(lines1, lines2);
+
+  // 根据格式输出结果
+  if (format === 'unified') {
+    return unifiedDiff(differences, color);
+  } else if (format === 'side-by-side') {
+    return sideBySideDiff(differences, color);
+  } else if (format === 'context') {
+    return contextDiff(differences, color);
   }
 
-  const [file1, file2] = files;
-  const { format = 'unified', color = false } = options;
+  return differences;
+};
 
-  if (fs.existsSync(file1) && fs.lstatSync(file1).isDirectory()) {
-    if (!fs.existsSync(file2) || !fs.lstatSync(file2).isDirectory()) {
-      console.error('The second argument must also be a directory.');
-      return;
+const compareLines = (lines1, lines2) => {
+  // 比较每一行并记录差异
+  const differences = [];
+  let i = 0;
+  let j = 0;
+
+  while (i < lines1.length || j < lines2.length) {
+    if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
+      i++;
+      j++;
+    } else if (i < lines1.length && j < lines2.length && lines1[i] !== lines2[j]) {
+      differences.push({ line1: lines1[i], line2: lines2[j] });
+      i++;
+      j++;
+    } else if (i < lines1.length) {
+      differences.push({ line1: lines1[i], line2: null });
+      i++;
+    } else if (j < lines2.length) {
+      differences.push({ line1: null, line2: lines2[j] });
+      j++;
     }
-    return compareDirectories(file1, file2, format, color);
   }
 
-  if (!fs.existsSync(file1) || !fs.existsSync(file2)) {
-    console.error('One or both of the provided files or directories do not exist.');
-    return;
-  }
-
-  return compareFiles(file1, file2, format, color);
+  return differences;
 };
 
-const compareFiles = (file1, file2, format, color) => {
-  const { unified, context, sideBySide } = require('./formatters');
-
-  const file1Content = fs.readFileSync(file1, 'utf8');
-  const file2Content = fs.readFileSync(file2, 'utf8');
-
-  switch (format) {
-    case 'unified':
-      console.log(unified(file1Content, file2Content));
-      break;
-    case 'context':
-      console.log(context(file1Content, file2Content));
-      break;
-    case 'side-by-side':
-      console.log(sideBySide(file1Content, file2Content));
-      break;
-    default:
-      console.log(unified(file1Content, file2Content));
-  }
-};
-
-const compareDirectories = (dir1, dir2, format, color) => {
-  const { unified } = require('./formatters');
-
-  const files1 = fs.readdirSync(dir1);
-  const files2 = fs.readdirSync(dir2);
-
-  const differences = files1.filter(file1 => !files2.includes(file1)).map(file1 => ({
-    file1,
-    file2: path.join(dir2, file1)
-  })).concat(
-    files2.filter(file2 => !files1.includes(file2)).map(file2 => ({
-      file1: path.join(dir1, file2),
-      file2
-    }))
-  );
+const unifiedDiff = (differences, color) => {
+  let output = '--- ' + path.basename(differences[0].line1) + '
++++ ' + path.basename(differences[0].line2) + '
+';
 
   differences.forEach(diff => {
-    const result = unified(
-      fs.readFileSync(diff.file1, 'utf8'),
-      fs.readFileSync(diff.file2 || '', 'utf8')
-    );
-
-    console.log(result);
+    if (diff.line1) {
+      output += '- ' + diff.line1 + '
+';
+    }
+    if (diff.line2) {
+      output += '+ ' + diff.line2 + '
+';
+    }
   });
+
+  return output;
 };
 
-const formatters = require('./formatters');
-module.exports = diff;
+const sideBySideDiff = (differences, color) => {
+  let output = '';
+
+  differences.forEach(diff => {
+    if (diff.line1) {
+      output += diff.line1 + ' | ' + diff.line2 + '
+';
+    } else {
+      output += ' | ' + diff.line2 + '
+';
+    }
+  });
+
+  return output;
+};
+
+const contextDiff = (differences, color) => {
+  let output = '';
+
+  differences.forEach(diff => {
+    output += ' ' + diff.line1 + '
+';
+  });
+
+  return output;
+};
+
+module.exports = { diffFiles };
