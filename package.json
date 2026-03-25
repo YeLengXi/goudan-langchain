@@ -8,11 +8,18 @@
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "keywords": ["ai", "agent", "langchain", "zhipuai", "developer"],
+  "keywords": [
+    "ai",
+    "agent",
+    "langchain",
+    "zhipuai",
+    "developer"
+  ],
   "author": "goudan",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "nodemailer": "^8.0.3"
   },
   "engines": {
     "node": ">=18.0.0"

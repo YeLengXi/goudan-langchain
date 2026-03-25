@@ -9,6 +9,12 @@ const execAsync = promisify(exec);
 // 加载环境变量
 dotenv.config();
 
+// 导入邮件通知模块
+import { initEmail, notifyTaskCompleted, notifyFileCreated, notifyGitCommit, notifyEarnings, notifyError, notifyStartup } from './notify.js';
+
+// 初始化邮件系统
+const emailEnabled = initEmail();
+
 // 配置
 const CONFIG = {
   apiKey: process.env.ZHIPUAI_API_KEY,
@@ -17,6 +23,12 @@ const CONFIG = {
   workspaceDir: path.resolve(process.env.WORKSPACE_DIR || './workspace'),
   tasksDir: path.resolve(process.env.TASKS_DIR || './tasks'),
   logsDir: path.resolve(process.env.LOGS_DIR || './logs'),
+  email: {
+    enabled: emailEnabled,
+    service: process.env.EMAIL_SERVICE || 'qq',
+    user: process.env.EMAIL_USER || '77037708@qq.com',
+    to: process.env.EMAIL_TO || '77037708@qq.com'
+  }
 };
 
 // 日志函数
@@ -480,6 +492,15 @@ ${task.content}
       await log(`结果: ${result.substring(0, 200)}...`);
       await log('');
 
+      // 发送任务完成通知
+      if (CONFIG.email.enabled) {
+        try {
+          await notifyTaskCompleted(task.id, task.id.replace('task-', '任务'), result);
+        } catch (error) {
+          await log(`任务完成通知失败: ${error.message}`, 'warn');
+        }
+      }
+
       // 保存结果
       const resultFile = path.join(
         CONFIG.workspaceDir,
@@ -502,8 +523,18 @@ ${task.content}
     await log('启动持续工作模式...');
     await log('Goudan 将持续工作，赚钱养活自己！💰');
 
+    // 发送启动通知
+    if (CONFIG.email.enabled) {
+      try {
+        await notifyStartup();
+      } catch (error) {
+        await log(`启动邮件通知失败: ${error.message}`, 'warn');
+      }
+    }
+
     let totalTasksCompleted = 0;
     let totalEarnings = 0; // 估算收入（每个任务平均 ¥0.10）
+    let lastEarningsNotify = 0;
 
     while (true) {
       try {
@@ -520,11 +551,28 @@ ${task.content}
         await log(`💰 估算收入: ¥${totalEarnings.toFixed(2)} (约 $${(totalEarnings / 7).toFixed(2)})`);
         await log('='.repeat(60));
 
+        // 发送收入更新通知（每增加 ¥1.00）
+        if (CONFIG.email.enabled && totalEarnings - lastEarningsNotify >= 1.00) {
+          try {
+            await notifyEarnings(totalTasksCompleted, totalEarnings);
+            lastEarningsNotify = totalEarnings;
+          } catch (error) {
+            await log(`收入通知失败: ${error.message}`, 'warn');
+          }
+        }
+
         // 自动提交并推送完成的工具到 git
         try {
           await this.autoCommitAndPush();
         } catch (error) {
           await log(`自动提交失败: ${error.message}`, 'warn');
+          if (CONFIG.email.enabled) {
+            try {
+              await notifyError('Git 提交失败', error.message);
+            } catch (notifyError) {
+              await log(`错误通知失败: ${notifyError.message}`, 'warn');
+            }
+          }
         }
 
         // 等待 10 分钟后检查新任务
@@ -537,6 +585,15 @@ ${task.content}
       } catch (error) {
         await log(`持续工作模式错误: ${error.message}`, 'error');
 
+        // 发送错误通知
+        if (CONFIG.email.enabled) {
+          try {
+            await notifyError('持续工作模式', error.message);
+          } catch (notifyError) {
+            await log(`错误通知失败: ${notifyError.message}`, 'warn');
+          }
+        }
+
         // 等待后重试
         await new Promise(resolve => setTimeout(resolve, 60000));
       }
@@ -546,6 +603,8 @@ ${task.content}
   // 自动提交并推送到 git
   async autoCommitAndPush() {
     try {
+      let hasCommits = false;
+
       // 检查 workspace 是否有更改
       const { stdout: wsStatus } = await execAsync('cd E:/goudan-langchain/workspace && git status --short');
 
@@ -560,6 +619,19 @@ ${task.content}
         await execAsync(`cd E:/goudan-langchain/workspace && git commit -m "${commitMsg}"`);
 
         await log('✅ Workspace 自动提交成功！');
+
+        // 获取提交哈希
+        const { stdout: commitHash } = await execAsync('cd E:/goudan-langchain/workspace && git log --oneline -1');
+        hasCommits = true;
+
+        // 发送 Git 提交通知
+        if (CONFIG.email.enabled) {
+          try {
+            await notifyGitCommit(commitHash.trim(), 'goudan 自动完成工具开发');
+          } catch (error) {
+            await log(`Git 提交通知失败: ${error.message}`, 'warn');
+          }
+        }
 
         // 尝试推送到 GitHub
         try {
@@ -582,6 +654,19 @@ ${task.content}
         await execAsync(`cd E:/goudan-langchain && git commit -m "${commitMsg}"`);
 
         await log('✅ 主项目自动提交成功！');
+
+        // 获取提交哈希
+        const { stdout: commitHash } = await execAsync('cd E:/goudan-langchain && git log --oneline -1');
+        hasCommits = true;
+
+        // 发送 Git 提交通知
+        if (CONFIG.email.enabled) {
+          try {
+            await notifyGitCommit(commitHash.trim(), 'goudan 自动更新');
+          } catch (error) {
+            await log(`Git 提交通知失败: ${error.message}`, 'warn');
+          }
+        }
 
         // 尝试推送
         try {
