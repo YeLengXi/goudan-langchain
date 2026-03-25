@@ -1,25 +1,14 @@
-class Calculator {
-	add(a, b) {
-		return a + b;
-	}
-	subtract(a, b) {
-		return a - b;
-	}
-	multiply(a, b) {
-		return a * b;
-	}
-	divide(a, b) {
-		if (b === 0) {
-			throw new Error('Division by zero is not allowed.');
-		}
-		return a / b;
-	}
+// file1.js
+
+// A simple calculator that can perform addition and subtraction
+
+function calculate(operation, num1, num2) {
+  if (operation === 'add') {
+    return num1 + num2;
+  } else if (operation === 'subtract') {
+    return num1 - num2;
+  }
 }
 
-const calculator = new Calculator();
-
-// Test cases
-console.log(calculator.add(5, 3)); // 8
-console.log(calculator.subtract(5, 3)); // 2
-console.log(calculator.multiply(5, 3)); // 15
-console.log(calculator.divide(5, 3)); // 1.666...
+// Export the calculate function for use in other files
+module.exports = calculate;
