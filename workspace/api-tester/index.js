@@ -1,51 +1,47 @@
-// Main program of the API tester
-const fetch = require('node-fetch');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
-// Parse command line arguments
-const args = process.argv.slice(2);
+const argv = yargs(hideBin(process.argv)).argv;
 
-// Parse request method
-const method = args[0];
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const headers = {
+  'Content-Type': 'application/json
+};
 
-// Parse URL
-const url = args[1];
+async function makeRequest(method, url, data = null) {
+  const options = {
+    method,
+    headers
+  }
 
-// Parse request data
-let data;
-if (args.includes('-d')) {
-  const dataIndex = args.indexOf('-d') + 1;
-  data = JSON.parse(args[dataIndex]);
-}
+  if (data) {
+    options.headers['Content-Type'] = 'application/json';
+    options.body = JSON.stringify(data);
+  }
 
-// Parse request headers
-let headers = {};
-if (args.includes('-h')) {
-  const headersIndex = args.indexOf('-h') + 1;
-  headers = JSON.parse(args[headersIndex]);
-}
-
-// Make HTTP request
-async function makeRequest() {
   try {
-    const response = await fetch(url, {
-      method: method,
-      headers: headers,
-      body: data ? JSON.stringify(data) : null
-    });
-    const responseTime = new Date().getTime() - Date.now();
-    const responseData = await response.json();
-    console.log(`Response Time: ${responseTime}ms`);
-    console.log(`Status Code: ${response.status}`);
-    console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
-    console.log(`Response Data: ${JSON.stringify(responseData, null, 2)}`);
-    // Save response to file
-    fs.writeFileSync(path.join(__dirname, 'response.json'), JSON.stringify(responseData, null, 2));
+    const start = Date.now();
+    const response = await fetch(url, options);
+    const endTime = Date.now();
+    const time = endTime - start;
+
+    const responseBody = await response.text();
+    const parsedResponse = JSON.parse(responseBody);
+
+    console.log(`Status Code: ${response.status}
+Response Time: ${time}ms
+Headers: ${JSON.stringify(response.headers.raw())}
+Response Body: ${JSON.stringify(parsedResponse)}`);
+
+    return parsedResponse;
   } catch (error) {
     console.error('Error:', error);
   }
 }
 
-// Run the program
-makeRequest();
+module.exports = {
+  makeRequest
+};
