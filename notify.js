@@ -1,29 +1,40 @@
 // goudan 邮件通知系统 (ES6 模块版本)
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
-// 邮件配置
+// 加载环境变量
+dotenv.config();
+
+// 邮件配置（从环境变量读取）
 const EMAIL_CONFIG = {
-  // 发件邮箱配置（根据你的邮箱服务商选择）
-  service: 'qq', // qq, 163, gmail, outlook 等
+  service: process.env.EMAIL_SERVICE || 'qq',
   auth: {
-    user: '77037708@qq.com', // 你的邮箱
-    pass: 'YOUR_PASSWORD'    // 邮箱授权码（不是登录密码）
+    user: process.env.EMAIL_USER || '77037708@qq.com',
+    pass: process.env.EMAIL_PASS || ''
   }
 };
 
-// 收件人邮箱
-const RECIPIENT_EMAIL = '77037708@qq.com';
+// 收件人邮箱（从环境变量读取）
+const RECIPIENT_EMAIL = process.env.EMAIL_TO || '77037708@qq.com';
 
 // 创建邮件传输器
 let transporter = null;
 
 export function initEmail() {
   try {
+    // 检查是否配置了授权码
+    if (!EMAIL_CONFIG.auth.pass || EMAIL_CONFIG.auth.pass === 'YOUR_PASSWORD') {
+      console.log('⚠️ 邮件授权码未配置，邮件通知已禁用');
+      return false;
+    }
+
     transporter = nodemailer.createTransport({
       service: EMAIL_CONFIG.service,
       auth: EMAIL_CONFIG.auth
     });
     console.log('✅ 邮件系统初始化成功');
+    console.log(`📧 发件邮箱: ${EMAIL_CONFIG.auth.user}`);
+    console.log(`📬 收件邮箱: ${RECIPIENT_EMAIL}`);
     return true;
   } catch (error) {
     console.error('❌ 邮件系统初始化失败:', error.message);

@@ -1,6 +1,6 @@
 // 邮件测试脚本
 import dotenv from 'dotenv';
-import { notifyStartup } from './notify.js';
+import { initEmail, notifyStartup } from './notify.js';
 
 // 加载环境变量
 dotenv.config();
@@ -32,6 +32,16 @@ async function testEmail() {
     console.log('2. 设置 → 账户 → POP3/SMTP 服务');
     console.log('3. 开启服务并生成授权码');
     console.log('');
+    process.exit(1);
+  }
+
+  // 初始化邮件系统
+  console.log('正在初始化邮件系统...');
+  const emailReady = initEmail();
+  console.log('');
+
+  if (!emailReady) {
+    console.error('❌ 邮件系统初始化失败');
     process.exit(1);
   }
 
