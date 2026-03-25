@@ -2,18 +2,5 @@ function add(a, b) {
     return a + b;
 }
 
-function subtract(a, b) {
-    return a - b;
-}
-
-function multiply(a, b) {
-    return a * b;
-}
-
-function divide(a, b) {
-    if (b !== 0) {
-        return a / b;
-    } else {
-        return 'Error: Division by zero';
-    }
-}
+// 测试 add 函数
+console.log(add(5, 3)); // 应该输出 8

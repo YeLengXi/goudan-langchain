@@ -1,7 +1,6 @@
-function greet(name) {
-    return 'Hello, ' + name + '!';
+function subtract(a, b) {
+    return a - b;
 }
 
-function isEven(number) {
-    return number % 2 === 0;
-}
+// 测试 subtract 函数
+console.log(subtract(5, 3)); // 应该输出 2
