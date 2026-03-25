@@ -1,23 +1,23 @@
-# README模板
+# README Template
 
-这是一个 README 模板文件。
+Welcome to the project!
 
-## 项目描述
+## Project Description
 
-[项目描述]
+[Your project description here]
 
-## 安装
+## Installation
 
-[安装说明]
+[Installation instructions here]
 
-## 使用
+## Usage
 
-[使用说明]
+[Usage instructions here]
 
-## 贡献
+## Contributing
 
-[贡献指南]
+[Contribution guidelines here]
 
-## 许可证
+## License
 
-[许可证信息]
+[License information here]
