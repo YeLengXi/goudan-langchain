@@ -1,43 +1,41 @@
-const read_file = require('fs').readFileSync;
+const fs = require('fs');
+const path = require('path');
+const { parseLog } = require('./日志解析器');
+const { countErrors, getMostFrequentError } = require('./错误统计器');
+const { searchLogs } = require('./搜索引擎');
+const { exportToJson, exportToCsv, generateReport } = require('./报告生成器');
 
-const parseAppLog = (logContent) => {
-    const lines = logContent.split('
-');
-    const parsedLogs = [];
+const analyzeLog = (filePath, options) => {
+    const logContent = fs.readFileSync(filePath, 'utf-8');
+    const logs = parseLog(logContent, options.type);
 
-    lines.forEach(line => {
-        const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-        const level = line.match(/INFO|WARN|ERROR/);
-        const message = line.replace(timestamp, '').replace(level, '').trim();
+    if (options.error) {
+        const errorTypes = countErrors(logs);
+        const mostFrequentError = getMostFrequentError(errorTypes);
+        console.log(`Most Frequent Error: ${mostFrequentError}
+Total Errors: ${Object.keys(errorTypes).length}`);
+    }
 
-        parsedLogs.push({
-            timestamp: timestamp[0],
-            level: level[0],
-            message: message
-        });
-    });
+    if (options.search) {
+        const { keyword, startTime, endTime, level } = options.search;
+        const filteredLogs = searchLogs(logs, keyword, startTime, endTime, level);
+        console.log(filteredLogs);
+    }
 
-    return parsedLogs;
-};
-
-const parseApacheLog = (logContent) => {
-    // Apache log parsing logic here
-};
-
-const parseErrorLog = (logContent) => {
-    // Error log parsing logic here
-};
-
-const parseLog = (logContent, type) => {
-    if (type === 'app') {
-        return parseAppLog(logContent);
-    } else if (type === 'apache') {
-        return parseApacheLog(logContent);
-    } else if (type === 'error') {
-        return parseErrorLog(logContent);
+    if (options.export) {
+        if (options.export === 'json') {
+            exportToJson(logs);
+            console.log('Exported to JSON');
+        } else if (options.export === 'csv') {
+            exportToCsv(logs);
+            console.log('Exported to CSV');
+        } else if (options.export === 'report') {
+            generateReport(logs);
+            console.log('Generated Report');
+        }
     }
 };
 
 module.exports = {
-    parseLog
+    analyzeLog
 }
