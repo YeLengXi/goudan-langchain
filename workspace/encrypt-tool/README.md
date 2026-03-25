@@ -1,36 +1,20 @@
-## 加密工具
+# 文本加密解密工具
 
-本工具提供多种加密算法，包括：
+这是一个简单的文本加密解密工具，支持多种加密算法。
 
-- 凯撒密码（Caesar Cipher）
-- Base64编码
-- ROT13
-- 简单XOR加密
-- AES加密
+## 安装
 
-## 使用方法
+确保你已经安装了Node.js和npm。
 
-加密：
+使用npm安装依赖：
 
 ```bash
-node encrypt.js "要加密的文本" --method 加密方法 --key 密钥（如果需要）
+npm install
 ```
 
-解密：
+## 使用
 
-```bash
-node decrypt.js 加密后的文本 --method 解密方法 --key 密钥
-```
-
-## 加密方法
-
-- caesar：凯撒密码，需要指定密钥（位移量）
-- base64：Base64编码，不需要密钥
-- rot13：ROT13编码，不需要密钥
-- xor：XOR加密，需要密钥
-- aes：AES加密，需要密钥
-
-## 示例
+### 加密
 
 加密文本：
 
@@ -38,8 +22,22 @@ node decrypt.js 加密后的文本 --method 解密方法 --key 密钥
 node encrypt.js "hello world" --method caesar --key 3
 ```
 
+加密文件：
+
+```bash
+node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
+```
+
+### 解密
+
 解密文本：
 
 ```bash
-node decrypt.js encrypted.txt --method caesar --key 3
+node decrypt.js "hello world" --method caesar --key 3
+```
+
+解密文件：
+
+```bash
+node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
 ```

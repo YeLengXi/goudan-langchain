@@ -1,39 +1,77 @@
-## README.md
+## JSON数据库工具
 
-This document provides instructions on how to use the JSON Database tool.
+这个工具是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
 
-## Features
+## 文件结构
 
-- Supports multiple tables
-- Auto-generates IDs
-- Conditional queries
-- Data validation
-- Simple transaction support
-- Error handling
+- `database.js`: 数据库主程序
+- `README.md`: 使用文档
+- `test.js`: 测试文件
 
-## API
+## 安装
+
+确保你已经安装了Node.js。
+
+## 使用方法
+
+1. 初始化数据库
+   ```bash
+   node database.js init
+   ```
+
+2. 创建表
+   ```bash
+   node database.js create [table_name]
+   ```
+
+3. 插入数据
+   ```bash
+   node database.js insert [table_name] --data '[data]'
+   ```
+
+4. 查询数据
+   ```bash
+   node database.js find [table_name] --query '[query]'
+   ```
+
+5. 更新数据
+   ```bash
+   node database.js update [table_name] --id [id] --data '[data]'
+   ```
+
+6. 删除数据
+   ```bash
+   node database.js delete [table_name] --id [id]
+   ```
+
+7. 保存数据
+   ```bash
+   node database.js save
+   ```
+
+## 示例
 
 ```javascript
 const DB = require('./database');
 
-// Initialize
+// 初始化
 const db = new DB('./data.json');
 
-// Create table
+// 创建表
 db.createTable('users');
 
-// Insert
+// 插入
 db.insert('users', { name: 'Alice', age: 30 });
 
-// Find
+// 查询
 const users = db.find('users', { age: 30 });
 
-// Update
+// 更新
 db.update('users', 1, { age: 31 });
 
-// Delete
+// 删除
 db.delete('users', 1);
 
-// Save
+// 保存
 db.save();
 ```

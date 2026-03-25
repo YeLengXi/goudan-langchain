@@ -9,7 +9,10 @@
     "sort": "node csv-tool.js sort",
     "to-table": "node csv-tool.js to-table"
   },
+  "bin": {
+    "csv-tool": "./csv-tool.js"
+  },
   "dependencies": {
-    "stream": "^6.0.0"
+    "fs": "*
   }
 }

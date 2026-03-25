@@ -1,19 +1,20 @@
 const fetch = require('node-fetch');
 
-const cheerio = require('cheerio');
-
-const scrape = async (url) => {
+const scraper = async (url) => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const html = await response.text();
-    const $ = cheerio.load(html);
 
-    const title = $('title').text();
-    const links = $('a[href]').map((i, link) => $(link).attr('href')).get();
-    const images = $('img[src]').map((i, img) => $(img).attr('src')).get();
+    const titleRegex = /<title>(.*?)</title>/gi;
+    const linksRegex = /<a [^>]*href="([^"]*)"/gi;
+    const imagesRegex = /<img [^>]*src="([^"]*)"/gi;
+
+    const title = html.match(titleRegex)?.[1] || 'No title found';
+    const links = [...html.matchAll(linksRegex)].map(match => match[1]);
+    const images = [...html.matchAll(imagesRegex)].map(match => match[1]);
 
     return {
       title,
@@ -21,15 +22,9 @@ const scrape = async (url) => {
       images
     };
   } catch (error) {
-    console.error(error);
-    process.exit(1);
+    console.error('Error fetching the webpage:', error);
+    return null;
   }
 };
 
-const main = async () => {
-  const url = 'https://example.com'; // 示例 URL
-  const result = await scrape(url);
-  console.log(JSON.stringify(result, null, 2));
-};
-
-main();
+module.exports = scraper;

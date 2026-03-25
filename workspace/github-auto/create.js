@@ -1,22 +1,28 @@
+# create.js
+
+const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { createRepository } = require('./createRepository');
+const { prompt } = require('enquirer');
 
-const createPublicRepository = async (name) => {
-  const token = 'YOUR_GITHUB_TOKEN';
-  const repository = await createRepository(token, name, false);
+const GITHUB_API = 'https://api.github.com';
+const TOKEN = process.env.GITHUB_TOKEN;
 
-  console.log('Repository created:', repository.html_url);
+const createRepository = async (name, description, isPrivate) => {
+  try {
+    const response = await axios.post(`${GITHUB_API}/user/repos`, {
+      name,
+      description,
+      private: isPrivate
+    }, {
+      headers: {
+        Authorization: `token ${TOKEN}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
-const createPrivateRepository = async (name) => {
-  const token = 'YOUR_GITHUB_TOKEN';
-  const repository = await createRepository(token, name, true);
-
-  console.log('Repository created:', repository.html_url);
-};
-
-module.exports = {
-  createPublicRepository,
-  createPrivateRepository
-};
+module.exports = createRepository;

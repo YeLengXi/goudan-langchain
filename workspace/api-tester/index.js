@@ -1,30 +1,60 @@
-#!/usr/bin/env node
-const { program } = require('commander');
+const fetch = require('node-fetch');
 
-program
-  .command('GET <url>')
-  .action((url) => {
-    // TODO: Implement GET request
-  })
-  .command('POST <url> -d <data>')
-  .action((url, data) => {
-    // TODO: Implement POST request
-  })
-  .command('PUT <url> -d <data>')
-  .action((url, data) => {
-    // TODO: Implement PUT request
-  })
-  .command('DELETE <url>')
-  .action((url) => {
-    // TODO: Implement DELETE request
-  })
-  .command('PATCH <url> -d <data>')
-  .action((url, data) => {
-    // TODO: Implement PATCH request
-  })
-  .command('--request-file <file>')
-  .action((file) => {
-    // TODO: Implement request file handling
-  })
+const parseArgs = require('minimist');
 
-program.parse(process.argv);
+const fs = require('fs');
+const path = require('path');
+
+const requestsDir = path.join(__dirname, 'examples');
+
+const DEFAULT_REQUEST_FILE = 'requests.json';
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+
+  let method = args._[0];
+  let url = args._[1];
+  let data = args.d || args.data;
+  let requestFile = args.r || args.requestFile || DEFAULT_REQUEST_FILE;
+
+  if (!method || !url) {
+    console.error('Usage: api-tester <method> <url> [-d <data>] [--request-file <file>]
+');    return;
+  }
+
+  if (args.h) {
+    console.log('Available methods: GET, POST, PUT, DELETE, PATCH');
+    console.log('Available options: -d <data>, --data <data>, -h, --help, --request-file <file>');    return;
+  }
+
+  try {
+    const request = JSON.parse(data);
+    data = request;
+  } catch (e) {
+    // data is not in JSON format
+  }
+
+  const response = await fetch(url, {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  }).then(response => {
+    console.log('Response time:', response.headers.get('X-Response-Time'));    console.log('Status code:', response.status);
+    console.log('Headers:', response.headers);
+    return response.json();
+  }).catch(error => {
+    console.error('Error:', error);
+  });
+
+  console.log('Response:', response);
+
+  if (args.o) {
+    const responseFile = args.o;
+    fs.writeFileSync(responseFile, JSON.stringify(response, null, 2), 'utf8');
+    console.log(`Response saved to ${responseFile}`);
+  }
+}
+
+main();

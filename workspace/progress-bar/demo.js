@@ -1,13 +1,34 @@
-# demo.js
+const ProgressBar = require('./progress.js');
 
-This script demonstrates how to use the ProgressBar module to create a progress bar in a CLI application.
+// Create a single progress bar
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: ' ' });
 
-## Usage
+// Update the progress bar
+for (let i = 0; i <= 100; i++) {
+  bar.update(i);
+  // Do some work
+}
 
-To run this script, execute the following command in your terminal:
+// Render the progress bar
+bar.render();
 
-```bash
-node demo.js
-```
+// Reset the progress bar
+bar.reset();
 
-The script will create a progress bar and simulate some work by updating the progress bar every 100 milliseconds.
+// Create multiple progress bars
+const multi = new ProgressBar.MultiProgressBar();
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
+
+// Update multiple progress bars
+for (let i = 0; i <= 100; i++) {
+  bar1.update(i);
+  bar2.update(i);
+  // Do some work
+}
+
+// Render multiple progress bars
+multi.render();
+
+// Reset multiple progress bars
+multi.reset();

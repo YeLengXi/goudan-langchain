@@ -18,7 +18,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
 
   // Step 1: Format arrow functions - add spaces
   if (config.formatArrowFunctions) {
-    // Add space after = in arrow function: (a,b)=> => (a,b) =>
+    // Add space after = in arrow function: (a,b)=\(\)\=> => (a,b) =>
     formatted = formatted.replace(/(\w)=\((.*?)\)=>/g, '$1 = ($2) =>');
   }
 
@@ -32,11 +32,10 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   formatted = formatted.replace(/}/g, '\n}\n');
 
   // Step 5: Add newlines after keywords
-  formatted = formatted.replace(/(function|if|for|while|else)/g, '\n$1');
+  formatted = formatted.replace(/\b(function|if|for|while|else)\b/g, '\n$1');
 
   // Clean up multiple newlines
-  formatted = formatted.replace(/
-{3,}/g, '\n\n');
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
 
   // Process indentation
   const lines = formatted.split('\n');

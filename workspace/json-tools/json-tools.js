@@ -1,103 +1,60 @@
 const fs = require('fs');
 const util = require('util');
 const path = require('path');
+const { promisify } = require('util');
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+const appendFile = promisify(fs.appendFile);
+const stat = promisify(fs.stat);
 
-const format = (json, indent) => {
-  try {
-    const formattedJson = JSON.stringify(json, null, indent);
-    return formattedJson;
-  } catch (error) {
-    throw new Error('Invalid JSON');
+const jsonTools = {
+  format: async (filePath, indent = 2) => {
+    try {
+      const data = await readFile(filePath, 'utf8');
+      const parsedData = JSON.parse(data);
+      const formattedData = JSON.stringify(parsedData, null, indent);
+      return formattedData;
+    } catch (error) {
+      throw new Error('Invalid JSON or file not found');
+    }
+  },
+
+  sort: async (filePath, key) => {
+    try {
+      const data = await readFile(filePath, 'utf8');
+      const parsedData = JSON.parse(data);
+      parsedData.sort((a, b) => {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+        return 0;
+      });
+      return JSON.stringify(parsedData, null, 2);
+    } catch (error) {
+      throw new Error('Invalid JSON or file not found');
+    }
+  },
+
+  filter: async (filePath, condition) => {
+    try {
+      const data = await readFile(filePath, 'utf8');
+      const parsedData = JSON.parse(data);
+      return JSON.stringify(parsedData.filter(item => eval(condition)), null, 2);
+    } catch (error) {
+      throw new Error('Invalid JSON or file not found');
+    }
+  },
+
+  merge: async (filePath1, filePath2) => {
+    try {
+      const data1 = await readFile(filePath1, 'utf8');
+      const data2 = await readFile(filePath2, 'utf8');
+      const parsedData1 = JSON.parse(data1);
+      const parsedData2 = JSON.parse(data2);
+      return JSON.stringify(Object.assign({}, parsedData1, parsedData2), null, 2);
+    } catch (error) {
+      throw new Error('Invalid JSON or file not found');
+    }
   }
-}
+};
 
-const sort = (json, key) => {
-  try {
-    const sortedJson = JSON.stringify(json, (key, value) => {
-      return value[key];
-    }, null, 2);
-    return sortedJson;
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-}
-
-const filter = (json, condition) => {
-  try {
-    const filteredJson = json.filter(item => {
-      return eval(condition);
-    });
-    return JSON.stringify(filteredJson, null, 2);
-  } catch (error) {
-    throw new Error('Invalid JSON or Condition');
-  }
-}
-
-const merge = (json1, json2) => {
-  try {
-    const mergedJson = JSON.stringify({
-      ...json1,
-      ...json2
-    }, null, 2);
-    return mergedJson;
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-}
-
-const readJsonFile = (filePath) => {
-  try {
-    const fileContent = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(fileContent);
-  } catch (error) {
-    throw new Error('Invalid JSON file');
-  }
-}
-
-const writeJsonFile = (filePath, content) => {
-  try {
-    fs.writeFileSync(filePath, content, 'utf8');
-  } catch (error) {
-    throw new Error('Failed to write JSON file');
-  }
-}
-
-const main = () => {
-  const args = process.argv.slice(2);
-  const command = args[0];
-  const filePath = args[1];
-  let json;
-
-  try {
-    json = readJsonFile(filePath);
-  } catch (error) {
-    console.error(error.message);
-    return;
-  }
-
-  switch (command) {
-    case 'format':
-      const indent = args[2] || 2;
-      console.log(format(json, parseInt(indent, 10)));
-      break;
-    case 'sort':
-      const key = args[2];
-      console.log(sort(json, key));
-      break;
-    case 'filter':
-      const condition = args[2];
-      console.log(filter(json, condition));
-      break;
-    case 'merge':
-      const jsonFile2Path = args[2];
-      const json2 = readJsonFile(jsonFile2Path);
-      console.log(merge(json, json2));
-      break;
-    default:
-      console.log('Unknown command');
-  }
-}
-
-if (require.main === module) {
-  main();
-}
+module.exports = jsonTools;

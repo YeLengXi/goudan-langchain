@@ -1,39 +1,40 @@
 # Regex Tester
 
-This tool allows you to test and debug regular expressions.
+This tool is a regex tester and debugger. It allows you to test regex patterns, extract capture groups, replace text, split text, and validate common patterns like email, phone number, URL, IP address, and date format.
 
 ## Usage
 
-To test a regular expression, run:
+To use the tool, run the following command:
 
-    node tester.js <regex> --text <text>
+```bash
+node tester.js <pattern> --<option> <value>
+```
 
-To validate an email, run:
+Where <pattern> is the regex pattern you want to test, <option> is the option you want to use (match, capture, replace, split, email, phone, url, ip, date), and <value> is the value you want to test.
 
-    node tester.js --email <email>
+## Options
 
-To validate a phone number, run:
-
-    node tester.js --phone <phone>
-
-To validate a URL, run:
-
-    node tester.js --url <url>
-
-To validate an IP address, run:
-
-    node tester.js --ip <ip>
-
-To validate a date format, run:
-
-    node tester.js --date <date>
+- match: Test if the pattern matches the text.
+- capture: Extract capture groups from the text.
+- replace: Replace matched text with a specified value.
+- split: Split the text by the pattern.
+- email: Validate email address.
+- phone: Validate phone number.
+- url: Validate URL.
+- ip: Validate IP address.
+- date: Validate date format.
 
 ## Examples
 
-To test a regex pattern:
+```bash
+$ node tester.js "/\d+/" --text "hello 123 world"
+Pattern: /\d+/
+Text: hello 123 world
+Match: 123
+Position: 6-9
 
-    node tester.js "/\d+/" --text "hello 123 world"
-
-To validate an email:
-
-    node tester.js --email "test@example.com"
+$ node tester.js --email "test@example.com"
+Pattern: /^[\w\.-]+@[\w\.-]+\.[a-z]{2,6}$/
+Input: test@example.com
+Valid: ✅ true
+```

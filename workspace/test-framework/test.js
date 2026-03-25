@@ -1,32 +1,24 @@
-const describe = (name, fn) => {
-  const suite = {
-    name,
-    tests: [],
-    before: [],
-    after: [],
-  };
-
-  fn(suite);
-
-  return suite;
+const describe = (name, callback) => {
+  console.log(`
+${name}`);
+  callback();
 };
 
-const it = (name, fn) => {
-  return suite => {
-    suite.tests.push({ name, fn });
-  };
+const it = (name, callback) => {
+  try {
+    console.log(`  ${name}`);
+    callback();
+  } catch (error) { 
+    console.error(`  ✖ ${name} - ${error.message}`);
+  }
 };
 
-const before = (fn) => {
-  return suite => {
-    suite.before.push(fn);
-  };
+const before = (callback) => {
+  console.log(`  Before: ${callback.name}`);
+  callback();
 };
 
-const after = (fn) => {
-  return suite => {
-    suite.after.push(fn);
-  };
+const after = (callback) => {
+  console.log(`  After: ${callback.name}`);
+  callback();
 };
-
-module.exports = { describe, it, before, after };

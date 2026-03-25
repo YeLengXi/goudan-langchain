@@ -1,27 +1,49 @@
 const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const rl = readline.createInterface(
+  {
+    input: process.stdin,
+    output: process.stdout
+  }
+);
 
-rl.question('Enter the pattern: ', (pattern) => {
-  rl.question('Enter the text: ', (text) => {
-    try {
-      const regex = new RegExp(pattern);
-      let match;
+function testRegex(pattern, text, options) {
+  try {
+    const regex = new RegExp(pattern);
+    let match;
 
-      if ((match = regex.exec(text)) !== null) {
-        console.log(`Pattern: ${pattern}`);
-        console.log(`Text: ${text}`);
+    if (options.match) {
+      match = regex.exec(text);
+      console.log(`Pattern: ${pattern}`);
+      console.log(`Text: ${text}`);
+      if (match) {
         console.log(`Match: ${match[0]}`);
         console.log(`Position: ${match.index}-${match.index + match[0].length - 1}`);
       } else {
         console.log('No match found.');
       }
-    } catch (error) {
-      console.error('Error:', error);
     }
 
-    rl.close();
+    if (options.capture) {
+      console.log('Capture groups:', match.groups);
+    }
+
+    if (options.replace) {
+      console.log(`Replaced text: ${regex.replace(text, options.with)}`);
+    }
+
+    if (options.split) {
+      console.log(`Split text: [${regex.split(text).join(', ')}]`);
+    }
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+rl.question('Enter pattern: ', (pattern) => {
+  rl.question('Enter text: ', (text) => {
+    rl.question('Enter options (match, capture, replace, split): ', (options) => {
+      testRegex(pattern, text, options);
+      rl.close();
+    });
   });
-});
+})

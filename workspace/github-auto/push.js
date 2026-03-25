@@ -1,12 +1,18 @@
-const { exec_command } = require('./utils.js'); 
+# push.js
 
-const { createRepo } = require('./github-api.js'); 
+const git = require('simple-git-promise');
+const fs = require('fs');
+const path = require('path');
+const { prompt } = require('enquirer');
 
-async function push() { 
-  const repoName = process.env.REPO_NAME; 
-  const repoUrl = process.env.REPO_URL; 
+const pushRepo = async () => {
+  const repoPath = path.join(__dirname, '../', 'projects', 'nodejs');
+  const gitInstance = git(repoPath);
 
-  exec_command(`cd ${repoName} && git add . && git push -u origin main`); 
+  await gitInstance.init();
+  await gitInstance.add('.');
+  await gitInstance.commit('Initial commit');
+  await gitInstance.push('origin', 'main');
+};
 
-  console.log(`Repository pushed: ${repoUrl}`); 
-}
+module.exports = pushRepo;

@@ -1,15 +1,36 @@
 # README.md
 
-Welcome to the project!
+欢迎使用 GitHub 自动化工具！
 
-## Project Setup
+该工具可以帮助您自动创建、初始化和推送 GitHub 仓库。
+
+## 安装
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
-
-cd your-repo
-
 npm install
+```
 
-npm run dev
+## 使用
+
+### 创建仓库
+
+```bash
+github-auto create my-project --public
+
+github-auto create my-project --private --description "My awesome project"
+
+```
+
+### 初始化
+
+```bash
+github-auto init --template nodejs
+
+```
+
+### 推送
+
+```bash
+github-auto push
+
 ```

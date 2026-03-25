@@ -1,15 +1,13 @@
 {
   "name": "http-server",
   "version": "1.0.0",
-  "description": "A simple HTTP server to serve static files.",
+  "description": "A simple HTTP server that serves static files.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "http": "^1.0.0",
-    "url": "^1.0.0",
-    "fs": "^1.0.0",
-    "path": "^1.0.0"
+    "http": "^0.0.0",
+    "mime": "^1.0.0"
   }
 }

@@ -1,29 +1,32 @@
 # progress-bar
 
-This is a CLI progress bar tool for displaying the progress of long-running tasks.
+This package provides a CLI progress bar tool.
 
 ## Installation
 
-To use this tool, you need to install it locally.
+To use this package, you need to install it first.
 
 ```bash
-npm install workspace/progress-bar
+npm install progress-bar
 ```
 
 ## Usage
 
-To use the progress bar, you can require the 'ProgressBar' module and create an instance with the desired options.
+To create a progress bar, you can use the `ProgressBar` class.
 
 ```javascript
-const ProgressBar = require('./progress.js');
+const ProgressBar = require('progress-bar');
 
-const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: ' ' });
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
   // Do some work
 }
 
-// To finish the progress bar, call the finish method
-bar.finish();
+// To render the progress bar, you can call the `render` method.
+bar.render();
+
+// To reset the progress bar, you can call the `reset` method.
+bar.reset();
 ```

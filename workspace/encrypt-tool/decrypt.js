@@ -1,47 +1,46 @@
-const { encrypt, decrypt } = require('./encrypt');
 const fs = require('fs');
-const path = require('path');
+const { encrypt, decrypt } = require('./encrypt');
 
-const encryptFile = (filePath, method, key, output) => {
-  const text = fs.readFileSync(filePath, 'utf8');
-  const encryptedText = encrypt(text, method, key);
-  fs.writeFileSync(output, encryptedText, 'utf8');
-};
-
-const decryptFile = (filePath, method, key, output) => {
-  const encryptedText = fs.readFileSync(filePath, 'utf8');
-  const decryptedText = decrypt(encryptedText, method, key);
-  fs.writeFileSync(output, decryptedText, 'utf8');
-};
-
-const parseArgs = (args) => {
-  const result = {
-    method: args[2],
-    key: args[4] || '',
-    output: args[6] || ''
-  };
-
-  if (result.method === 'aes' && !result.key) {
-    throw new Error('AES加密需要提供密钥');
-  }
-
-  return result;
-};
-
-const main = () => {
-  const args = parseArgs(process.argv);
-
-  if (args.method === 'aes') {
-    if (args.output) {
-      encryptFile(args.input, args.method, args.key, args.output);
-      console.log('文件加密成功');
-    } else {
-      decryptFile(args.input, args.method, args.key, args.output);
-      console.log('文件解密成功');
+// 解密函数
+function decrypt(encryptedText, method, key) {
+    switch (method) {
+        case 'caesar':
+            return caesarCipherDec(encryptedText, key);
+        case 'base64':
+            return base64Decode(encryptedText);
+        case 'rot13':
+            return rot13(encryptedText);
+        case 'xor':
+            return xorDecrypt(encryptedText, key);
+        case 'aes':
+            return aesDecrypt(encryptedText, key);
+        default:
+            throw new Error('未知加密方法');
     }
-  } else {
-    console.log('未提供文件路径');
-  }
-};
+}
 
-main();
+// 读取文件内容
+function readFileContent(filePath) {
+    return fs.readFileSync(filePath, 'utf8');
+}
+
+// 写入文件内容
+function writeFileContent(filePath, content) {
+    fs.writeFileSync(filePath, content, 'utf8');
+}
+
+// 加密文件
+function encryptFile(inputFilePath, outputFilePath, method, key) {
+    const content = readFileContent(inputFilePath);
+    const encryptedContent = encrypt(content, method, key);
+    writeFileContent(outputFilePath, encryptedContent);
+}
+
+// 解密文件
+function decryptFile(inputFilePath, outputFilePath, method, key) {
+    const encryptedContent = readFileContent(inputFilePath);
+    const decryptedContent = decrypt(encryptedContent, method, key);
+    writeFileContent(outputFilePath, decryptedContent);
+}
+
+module.exports = { decrypt, encryptFile, decryptFile };

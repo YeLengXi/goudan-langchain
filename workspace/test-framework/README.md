@@ -12,8 +12,19 @@ npm install test-framework
 
 ## Usage
 
-To write a test, you need to require the `describe`, `it`, and `expect` functions from the `test.js` file.
+To write a test, you need to require the test framework and assert library.
 
 ```javascript
-const { describe, it, expect } = require('./test-framework/test.js');
+const { describe, it, expect } = require('test-framework');
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('assert');
+
+describe('Math operations', () => {
+  it('should add numbers', () => {
+    expect(add(1, 2)).toBe(3);
+  });
+
+  it('should subtract numbers', () => {
+    expect(subtract(5, 2)).toBe(3);
+  });
+});
 ```

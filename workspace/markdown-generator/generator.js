@@ -5,7 +5,7 @@ const marked = require('marked');
 
 // 解析JSDoc注释
 function parseJSDoc(注释) {
-  const regex = /\*([^*]│[^*]\\*[^*])\*/g;
+  const regex = /\*([^*]│[^*]\*[^*])\*/g;
   let match;
   const comments = [];
 

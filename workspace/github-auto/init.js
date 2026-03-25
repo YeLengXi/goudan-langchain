@@ -1,18 +1,33 @@
-const { exec_command } = require('./utils.js'); 
+# init.js
 
-const { createRepo } = require('./github-api.js'); 
+const fs = require('fs');
+const path = require('path');
+const { prompt } = require('enquirer');
 
-async function init(args, template) { 
-  const templatePath = `./templates/${template}.js`; 
-  const templateContent = read_file(templatePath); 
+const initRepo = async () => {
+  const template = await prompt([
+    {
+      type: 'list',
+      name: 'template',
+      message: '选择模板:',
+      choices: ['nodejs', 'python', 'typescript']
+    }
+  ]);
 
-  const repoName = args; 
-  const repo = await createRepo(repoName, false); 
-  const repoUrl = repo.html_url; 
+  const projectPath = path.join(__dirname, '../', 'projects', template.template);
+  const projectFiles = fs.readdirSync(projectPath);
 
-  exec_command(`mkdir -p ${repoName} && cd ${repoName} && git init && git add . && git commit -m 'Initial commit' && git remote add origin ${repoUrl} && git push -u origin main`); 
+  projectFiles.forEach(file => {
+    const srcPath = path.join(projectPath, file);
+    const destPath = path.join(__dirname, '../', file);
+    if (fs.statSync(srcPath).isDirectory()) {
+      fs.mkdirSync(destPath, { recursive: true });
+    } else {
+      fs.copyFileSync(srcPath, destPath);
+    }
+  });
 
-  write_file(`${repoName}/index.js`, templateContent); 
+  fs.writeFileSync(path.join(__dirname, '../', 'README.md'), fs.readFileSync(path.join(projectPath, 'README.md')));
+};
 
-  console.log(`Repository initialized: ${repoUrl}`); 
-}
+module.exports = initRepo;

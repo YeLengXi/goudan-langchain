@@ -11,49 +11,62 @@
       padding: 0;
       background-color: #f4f4f4;
     }
-
     .container {
       max-width: 800px;
       margin: auto;
       padding: 20px;
     }
-
     header {
       background-color: #333;
       color: #fff;
-      padding: 20px;
+      padding: 10px 0;
       text-align: center;
     }
-
+    header h1 {
+      margin: 0;
+    }
+    header p {
+      margin: 0;
+    }
     .bio {
       background-color: #fff;
       padding: 20px;
       margin-top: 20px;
     }
-
+    .bio h2 {
+      margin-top: 0;
+    }
     .skills {
       background-color: #fff;
       padding: 20px;
       margin-top: 20px;
     }
-
+    .skills h2 {
+      margin-top: 0;
+    }
     .projects {
       background-color: #fff;
       padding: 20px;
       margin-top: 20px;
     }
-
+    .projects h2 {
+      margin-top: 0;
+    }
     .project {
       margin-bottom: 20px;
     }
-
+    .project h3 {
+      margin-top: 0;
+    }
+    .project p {
+      margin-top: 0;
+    }
     .social-links {
       background-color: #fff;
       padding: 20px;
       margin-top: 20px;
     }
-
-    .social-link {
+    .social-links a {
       margin-right: 10px;
     }
   </style>
@@ -61,39 +74,36 @@
 <body>
   <div class="container">
     <header>
-      <h1>John Doe</h1>
-      <p>Frontend Developer</p>
+      <h1>{{name}}</h1>
+      <p>{{position}}</p>
     </header>
     <section class="bio">
-      <p>I am a frontend developer with 5 years of experience. I specialize in building responsive and modern websites.</p>
+      <h2>About Me</h2>
+      <p>{{bio}}</p>
     </section>
     <section class="skills">
       <h2>Skills</h2>
       <ul>
-        <li>HTML5</li>
-        <li>CSS3</li>
-        <li>JavaScript</li>
-        <li>React</li>
+        {{#each skills}}
+          <li>{{this}}</li>
+        {{/each}}
       </ul>
     </section>
     <section class="projects">
       <h2>Projects</h2>
-      <div class="project">
-        <h3>Project 1</h3>
-        <p>A responsive website for a company.</p>
-        <a href="https://example.com/project1">Visit Project</a>
-      </div>
-      <div class="project">
-        <h3>Project 2</h3>
-        <p>A modern web application.</p>
-        <a href="https://example.com/project2">Visit Project</a>
-      </div>
+      {{#each projects}}
+        <div class="project">
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          <a href="{{url}}" target="_blank">View Project</a>
+        </div>
+      {{/each}}
     </section>
     <section class="social-links">
-      <h2>Social Links</h2>
-      <a href="https://github.com/johndoe" class="social-link">GitHub</a>
-      <a href="https://linkedin.com/in/johndoe" class="social-link">LinkedIn</a>
-      <a href="johndoe@example.com" class="social-link">Email</a>
+      <h2>Connect</h2>
+      <a href="{{social_links.GitHub}}" target="_blank">GitHub</a>
+      <a href="{{social_links.LinkedIn}}" target="_blank">LinkedIn</a>
+      <a href="{{social_links.Email}}" target="_blank">Email</a>
     </section>
   </div>
 </body>

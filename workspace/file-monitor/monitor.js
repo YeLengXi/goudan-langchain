@@ -1,27 +1,57 @@
 const fs = require('fs');
+const path = require('path');
 
-const configFilePath = process.argv[2];
+const configPath = process.argv[2];
 
-if (!configFilePath) {
-  console.error('Please provide a configuration file path.');
-  process.exit(1);
-}
+const readConfig = () => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(configPath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
+};
 
-const config = JSON.parse(fs.readFileSync(configFilePath, 'utf8'));
+const executeCommand = (command, file) => {
+  return new Promise((resolve, reject) => {
+    const cmd = command.replace('{file}', file);
+    require('child_process').exec(cmd, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(stdout);
+        resolve(stdout);
+      }
+    });
+  });
+};
 
-const watchDir = config.watchDir;
-const events = config.events;
-
-fs.watch(watchDir, (eventType, filename) => {
-  if (filename) {
-    const command = events[eventType] ? events[eventType].replace('{file}', filename) : null;
-    if (command) {
-      require('child_process').exec(command, (error, stdout, stderr) => {
-        if (error) {
-          console.error(`Error executing command: ${error}`);
-          console.error(`Stderr: ${stderr}`);
-        }
+const monitorDirectory = (config) => {
+  fs.watch(config.watchDir, (eventType, filename) => {
+    if (eventType === 'rename' && filename) {
+      const filePath = path.join(config.watchDir, filename);
+      readConfig().then(config => {
+        executeCommand(config.events[ eventType ], filePath).then(() => {
+          console.log(`Processed ${eventType} event for ${filePath}`);
+        }).catch(err => {
+          console.error(`Error processing ${eventType} event for ${filePath}: ${err}`);
+        });
+      }).catch(err => {
+        console.error(`Error reading config: ${err}`);
       });
     }
-  }
-});
+  });
+};
+
+const main = () => {
+  readConfig().then(config => {
+    monitorDirectory(config);
+  }).catch(err => {
+    console.error(`Error: ${err}`);
+  });
+}
+
+main();
