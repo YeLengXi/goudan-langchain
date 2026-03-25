@@ -1,79 +1,100 @@
 const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const { program } = require('commander');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+program
+  .version('1.0.0')
+  .description('A command-line API testing tool');
 
-async function main() {
-  const args = process.argv.slice(2);
+program
+  .command('GET <url>')
+  .alias('get')
+  .description('Send a GET request to the specified URL')
+  .action((url) => {
+    sendRequest('GET', url);
+  });
 
-  if (args.length === 0) {
-    console.log('Usage: api-tester <method> <url> [options]');
-    process.exit(1);
-  }
+program
+  .command('POST <url> -d <data>')
+  .alias('post')
+  .description('Send a POST request to the specified URL with JSON data')
+  .action((url, data) => {
+    sendRequest('POST', url, data);
+  });
 
-  const [method, url] = args.splice(0, 2);
-  const options = args.reduce((acc, arg) => {
-    if (arg.startsWith('-')) {
-      const [key, value] = arg.split('=');
-      acc[key.slice(1)] = value;
-    }
-    return acc;
-  }, {});
+program
+  .command('PUT <url> -d <data>')
+  .alias('put')
+  .description('Send a PUT request to the specified URL with JSON data')
+  .action((url, data) => {
+    sendRequest('PUT', url, data);
+  });
 
-  try {
-    const response = await fetchRequest(method, url, options);
-    console.log(JSON.stringify(response, null, 2));
-  } catch (error) {
-    console.error(error);
-  }
-}
+program
+  .command('DELETE <url>')
+  .alias('del')
+  .description('Send a DELETE request to the specified URL')
+  .action((url) => {
+    sendRequest('DELETE', url);
+  });
 
-async function fetchRequest(method, url, options) {
-  const { headers, body } = options;
-  const isJson = body && typeof body === 'object';
-  const isFormData = body && typeof body === 'string' && body.startsWith('form-data');
+program
+  .command('PATCH <url> -d <data>')
+  .alias('patch')
+  .description('Send a PATCH request to the specified URL with JSON data')
+  .action((url, data) => {
+    sendRequest('PATCH', url, data);
+  });
 
-  const headersObj = {
-    'Content-Type': isJson ? 'application/json' : isFormData ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
-    ...headers
+program
+  .command('--request-file <file>')
+  .alias('rf')
+  .description('Send requests from a file')
+  .action((file) => {
+    readRequestsFromFile(file);
+  });
+
+program.parse(process.argv);
+
+function sendRequest(method, url, data = null) {
+  const headers = {
+    'Content-Type': 'application/json'
   };
 
-  const requestOptions = {
-    method,
-    headers: headersObj
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    headers['Content-Length'] = Buffer.byteLength(data);
   }
 
-  if (isJson) {
-    requestOptions.body = JSON.stringify(body);
-  } else if (isFormData) {
-    requestOptions.body = body;
+  const options = {
+    method: method,
+    headers: headers
   }
 
-  return new Promise((resolve, reject) => {
-    const req = https.request(url, requestOptions, (res) => {
-      const data = [];
-      res.on('data', (chunk) => data.push(chunk));
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          body: Buffer.concat(data).toString()
-        });
-      });
-    });
+  if (data) {
+    options.body = data;
+  }
 
-    req.on('error', (error) => {
-      reject(error);
-    });
+  https.get(url, response => {
+    const { statusCode } = response;
+    const headers = response.headers;
+    const startTime = Date.now();
 
-    req.write(requestOptions.body);
-    req.end();
+    response.on('data', d => {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      console.log(`Status Code: ${statusCode}
+Headers: ${JSON.stringify(headers)}
+Response Time: ${duration}ms
+Data: ${JSON.stringify(d)}`);
+    });
+  }).on('error', e => {
+    console.error(`Error: ${e.message}`);
   });
 }
 
-main();
+function readRequestsFromFile(file) {
+  const requests = require('fs').readFileSync(file, 'utf8');
+  const parsedRequests = JSON.parse(requests);
+  parsedRequests.forEach(request => {
+    sendRequest(request.method, request.url, request.data);
+  });
+}

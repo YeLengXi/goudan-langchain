@@ -20,8 +20,8 @@ function parseLog(logData, format) {
   return logs;
 }
 
-function analyzeLog(logFilePath) {
-  const logData = fs.readFileSync(logFilePath, 'utf8');
-  const logs = parseLog(logData, 'APP');
-  return logs;
+function searchLogs(logs, keyword, level) {
+  return logs.filter(log => {
+    return log.includes(keyword) && (level ? log.includes(level) : true);
+  });
 }

@@ -20,8 +20,10 @@ function parseLog(logData, format) {
   return logs;
 }
 
-function analyzeLog(logFilePath) {
-  const logData = fs.readFileSync(logFilePath, 'utf8');
-  const logs = parseLog(logData, 'APP');
-  return logs;
+function exportLogs(logs, format) {
+  if (format === 'json') {
+    return JSON.stringify(logs, null, 2);
+  } else if (format === 'csv') {
+    return logs.map(log => log.split(' ').join(',')).join('\n');
+  }
 }

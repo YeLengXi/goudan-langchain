@@ -20,8 +20,14 @@ function parseLog(logData, format) {
   return logs;
 }
 
-function analyzeLog(logFilePath) {
-  const logData = fs.readFileSync(logFilePath, 'utf8');
-  const logs = parseLog(logData, 'APP');
-  return logs;
+function countErrors(logs) {
+  const errorTypes = {};
+  logs.forEach(log => {
+    const match = log.match(/ERROR: (.*)/);
+    if (match) {
+      const errorType = match[1];
+      errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
+    }
+  });
+  return errorTypes;
 }
