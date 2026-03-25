@@ -1,30 +1,16 @@
-const cron = require('cron');
-const fs = require('fs');
-const path = require('path');
-const { parseCron } = require('./cron-parser');
-const { scheduleTask } = require('./task-scheduler');
-const logPath = path.join(__dirname, 'task-log.txt');
+const { parseCronExpression, addTask, removeTask } = require('./scheduler');
 
-const CONFIG_FILE = 'config.json';
+const configPath = process.argv[2];
 
-const readConfig = () => {
-  const configPath = path.join(__dirname, CONFIG_FILE);
-  const config = fs.readFileSync(configPath, 'utf8');
-  return JSON.parse(config);
-};
+if (!configPath) {
+  console.log('Please provide a config file path.
 
-const main = () => {
-  const config = readConfig();
-  const tasks = config.tasks;
+Usage: node scheduler.js --config <path_to_config_file>');
+  process.exit(1);
+}
 
-  tasks.forEach(task => {
-    const { cron, command } = task;
-    const parsedCron = parseCron(cron);
+const config = require(configPath);
 
-    scheduleTask(command, parsedCron);
-  });
-};
-
-module.exports = {
-  main
-};
+config.tasks.forEach(task => {
+  addTask(task.name, parseCronExpression(task.cron), task.command);
+});

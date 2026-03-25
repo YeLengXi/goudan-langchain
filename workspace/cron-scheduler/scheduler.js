@@ -1,59 +1,44 @@
-const { parse } = require('cron-parser');
+const cron = require('cron');
 
-class Scheduler {
-  constructor(configPath) {
-    this.configPath = configPath;
-    this.tasks = [];
-    this.parser = parse;
-    this.loadConfig();
-  }
+const tasks = [];
 
-  loadConfig() {
-    const config = require(this.configPath);
-    this.tasks = config.tasks.map(task => ({
-      ...task,
-      nextRun: this.parser.parse(task.cron, { utc: true })
-    }));
-  }
+function parseCronExpression(expression) {
+  const cronPattern = expression.split(' ');
+  return cron.parse(cronPattern.join(' '));
+}
 
-  schedule() {
-    const now = new Date();
-    const task = this.tasks.find(task => task.nextRun <= now && !task.completed);
-    if (task) {
-      this.execTask(task);
-    }
-  }
+function addTask(name, cronExpression, command) {
+  const cronJob = cron.job(cronExpression, () => {
+    console.log(`Task ${name} executed at ${new Date().toISOString()}`);
+    execCommand(command);
+  }, () => {
+    console.log(`Task ${name} completed at ${new Date().toISOString()}`);
+  }, (err) => {
+    console.error(`Task ${name} failed at ${new Date().toISOString()}:`, err);
+  });
+  cronJob.start();
+  tasks.push({ name, cronJob });
+}
 
-  execTask(task) {
-    console.log(`Executing task: ${task.name}`);
-    require('child_process').exec(task.command, (error, stdout, stderr) => {
-      if (error) {
-        console.error(`Error executing task: ${task.name}`, error);
-        task.retryCount += 1;
-        if (task.retryCount < 3) {
-          task.nextRun = this.parser.parse(task.cron, { utc: true });
-          this.saveConfig();
-        } else {
-          console.error(`Task failed after 3 retries: ${task.name}`);
-        }
-      } else {
-        console.log(`Task completed: ${task.name}`, stdout);
-        task.completed = true;
-        task.nextRun = this.parser.parse(task.cron, { utc: true });
-        this.saveConfig();
-      }
-    });
-  }
-
-  saveConfig() {
-    const config = {
-      tasks: this.tasks.map(task => ({
-        ...task,
-        completed: false
-      }))
-    }
-    require('fs').writeFileSync(this.configPath, JSON.stringify(config, null, 2));
+function removeTask(name) {
+  const task = tasks.find(t => t.name === name);
+  if (task) {
+    task.cronJob.stop();
+    tasks.splice(tasks.indexOf(task), 1);
+    console.log(`Task ${name} removed`);
+  } else {
+    console.log(`Task ${name} not found`);
   }
 }
 
-module.exports = Scheduler;
+function execCommand(command) {
+  require('child_process').exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Command ${command} failed`, err);
+    } else {
+      console.log(`Command ${command} executed`, stdout, stderr);
+    }
+  });
+}
+
+module.exports = { parseCronExpression, addTask, removeTask };
