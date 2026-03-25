@@ -23,8 +23,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   }
 
   // Step 2: Add newlines after semicolons
-  formatted = formatted.replace(/;/g, ';
-');
+  formatted = formatted.replace(/;/g, ';\n');
 
   // Step 3: Add newlines after opening braces
   formatted = formatted.replace(/{/g, '{\n');
@@ -73,5 +72,24 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   return formattedLines.join('\n') + '\n';
 }
 
-function parseArgs(args) {
-  const config = { ...DEFAULT_CONFIG };
+// Test cases for code-formatter-v3.cjs
+
+// Test arrow function formatting
+const arrowFunctionTestCode = `function add(a, b) { return a + b; }`
+const expectedArrowFunctionOutput = `(a, b) => { return a + b; }`
+const arrowFunctionFormatted = formatCode(arrowFunctionTestCode, { formatArrowFunctions: true });
+console.assert(arrowFunctionFormatted === expectedArrowFunctionOutput, 'Arrow function formatting failed');
+
+// Test object method arrow functionization
+const objectMethodTestCode = `const obj = { add: function(a, b) { return a + b; } }`
+const expectedObjectMethodOutput = `const obj = { add: (a, b) => { return a + b; } }`
+const objectMethodFormatted = formatCode(objectMethodTestCode, { formatObjects: true });
+console.assert(objectMethodFormatted === expectedObjectMethodOutput, 'Object method arrow functionization failed');
+
+// Test configurable indentation
+const indentationTestCode = `function add(a, b) { return a + b; }`
+const expectedIndentationOutput = '  function add(a, b) { return a + b; }'
+const indentationFormatted = formatCode(indentationTestCode, { indentSize: 2 });
+console.assert(indentationFormatted === expectedIndentationOutput, 'Configurable indentation failed');
+
+console.log('All tests passed!');

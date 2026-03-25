@@ -23,8 +23,7 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   }
 
   // Step 2: Add newlines after semicolons
-  formatted = formatted.replace(/;/g, ';
-');
+  formatted = formatted.replace(/;/g, ';\n');
 
   // Step 3: Add newlines after opening braces
   formatted = formatted.replace(/{/g, '{\n');
@@ -73,5 +72,4 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   return formattedLines.join('\n') + '\n';
 }
 
-function parseArgs(args) {
-  const config = { ...DEFAULT_CONFIG };
+// ... (rest of the code remains unchanged)
