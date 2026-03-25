@@ -1,19 +1,20 @@
-# Portfolio Generator
+# Personal Portfolio Website Generator
 
-This is a static website generator for creating personal portfolios.
+This is a static website generator that helps developers quickly create personal portfolio websites.
 
 ## Features
 
 - Configuration file support
 - Template system
-- Generation functionality
-- Preview feature
+- Generation function
+- Preview function
 
 ## Usage
 
-1. Create a configuration file (portfolio.json)
-2. Run the generator with npm run generate
+1. Run `npm install` to install dependencies.
+2. Run `npm start` to generate the website.
+3. Open the generated website in your browser.
 
 ## License
 
-ISC
+MIT

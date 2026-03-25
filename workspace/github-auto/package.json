@@ -8,7 +8,7 @@
     "init": "node index.js init",
     "push": "node index.js push"
   },
-  "devDependencies": {
+  "dependencies": {
     "axios": "^0.21.1"
   }
 }

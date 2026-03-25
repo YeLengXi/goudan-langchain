@@ -1,27 +1,24 @@
 const fs = require('fs');
 const path = require('path');
+const ejs = require('ejs');
 
-const portfolioFilePath = path.join(__dirname, 'portfolio.json');
-const templateFilePath = path.join(__dirname, 'templates/default.html');
-const outputDir = path.join(__dirname, 'output');
+const PORT = 3000;
+const DIST_DIR = 'dist';
+const TEMPLATE_FILE = 'templates/default.html';
+const OUTPUT_FILE = 'index.html';
+const PORTFOLIO_FILE = 'portfolio.json';
 
-// Read the portfolio configuration
-const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf8'));
+const express = require('express');
+const app = express();
 
-// Read the template
-const templateContent = fs.readFileSync(templateFilePath, 'utf8');
+app.set('view engine', 'ejs');
 
-// Replace placeholders with portfolio data
-const outputContent = templateContent.replace(/{{(.*?)}}/g, (match, key) => {
-  return portfolioData[key] || '';
+app.get('/', (req, res) => {
+  const portfolio = JSON.parse(fs.readFileSync(PORTFOLIO_FILE, 'utf-8'));
+  res.render(TEMPLATE_FILE, portfolio);
 });
 
-// Create output directory if it doesn't exist
-if (!fs.existsSync(outputDir)) {
-  fs.mkdirSync(outputDir);
-}
-
-// Write the output file
-fs.writeFileSync(path.join(outputDir, 'index.html'), outputContent);
-
-console.log('Portfolio generated successfully!');
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+  exec_command(`start http://localhost:${PORT}`);
+});

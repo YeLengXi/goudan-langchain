@@ -1,29 +1,14 @@
-// 错误统计器
-const errorStatistics = {
-  countErrors: (logs) => {
-    const errorTypes = {};
-    logs.forEach(log => {
-      if (log.level === 'ERROR') {
-        const errorType = log.message;
-        if (errorTypes[errorType]) {
-          errorTypes[errorType] += 1;
-        } else {
-          errorTypes[errorType] = 1;
-        }
-      }
-    });
-    return errorTypes;
+// 报告生成器
+const reportGenerator = {
+  generateJsonReport: (logs) => {
+    return JSON.stringify(logs, null, 2);
   },
-  groupByErrorType: (logs) => {
-    const errorTypes = errorStatistics.countErrors(logs);
-    return Object.entries(errorTypes).map(([type, count]) => ({
-      type,
-      count
-    }));
+  generateCsvReport: (logs) => {
+    const headers = Object.keys(logs[0]).join(',');
+    const rows = logs.map(log => Object.values(log).join(',')).join('\n');
+    return headers + '\n' + rows;
   },
-  displayMostFrequentError: (logs) => {
-    const errorTypes = errorStatistics.countErrors(logs);
-    const mostFrequentError = Object.entries(errorTypes).reduce((a, b) => a[1] > b[1] ? a : b);
-    return mostFrequentError;
+  generateStatisticsReport: (logs) => {
+    // 生成统计报告
   }
 };

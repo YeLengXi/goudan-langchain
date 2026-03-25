@@ -1,0 +1,11 @@
+# 测试日志文件
+
+# 应用日志示例
+2023-03-15 12:34:56 INFO Application started
+2023-03-15 12:35:00 ERROR Invalid input
+
+# 访问日志示例
+[15/Mar/2023:12:34:56 +0000] "GET /index.html HTTP/1.1" 200 2048 "http://www.example.com" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "192.168.1.1"
+
+# 错误日志示例
+Exception: Error in GET /index.html: Invalid input
