@@ -1,31 +1,29 @@
 # README.md
 
-这是 GitHub 仓库的 README 模板。
+Welcome to the repository!
 
-## 项目描述
+This is a template for README.md.
 
-在这里添加项目描述。
+## Project Description
 
-## 安装
+Add a brief description of the project here.
 
-```bash
-npm install
-```
+## Features
 
-## 使用
+List the main features of the project here.
 
-```bash
-code .
-```
+## Installation
 
-## 贡献
+Instructions on how to install the project.
 
-请参阅 [贡献指南](CONTRIBUTING.md)。
+## Usage
 
-## 许可证
+Instructions on how to use the project.
 
-[MIT](LICENSE)
+## Contributing
 
-## 作者
+Guidelines for contributing to the project.
 
-[你的名字](你的邮箱)
+## License
+
+MIT
