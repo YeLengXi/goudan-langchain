@@ -1,8 +1,6 @@
-// file1.js
-// This file contains a simple function that adds two numbers.
-function addNumbers(a, b) {
+function add(a, b) {
     return a + b;
 }
 
-// Export the function so it can be used in other files.
-module.exports = addNumbers;
+// 测试 add 函数
+console.log(add(5, 3));

@@ -1,8 +1,6 @@
-// file2.js
-// This file contains a simple function that subtracts two numbers.
-function subtractNumbers(a, b) {
+function subtract(a, b) {
     return a - b;
 }
 
-// Export the function so it can be used in other files.
-module.exports = subtractNumbers;
+// 测试 subtract 函数
+console.log(subtract(5, 3));
