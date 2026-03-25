@@ -1,43 +1,48 @@
-const fs = require('fs');
-const path = require('path');
+const read_file = require('fs').readFileSync;
 
-// 日志解析器
 const logParser = {
-  parseApplicationLog: (log) => {
-    const match = log.match(/^([\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}).*?\[(INFO|ERROR|WARN)\].*/);
-    if (match) {
+  parseAppLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const parts = line.split(' ');
       return {
-        timestamp: match[1],
-        level: match[2],
-        message: log.substring(match.index + match[0].length)
+        timestamp: parts[0],
+        level: parts[1],
+        message: parts.slice(2).join(' ')
       }
-    }
-    return null;
+    }).filter(log => log.timestamp && log.level && log.message);
+    return parsedLogs;
   },
   parseAccessLog: (log) => {
-    const match = log.match(/^([\d]{4}-[\d]{2}-[\d]{2} [\d]{2}:[\d]{2}:[\d]{2}).*?"(.*?)" (\d+) (\d+) "(.*?)" "(.*?)"$/);
-    if (match) {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const parts = line.split(' ');
       return {
-        timestamp: match[1],
-        method: match[2],
-        status: match[3],
-        bytes: match[4],
-        request: match[5],
-        referer: match[6]
+        timestamp: parts[0] + ' ' + parts[1],
+        ip: parts[1],
+        method: parts[5],
+        url: parts[6],
+        status: parts[8],
+        bytes: parts[9]
       }
-    }
-    return null;
+    }).filter(log => log.timestamp && log.ip && log.method && log.url && log.status && log.bytes);
+    return parsedLogs;
   },
   parseErrorLog: (log) => {
-    const match = log.match(/^.*?:.*?:\s*(.*?)(:.*?:)*:.*?:\s*(.*)$/);
-    if (match) {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const parts = line.split(':');
       return {
-        className: match[1],
-        methodName: match[2],
-        message: match[3]
+        file: parts[0],
+        line: parts[1],
+        method: parts[2],
+        error: parts.slice(3).join(':')
       }
-    }
-    return null;
+    }).filter(log => log.file && log.line && log.method && log.error);
+    return parsedLogs;
   }
 };
 
