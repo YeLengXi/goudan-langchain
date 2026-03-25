@@ -1,21 +1,19 @@
-// This is the main program of the portfolio generator.
-// It reads the portfolio configuration, generates the website, and serves it locally.
-
-const express = require('express');
 const fs = require('fs');
 const path = require('path');
-
+const express = require('express');
 const app = express();
 const port = 3000;
 
-app.use(express.static('public'));
+app.use(express.static('dist'));
+
+const template = fs.readFileSync(path.join(__dirname, 'templates', 'default.html'), 'utf-8');
 
 app.get('/', (req, res) => {
-  const portfolio = JSON.parse(fs.readFileSync('portfolio.json', 'utf-8'));
-  const template = fs.readFileSync('templates/default.html', 'utf-8').replace(/{{(.*?)}}/g, (match, key) => {
-    return portfolio[key] || '';
+  const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'portfolio.json'), 'utf-8'));
+  const filledTemplate = template.replace(/{{(.*?)}}/g, (match, key) => {
+    return config[key] || match;
   });
-  res.send(template);
+  res.send(filledTemplate);
 });
 
 app.listen(port, () => {

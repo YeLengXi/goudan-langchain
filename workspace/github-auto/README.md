@@ -4,21 +4,21 @@
 
 ## 安装
 
-首先，您需要安装 Node.js。
-
-然后，在终端中运行以下命令来安装工具：
-
 ```bash
 npm install
 ```
 
 ## 使用
 
-- `github-auto create <仓库名> --public` - 创建公开仓库
-- `github-auto create <仓库名> --private` - 创建私有仓库
-- `github-auto init --template <模板名>` - 初始化仓库
-- `github-auto push` - 推送到 GitHub
+- `github-auto create <仓库名> --public` 创建公开仓库
+- `github-auto create <仓库名> --private` 创建私有仓库
+- `github-auto init --template <模板名>` 初始化项目
+- `github-auto push` 推送到 GitHub
 
-## 注意
+## 配置
 
-- 您需要设置 GitHub Personal Access Token。
+工具使用 GitHub Personal Access Token 进行认证。
+
+## 作者
+
+Goudan AI Developer Agent

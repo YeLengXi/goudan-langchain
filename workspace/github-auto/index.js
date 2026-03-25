@@ -1,3 +1,7 @@
-# index.js
+const { create, init, push } = require('./commands');
 
-// TODO: 实现主程序逻辑
+module.exports = {
+  create,
+  init,
+  push
+};

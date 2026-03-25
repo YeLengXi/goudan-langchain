@@ -3,43 +3,43 @@ const fs = require('fs');
 const path = require('path');
 const { parse } = require('minimist');
 
-const fetch = async (method, url, options = {}) => {
-  const { headers, body } = options;
-  const promise = new Promise((resolve, reject) => {
-    const req = https.request(url, {
-      method,
-      ...headers
-    }, res => {
-      const data = [];
-      res.on('data', chunk => data.push(chunk));
-      res.on('end', () => {
-        resolve({
-          status: res.statusCode,
-          headers: res.headers,
-          data: Buffer.concat(data).toString(),
-          time: Date.now() - start
-        });
-      });
-    });
+const DEFAULT_REQUEST_FILE = 'examples/requests.json';
 
-    req.on('error', e => {
-      reject(e);
-    });
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
+    }
 
     if (body) {
-      req.write(body);
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
+      }
     }
-    req.end();
+
+    https.get(url, response => {
+      const data = [];
+      response.on('data', chunk => data.push(chunk));
+      response.on('end', () => {
+        const resBody = Buffer.concat(data).toString();
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: resBody
+        });
+      });
+    }).on('error', error => reject(error));
   });
+}
 
-  const start = Date.now();
-  try {
-    const response = await promise;
-    response.time = response.time + "ms";
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
+function parseRequestFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content);
+}
 
-module.exports = fetch;
+module.exports = {
+  fetchApi,
+  parseRequestFile
+}

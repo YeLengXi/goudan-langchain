@@ -1,4 +1,6 @@
-#!/usr/bin/env node
+/#!/usr/bin/env node
+
+
 
 const fs = require('fs');
 
@@ -73,4 +75,5 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   return formattedLines.join('\n') + '\n';
 }
 
-// ... rest of the code
+function parseArgs(args) {
+  const config = { ...DEFAULT_CONFIG };

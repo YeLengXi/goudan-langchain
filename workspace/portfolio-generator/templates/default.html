@@ -4,107 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio</title>
-
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
     }
-
     .container {
       max-width: 800px;
       margin: 0 auto;
       padding: 20px;
     }
-
     .header {
       text-align: center;
     }
-
-    .header h1 {
-      margin: 0;
+    .profile {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
     }
-
-    .bio {
-      margin-top: 20px;
-    }
-
     .skills {
+      background-color: #fff;
+      padding: 20px;
       margin-top: 20px;
+      border-radius: 5px;
     }
-
-    .skills h2 {
-      margin: 0;
-    }
-
-    .skills ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
     .projects {
+      background-color: #fff;
+      padding: 20px;
       margin-top: 20px;
+      border-radius: 5px;
     }
-
-    .projects h2 {
-      margin: 0;
-    }
-
-    .projects ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    .social {
-      margin-top: 20px;
-    }
-
-    .social a {
-      margin-right: 10px;
+    .project {
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
-
   <div class="container">
     <div class="header">
-      <h1>{{name}}</h1>
-      <p>{{position}}</p>
+      <h1>John Doe</h1>
+      <h2>Frontend Developer</h2>
     </div>
-
-    <div class="bio">
-      {{bio}}
+    <div class="profile">
+      <h3>Bio</h3>
+      <p>I am a frontend developer with 5 years of experience in building modern web applications.</p>
     </div>
-
     <div class="skills">
-      <h2>Skills</h2>
+      <h3>Skills</h3>
       <ul>
-        {{#each skills}}
-          <li>{{this}}</li>
-        {{/each}}
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>JavaScript</li>
+        <li>React</li>
+        <li>Vue</li>
       </ul>
     </div>
-
     <div class="projects">
-      <h2>Projects</h2>
-      <ul>
-        {{#each projects}}
-          <li>
-            <h3>{{name}}</h3>
-            <p>{{description}}</p>
-            <a href="{{link}}">View Project</a>
-          </li>
-        {{/each}}
-      </ul>
-    </div>
-
-    <div class="social">
-      <h2>Social</h2>
-      <a href="{{GitHub}}">GitHub</a>
-      <a href="{{LinkedIn}}">LinkedIn</a>
-      <a href="{{Email}}">Email</a>
+      <h3>Projects</h3>
+      <div class="project">
+        <h4>Project 1</h4>
+        <p>A web application for managing tasks.</p>
+        <a href="https://example.com/project1">Visit Project</a>
+      </div>
+      <div class="project">
+        <h4>Project 2</h4>
+        <p>A responsive website for a company.</p>
+        <a href="https://example.com/project2">Visit Project</a>
+      </div>
     </div>
   </div>
-
 </body>
 </html>
