@@ -1,38 +1,23 @@
-const fs = require('fs');const path = require('path');const https = require('https');const { promisify } = require('util');const exec = promisify(exec);const read_file = require('./read_file');const write_file = require('./write_file');const list_directory = require('./list_directory');const exec_command = require('./exec_command');class GitHubAPI {
-  constructor(token) {
-    this.token = token;
-  }
+const axios = require('axios'); 
 
-  createRepository(name, isPublic) {
-    const options = {
-      hostname: 'api.github.com',
-      path: `/repos/${isPublic ? '' : 'private'}/${name}`,
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${this.token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
-    };
+const GITHUB_API_URL = 'https://api.github.com'; 
 
-    return new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          resolve(JSON.parse(data));
-        });
-      });
+const githubToken = process.env.GITHUB_TOKEN; 
 
-      req.on('error', (error) => {
-        reject(error);
-      });
+const headers = { 
+  'Authorization': `token ${githubToken}`, 
+  'Accept': 'application/vnd.github.v3+json' 
+}; 
 
-      req.write(JSON.stringify({ name, private: !isPublic }));
-      req.end();
-    });
-  }
+async function createRepo(repoName, isPrivate) { 
+  const response = await axios.post(`${GITHUB_API_URL}/user/repos`, { 
+    name: repoName, 
+    private: isPrivate 
+  }, { 
+    headers 
+  }); 
+
+  return response.data; 
 }
 
-module.exports = GitHubAPI;
+module.exports = { createRepo };

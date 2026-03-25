@@ -1,1 +1,8 @@
-{}
+[
+  {
+    "method": "GET",
+    "url": "https://api.example.com/users",
+    "headers": {},
+    "body": null
+  }
+]

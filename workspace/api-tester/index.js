@@ -1,55 +1,100 @@
 const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const { program } = require('commander');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+program
+  .version('1.0.0')
+  .description('A command-line API testing tool');
 
-const executeCommand = async (command) => {
-  const [method, url, ...options] = command.split(' ');
-  let data = null;
-  let headers = {
-    'Content-Type': 'application/json'
+program
+  .command('GET <url>')
+  .alias('get')
+  .description('Perform a GET request')
+  .action((url) => {
+    performRequest('GET', url);
+  });
+
+program
+  .command('POST <url> -d <data>')
+  .alias('post')
+  .description('Perform a POST request')
+  .action((url, data) => {
+    performRequest('POST', url, data);
+  });
+
+program
+  .command('PUT <url> -d <data>')
+  .alias('put')
+  .description('Perform a PUT request')
+  .action((url, data) => {
+    performRequest('PUT', url, data);
+  });
+
+program
+  .command('DELETE <url>')
+  .alias('del')
+  .description('Perform a DELETE request')
+  .action((url) => {
+    performRequest('DELETE', url);
+  });
+
+program
+  .command('PATCH <url> -d <data>')
+  .alias('patch')
+  .description('Perform a PATCH request')
+  .action((url, data) => {
+    performRequest('PATCH', url, data);
+  });
+
+program
+  .command('--request-file <file>')
+  .alias('rf')
+  .description('Read requests from a file')
+  .action((file) => {
+    readRequestFile(file);
+  });
+
+program.parse(process.argv);
+
+async function performRequest(method, url, data = null) {
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json'
+    }
   };
 
-  if (options.includes('-d')) {
-    const dataIndex = options.indexOf('-d') + 1;
-    data = JSON.parse(options[dataIndex]);
-    headers['Content-Type'] = 'application/json';
-  }
-
-  const optionsObject = {
-    method: method,
-    headers: headers
-  }
-
   if (data) {
-    optionsObject.body = JSON.stringify(data);
+    options.body = JSON.stringify(data);
   }
 
   try {
-    const startTime = Date.now();
-    const response = await fetch(url, optionsObject);
+    const start = Date.now();
+    const response = await fetch(url, options);
     const endTime = Date.now();
-    const responseTime = endTime - startTime;
+    const responseTime = endTime - start;
 
     console.log(`Response Time: ${responseTime}ms`);
     console.log(`Status Code: ${response.status}`);
     console.log('Headers:', response.headers.raw());
 
-    const json = await response.json();
-    console.log('Body:', JSON.stringify(json, null, 2));
+    const jsonData = await response.json();
+    console.log('Body:', jsonData);
+
+    if (jsonData && jsonData.length > 0) {
+      console.log('
+Response JSON:', JSON.stringify(jsonData, null, 2));
+    }
   } catch (error) {
     console.error('Error:', error);
   }
 }
 
-rl.on('line', (input) => {
-  executeCommand(input.trim());
-});
-rl.on('close', () => {
-  process.exit(0);
-});
+async function readRequestFile(file) {
+  const data = await read_file({
+    file_path: file
+  });
+  const requests = JSON.parse(data);
+  requests.forEach(request => {
+    performRequest(request.method, request.url, request.data);
+  });
+}

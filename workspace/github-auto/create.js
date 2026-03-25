@@ -1,25 +1,21 @@
-const axios = require('axios');
+const { exec_command } = require('./utils.js'); 
 
-const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_ACCESS_TOKEN = 'YOUR_GITHUB_ACCESS_TOKEN';
+const { createRepo } = require('./github-api.js'); 
 
-const headers = {
-  'Authorization': `token ${GITHUB_ACCESS_TOKEN}`,
-  'Accept': 'application/vnd.github.v3+json'
-};
+async function create(args, description, isPrivate) { 
+  const repoName = args; 
+  const repo = await createRepo(repoName, isPrivate); 
+  const repoUrl = repo.html_url; 
 
-async function createRepository(name, isPrivate, description) {
-  const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
-    name,
-    private: isPrivate,
-    description
-  }, {
-    headers
-  });
+  exec_command(`mkdir -p ${repoName} && cd ${repoName} && git init && git add . && git commit -m 'Initial commit' && git remote add origin ${repoUrl} && git push -u origin main`); 
 
-  return response.data;
+  if (description) { 
+    write_file(`${repoName}/README.md`, description); 
+  } 
+
+  write_file(`${repoName}/.gitignore`, 'node_modules/
+Dockerfile'); 
+  write_file(`${repoName}/LICENSE`, 'MIT'); 
+
+  console.log(`Repository created: ${repoUrl}`); 
 }
-
-module.exports = {
-  createRepository
-};
