@@ -1,43 +1,39 @@
-# JSON数据处理工具
+## json-tools
 
-本工具用于格式化、排序、过滤和合并JSON数据。
+This is a JSON data processing tool that can format, sort, and filter JSON data.
 
-## 使用方法
+## Features
 
-运行以下命令以使用工具：
+- Format JSON data for better readability
+- Sort JSON data by key or value
+- Filter JSON data based on conditions
+- Merge JSON objects deeply
+- Error handling for invalid JSON
+
+## Usage
+
+To use this tool, you need to have Node.js installed.
+
+### Format JSON
 
 ```bash
-node json-tools.js <command> <options>
+node json-tools.js format input.json
 ```
 
-其中 <command> 是要执行的操作，<options> 是可选的参数。
+This command will format the JSON data in `input.json` with indentation.
 
-## 命令
+### Sort JSON
 
-- format: 格式化JSON输出
-  - 选项：--indent <number>（缩进级别，默认为4）
-- sort: 排序JSON数据
-  - 选项：--key <string>（排序键，默认为所有键）
-- filter: 过滤JSON数据
-  - 选项：--condition <string>（过滤条件，使用JavaScript表达式）
-- merge: 合并JSON数据
-  - 选项：--file <string>（要合并的JSON文件路径）
-
-## 示例
-
-- 格式化JSON输出：
-  ```bash
-node json-tools.js format input.json --indent 2
-  ```
-- 排序JSON数据：
-  ```bash
+```bash
 node json-tools.js sort input.json --key name
-  ```
-- 过滤JSON数据：
-  ```bash
+```
+
+This command will sort the JSON data in `input.json` by the `name` key.
+
+### Filter JSON
+
+```bash
 node json-tools.js filter input.json --condition "age > 18"
-  ```
-- 合并JSON数据：
-  ```bash
-node json-tools.js merge input.json --file merge.json
-  ```
+```
+
+This command will filter the JSON data in `input.json` based on the condition `age > 18`.

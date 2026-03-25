@@ -1,70 +1,23 @@
 const fs = require('fs');
 const https = require('https');
 const { exec } = require('child_process');
+const path = require('path');
 
-const githubToken = 'YOUR_GITHUB_TOKEN';
-const baseUrl = 'https://api.github.com';
-const templatesDir = 'templates';
+const GITHUB_API_URL = 'https://api.github.com';
+const README_TEMPLATE_PATH = path.join(__dirname, '../templates/README.md');
+const GITIGNORE_TEMPLATE_PATH = path.join(__dirname, '../templates/gitignore');
+const LICENSE_TEMPLATE_PATH = path.join(__dirname, '../templates/LICENSE');
 
-const createRepo = async (name, isPublic, description) => {
-  const options = {
-    hostname: 'api.github.com',
-    path: `/user/repos`,
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${githubToken}`,
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    body: JSON.stringify({
-      name: name,
-      private: !isPublic,
-      description: description
-    })
-  };
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => {
-        data += chunk;
-      });
-      res.on('end', () => {
-        resolve(JSON.parse(data));
-      });
-    });
-
-    req.on('error', (err) => {
-      reject(err);
-    });
-
-    req.write(options.body);
-    req.end();
-  });
+const githubAuto = {
+  create: async (projectName, isPublic, description) => {
+    // TODO: 实现创建仓库的逻辑
+  },
+  init: async (template) => {
+    // TODO: 实现初始化项目的逻辑
+  },
+  push: async () => {
+    // TODO: 实现推送代码到 GitHub 的逻辑
+  }
 };
 
-const initRepo = async () => {
-  exec('git init', (err, stdout, stderr) => {
-    if (err) {
-      console.error('Error initializing git:', stderr);
-      return;
-    }
-    console.log('Git initialized successfully.');
-  });
-
-  exec('npm init -y', (err, stdout, stderr) => {
-    if (err) {
-      console.error('Error initializing npm:', stderr);
-      return;
-    }
-    console.log('Npm initialized successfully.');
-  });
-
-  fs.copyFileSync('templates/README.md', 'README.md');
-  fs.copyFileSync('templates/.gitignore', '.gitignore');
-  fs.copyFileSync('templates/LICENSE', 'LICENSE');
-};
-
-module.exports = {
-  createRepo,
-  initRepo
-}
+module.exports = githubAuto;

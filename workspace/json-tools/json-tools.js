@@ -1,80 +1,71 @@
 const fs = require('fs');
+const util = require('util');
+const { promisify } = require('util');
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+const JSON.stringify = util.promisify(JSON.stringify);
+const JSON.parse = util.promisify(JSON.parse);
 
-// 读取JSON文件
-function readJSONFile(filePath) {
-    try {
-        const data = fs.readFileSync(filePath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        throw new Error('Invalid JSON file');
-    }
-}
+const format = async (filePath, indent = 2) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const json = JSON.parse(data);
+    const formatted = JSON.stringify(json, null, indent);
+    await writeFile(filePath, formatted, 'utf8');
+    console.log('Formatted JSON:', formatted);
+  } catch (error) {
+    console.error('Error formatting JSON:', error);
+  }
+};
 
-// 格式化JSON
-function format(json, indent = 4) {
-    return JSON.stringify(json, null, indent);
-}
-
-// 排序JSON
-function sort(json, key) {
-    return json.sort((a, b) => {
-        if (a[key] < b[key]) return -1;
-        if (a[key] > b[key]) return 1;
-        return 0;
+const sort = async (filePath, key) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const json = JSON.parse(data);
+    json.sort((a, b) => {
+      if (a[key] < b[key]) return -1;
+      if (a[key] > b[key]) return 1;
+      return 0;
     });
-}
+    const sorted = JSON.stringify(json, null, 2);
+    await writeFile(filePath, sorted, 'utf8');
+    console.log('Sorted JSON:', sorted);
+  } catch (error) {
+    console.error('Error sorting JSON:', error);
+  }
+};
 
-// 过滤JSON
-function filter(json, condition) {
-    return json.filter(item => {
-        try {
-            return eval(condition)(item);
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    });
-}
+const filter = async (filePath, condition) => {
+  try {
+    const data = await readFile(filePath, 'utf8');
+    const json = JSON.parse(data);
+    const filtered = json.filter(item => eval(condition));
+    const filteredJSON = JSON.stringify(filtered, null, 2);
+    await writeFile(filePath, filteredJSON, 'utf8');
+    console.log('Filtered JSON:', filteredJSON);
+  } catch (error) {
+    console.error('Error filtering JSON:', error);
+  }
+};
 
-// 合并JSON
-function merge(json1, json2) {
-    return { ...json1, ...json2 };
-}
+const merge = async (filePath1, filePath2, outputFilePath) => {
+  try {
+    const data1 = await readFile(filePath1, 'utf8');
+    const data2 = await readFile(filePath2, 'utf8');
+    const json1 = JSON.parse(data1);
+    const json2 = JSON.parse(data2);
+    const merged = { ...json1, ...json2 };
+    const mergedJSON = JSON.stringify(merged, null, 2);
+    await writeFile(outputFilePath, mergedJSON, 'utf8');
+    console.log('Merged JSON:', mergedJSON);
+  } catch (error) {
+    console.error('Error merging JSON:', error);
+  }
+};
 
-// 主程序
-function main() {
-    const args = process.argv.slice(2);
-    const command = args[0];
-    const filePath = args[1];
-    let options = {};
-    args.slice(2).forEach(arg => {
-        const [key, value] = arg.split('=');
-        options[key.slice(2)] = value;
-    });
-
-    try {
-        const json = readJSONFile(filePath);
-        switch (command) {
-            case 'format':
-                console.log(format(json, options.indent || 4));
-                break;
-            case 'sort':
-                console.log(JSON.stringify(sort(json, options.key || Object.keys(json[0]))));
-                break;
-            case 'filter':
-                console.log(JSON.stringify(filter(json, options.condition), null, 2));
-                break;
-            case 'merge':
-                const mergeFilePath = options.file;
-                const mergeJson = readJSONFile(mergeFilePath);
-                console.log(JSON.stringify(merge(json1, mergeJson), null, 2));
-                break;
-            default:
-                console.log('Unknown command');
-        }
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
-main();
+module.exports = {
+  format,
+  sort,
+  filter,
+  merge
+};

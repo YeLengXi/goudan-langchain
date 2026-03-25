@@ -1,103 +1,32 @@
-const fs = require('fs');
-const path = require('path');
+const { read_file, write_file } = require('./read_file');
+const { parseAppLog, parseApacheLog, parseErrorLog } = require('./log_parser');
+const { countErrors, getMostFrequentError } = require('./error_counter');
+const { searchLogs } = require('./search_engine');
+const { exportToJson, exportToCsv, generateReport } = require('./report_generator');
 
-// 日志解析器
-function parseLog(logContent) {
-  const lines = logContent.split('\n');
-  const parsedLogs = [];
+const main = async () => {
+  const args = process.argv.slice(2);
 
-  lines.forEach(line => {
-    if (line.includes('INFO') || line.includes('ERROR') || line.includes('DEBUG') || line.includes('WARN')) {
-      const timestamp = line.match(/\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}/);
-      const level = line.match(/INFO|ERROR|DEBUG|WARN/);
-      const message = line.match(/(?:INFO|ERROR|DEBUG|WARN).*?(?=(INFO|ERROR|DEBUG|WARN|$))/);
+  const logFilePath = args[0];
+  const command = args[1];
 
-      parsedLogs.push({
-        timestamp: timestamp ? timestamp[0] : '',
-        level: level ? level[0] : '',
-        message: message ? message[0].replace(/INFO|ERROR|DEBUG|WARN/, '') : '',
-      });
-    }
-  });
+  const logContent = await read_file(logFilePath);
 
-  return parsedLogs;
-}
+  let logs;
 
-// 错误统计器
-function countErrors(logContent) {
-  const logs = parseLog(logContent);
-  const errorTypes = {};
-
-  logs.forEach(log => {
-    if (log.level === 'ERROR') {
-      const errorType = log.message.match(/Error: (.*)/);
-      if (errorType) {
-        const type = errorType[1];
-        errorTypes[type] = (errorTypes[type] || 0) + 1;
-      }
-    }
-  });
-
-  return errorTypes;
-}
-
-// 搜索引擎
-function searchLogs(logContent, keyword, startTime, endTime, level) {
-  const logs = parseLog(logContent);
-  const filteredLogs = logs.filter(log => {
-    return log.message.includes(keyword) && log.timestamp >= startTime && log.timestamp <= endTime && log.level === level;
-  });
-
-  return filteredLogs;
-}
-
-// 报告生成器
-function generateReport(logContent, errors) {
-  const report = {
-    totalErrors: Object.keys(errors).length,
-    errorTypes: errors
+  if (command === '--error') {
+    logs = parseErrorLog(logContent);
+    exportToJson(logs);
+  } else if (command === '--search') {
+    const keyword = args[2];
+    const startTime = args[3] ? new Date(args[3]).getTime() : 0;
+    const endTime = args[4] ? new Date(args[4]).getTime() : Date.now();
+    const level = args[5] || 'INFO';
+    logs = searchLogs(parseAppLog(logContent), keyword, startTime, endTime, level);
+    exportToCsv(logs);
   }
 
-  fs.writeFileSync('error-report.json', JSON.stringify(report, null, 2));
-}
-
-// 导出功能
-function exportLogs(logContent, format) {
-  const logs = parseLog(logContent);
-
-  if (format === 'json') {
-    fs.writeFileSync('exported-logs.json', JSON.stringify(logs, null, 2));
-  } else if (format === 'csv') {
-    const csvContent = logs.map(log => [log.timestamp, log.level, log.message].join(',')).join('\n');
-    fs.writeFileSync('exported-logs.csv', csvContent);
-  }
-}
-
-// 主函数
-function main() {
-  const logFilePath = process.argv[2];
-  const options = process.argv.slice(3);
-
-  const logContent = fs.readFileSync(logFilePath, 'utf8');
-
-  if (options.includes('--error')) {
-    const errors = countErrors(logContent);
-    generateReport(logContent, errors);
-  }
-
-  if (options.includes('--search')) {
-    const keyword = options.find(option => option.startsWith('--search='))?.split('=')[1];
-    const startTime = options.find(option => option.startsWith('--start='))?.split('=')[1];
-    const endTime = options.find(option => option.startsWith('--end='))?.split('=')[1];
-    const level = options.find(option => option.startsWith('--level='))?.split('=')[1];
-    const filteredLogs = searchLogs(logContent, keyword, startTime, endTime, level);
-    console.log(filteredLogs);
-  }
-
-  if (options.includes('--export')) {
-    const format = options.find(option => option.startsWith('--export='))?.split('=')[1];
-    exportLogs(logContent, format);
-  }
-}
+  // Add more commands as needed
+};
 
 main();

@@ -1,61 +1,93 @@
-const https = require('https');
+// Main program of the API testing tool.
+// This program handles the CLI arguments, performs HTTP requests, and formats the responses.
+
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+// Parse CLI arguments
+const parseArgs = (args) => {
+  let method = 'GET';
+  let url = '';
+  let data = null;
+  let headers = {};
 
-async function main() {
-  const args = process.argv.slice(2);
+  args.forEach(arg => {
+    if (arg.startsWith('--')) {
+      if (arg === '--request-file') {
+        url = fs.readFileSync(arg.slice(11), 'utf-8').trim();
+      } else {
+        console.error(`Unknown option: ${arg}`);
+        process.exit(1);
+      }
+    } else if (arg.startsWith('-')) {
+      switch (arg)
+      {
+        case '-d':
+          data = JSON.parse(arg.slice(2));
+          break;
+        case '-h':
+          headers = JSON.parse(arg.slice(2));
+          break;
+        default:
+          console.error(`Unknown option: ${arg}`);
+          process.exit(1);
+      }
+    } else {
+      method = arg;
+    }
+  });
 
-  if (args.length === 0) {
-    console.log('Usage: api-tester <method> <url> [options]');
+  return { method, url, data, headers };
+};
+
+// Perform HTTP request
+const performRequest = async (method, url, data, headers) => {
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json'
+      },
+      body: data ? JSON.stringify(data) : null
+    });
+
+    const responseTime = Date.now() - startTime;
+    const responseJson = await response.json();
+
+    return {
+      statusCode: response.status,
+      headers: response.headers.raw(),
+      body: responseJson,
+      responseTime
+    ];
+  } catch (error) {
+    console.error('Error:', error);
     process.exit(1);
   }
+};
 
-  const [method, url] = args.splice(0, 2);
-  const options = args.reduce((acc, arg) => {
-    if (arg.startsWith('-')) {
-      const [key, value] = arg.split('=');
-      acc[key.slice(1)] = value;
-    }
-    return acc;
-  }, {});
+// Format response
+const formatResponse = (response) => {
+  console.log(`Status Code: ${response.statusCode}
+Headers: ${JSON.stringify(response.headers)}
+Response Time: ${response.responseTime}ms
+Body:
+${JSON.stringify(response.body, null, 2)}`);
 
-  try {
-    const response = await fetchRequest(method, url, options);
-    console.log(JSON.stringify(response, null, 2));
-  } catch (error) {
-    console.error(error);
+  if (response.statusCode === 200) {
+    fs.writeFileSync('response.json', JSON.stringify(response.body, null, 2), 'utf-8');
   }
-}
+};
 
-async function fetchRequest(method, url, options) {
-  const { headers, body } = options;
-  const isJson = headers && headers['content-type'] === 'application/json';
-  const data = isJson ? JSON.stringify(body) : body;
-
-  const requestOptions = {
-    method,
-    headers: {
-      'Content-Type': isJson ? 'application/json' : 'application/x-www-form-urlencoded',
-      ...headers
-    },
-    body: data
-  };
-
-  try {
-    const start = Date.now();
-    const response = await https.get(url, requestOptions);
-    const endTime = Date.now();
-    console.log(`Response time: ${endTime - start}ms`);
-    return response;
-  } catch (error) {
-    throw error;
-  }
-}
-
-main();
+// Main
+const args = process.argv.slice(2);
+const { method, url, data, headers } = parseArgs(args);
+const startTime = Date.now();
+performRequest(method, url, data, headers).then(response => {
+  formatResponse(response);
+  console.log(`Request completed in ${response.responseTime}ms`);
+}).catch(error => {
+  console.error('Error:', error);
+});
