@@ -67,10 +67,14 @@ const searchLogs = (logs, keyword, startTime, endTime, level) => {
 
 const exportLogs = (logs, format) => {
   if (format === 'json') {
-    return JSON.stringify(logs);
+    return JSON.stringify(logs, null, 2);
   } else if (format === 'csv') {
-    return logs.map(log => {
-      return [log.timestamp, log.level, log.message].join(',');
-    }).join('\n');
+    const headers = ['Timestamp', 'Level', 'Message'];
+    const rows = logs.map(log => [
+      log.timestamp,
+      log.level,
+      log.message
+    ]);
+    return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
   }
 }

@@ -1,23 +1,27 @@
-# README Template
+# README 模板
 
-Welcome to the repository!
+这是一个 README 模板的示例。
 
-## Project Description
+## 项目描述
 
-(Describe your project here.)
+这里是项目的描述。
 
-## Installation
+## 安装
 
-(Instructions on how to install the project.)
+```bash
+npm install
+```
 
-## Usage
+## 使用
 
-(Instructions on how to use the project.)
+```javascript
+// 使用项目
+```
 
-## Contributing
+## 贡献
 
-(Instructions on how to contribute to the project.)
+我们欢迎贡献者。
 
-## License
+## 许可证
 
-This project is licensed under the MIT License.
+MIT

@@ -1,46 +1,46 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
+const axios = require('axios');
 
-const parseArgs = require('minimist');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
-const fetch = async (url, options) => {
+const argv = yargs(hideBin(process.argv)).argv;
+
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+async function testApi(method, url, data, headers) {
   try {
-    const response = await https.get(url, options);
-    const data = await response promisedata();
-    return { status: response.statusCode, data, headers: response.headers };
-  } catch (error) { 
-    throw error;
+    const response = await axios({
+      method,
+      url,
+      data,
+      headers
+    });
+    console.log('Response:', response.data);
+    console.log('Status Code:', response.status);
+    console.log('Headers:', response.headers);
+    console.log('Time:', new Date().toISOString());
+  } catch (error) {
+    console.error('Error:', error);
   }
-};
+}
 
-const formatResponse = (response) => {
-  console.log(`Status Code: ${response.status}
-Headers: ${JSON.stringify(response.headers)}
-Response Time: ${new Date().toISOString()}
-Data: ${JSON.stringify(response.data, null, 2)}`);
-};
-
-const saveResponseToFile = (response, filePath) => {
-  fs.writeFileSync(filePath, JSON.stringify(response, null, 2));
-};
-
-const main = async () => {
-  const args = parseArgs(process.argv.slice(2));
-
-  let { method, url, data, requestFile } = args;
-
-  if (requestFile) {
-    const content = fs.readFileSync(requestFile, 'utf-8');
-    const requests = JSON.parse(content);
-    for (const request of requests) {
-      const response = await fetch(request.url, { method: request.method, headers: request.headers, body: request.body });
-      formatResponse(response);
+if (argv._[0]) {
+  const [method, url] = argv._[0].split(' ');
+  if (methods.includes(method.toUpperCase())) {
+    if (method.toUpperCase() === 'POST' || method.toUpperCase() === 'PUT' || method.toUpperCase() === 'PATCH') {
+      data = JSON.parse(argv.d || '{}');
     }
+    headers = argv.h ? { ...argv.h } : {};
+    testApi(method.toUpperCase(), url, data, headers);
   } else {
-    const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: data ? JSON.stringify(data) : null });
-    formatResponse(response);
+    console.error('Invalid method. Supported methods: GET, POST, PUT, DELETE, PATCH');
   }
-};
-
-main().catch(console.error);
+} else if (argv.requestFile) {
+  const requests = require('fs').readFileSync(argv.requestFile, 'utf-8').toString();
+  const parsedRequests = JSON.parse(requests);
+  parsedRequests.forEach(request => {
+    testApi(request.method, request.url, request.data, request.headers);
+  });
+} else {
+  console.error('Please provide a valid command. Usage: api-tester [method] [url] [-d data] [-h headers] [--request-file file]');
+}

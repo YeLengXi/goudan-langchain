@@ -1,1 +1,22 @@
-{"name":"John Doe","position":"Software Developer","bio":"I am a passionate software developer with 5 years of experience in building web applications."}
+{
+  "name": "John Doe",
+  "position": "Software Developer",
+  "bio": "I am a passionate software developer with 5 years of experience in building web applications.",
+  "skills": ["HTML", "CSS", "JavaScript", "React", "Node.js"],
+  "projects": [
+    {
+      "name": "Project 1",
+      "description": "A web application for managing tasks.",n      "link": "https://example.com/project1"
+    },
+    {
+      "name": "Project 2",
+      "description": "A social media platform for developers.",
+      "link": "https://example.com/project2"
+    }
+  ],
+  "social_links": {
+    "GitHub": "https://github.com/johndoe",
+    "LinkedIn": "https://linkedin.com/in/johndoe",
+    "Email": "johndoe@example.com"
+  }
+}
