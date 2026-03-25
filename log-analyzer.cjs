@@ -1,26 +1,19 @@
 const read_file = require('fs').readFileSync;
 
+const按关键词搜索 = (parsedLogs, keyword) => {
+    return parsedLogs.filter(log => log.message.includes(keyword));
+};
+
+const按时间范围过滤 = (parsedLogs, startDate, endDate) => {
+    return parsedLogs.filter(log => new Date(log.timestamp) >= new Date(startDate) && new Date(log.timestamp) <= new Date(endDate));
+};
+
+const按日志级别过滤 = (parsedLogs, level) => {
+    return parsedLogs.filter(log => log.level === level);
+};
+
 module.exports = {
-  exportToJson: (logs) => {
-    return JSON.stringify(logs, null, 2);
-  },
-
-  exportToCsv: (logs) => {
-    const headers = ['timestamp', 'level', 'message'];
-    const rows = logs.map(log => [
-      log.timestamp,
-      log.level,
-      log.message
-    ]);
-    return headers.join(',') + '
-' + rows.map(row => row.join(',')).join('
-');
-  },
-
-  generateReport: (logs) => {
-    const errorTypes = require('./error-statistics').countErrors(logs);
-    const mostFrequentError = require('./error-statistics').findMostFrequentError(errorTypes);
-    return `Total logs: ${logs.length}
-Most frequent error: ${mostFrequentError}
-`;}
+    按关键词搜索,
+    按时间范围过滤,
+    按日志级别过滤
 }
