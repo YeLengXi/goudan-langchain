@@ -1,33 +1,28 @@
 const { describe, it, expect } = require('./test.js');
-
-const assert = require('./assert.js');
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
 
 describe('Example tests', () => {
-  before(() => {
-    console.log('Before all tests');
+  it('should test equality', () => {
+    expect(1).toEqual(1);
+    expect(1).not.toEqual(2);
   });
 
-  after(() => {
-    console.log('After all tests');
+  it('should test truthiness', () => {
+    expect(true).toBeTruthy();
+    expect(false).not.toBeTruthy();
   });
 
-  describe('Math operations', () => {
-    before(() => {
-      console.log('Before math tests');
-    });
+  it('should test falsiness', () => {
+    expect(false).toBeFalsy();
+    expect(true).not.toBeFalsy();
+  });
 
-    after(() => {
-      console.log('After math tests');
-    });
+  it('should test throws', () => {
+    expect(() => { throw new Error('Test error') }).toThrow('Test error');
+  });
 
-    it('should add numbers', () => {
-      expect(add(1, 2)).toBe(3);
-    });
-
-    it('should subtract numbers', () => {
-      expect(subtract(5, 2)).toBe(3);
-    });
+  it('should test contains', () => {
+    expect(['a', 'b', 'c']).toContain('b');
+    expect(['a', 'b', 'c']).not.toContain('d');
   });
 });
-
-module.exports = {};
