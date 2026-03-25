@@ -1,42 +1,20 @@
-## JSON Tools
+## JSON数据处理工具
 
-This repository provides a set of JSON processing tools that can format, sort, filter, and merge JSON data.
+本工具提供JSON数据的格式化、排序、过滤和合并功能。
 
-### Features
+### 使用方法
 
-- Format JSON output for better readability
-- Sort JSON data by key or value
-- Filter JSON data based on conditions
-- Merge JSON objects deeply
-- Handle invalid JSON data
-
-### Usage
-
-To use these tools, you need to have Node.js installed.
-
-1. Install the package:
-   npm install json-tools
-
-2. Run the tool:
-   node json-tools.js <command> <options>
-
-### Commands
-
-- format <file>: Format the JSON data in the file.
-- sort <file> --key <key>: Sort the JSON data in the file by the specified key.
-- filter <file> --condition <condition>: Filter the JSON data in the file based on the specified condition.
-- merge <file1> <file2>: Merge the JSON data from two files.
-
-### Examples
-
-- Format a JSON file:
+- 格式化JSON：
   node json-tools.js format input.json
-
-- Sort a JSON file by name:
+- 排序JSON：
   node json-tools.js sort input.json --key name
-
-- Filter a JSON file to include only entries with age greater than 18:
+- 过滤JSON：
   node json-tools.js filter input.json --condition "age > 18"
 
-- Merge two JSON files:
-  node json-tools.js merge file1.json file2.json
+### 功能说明
+
+- 格式化：美化JSON输出
+- 排序：按字母或数值排序
+- 过滤：支持条件表达式
+- 合并：深度合并对象
+- 错误处理：无效JSON

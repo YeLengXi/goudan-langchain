@@ -1,77 +1,74 @@
-#!/usr/bin/env node
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const { parse } = require('minimist');
 
-const fetch = require('node-fetch');
+const DEFAULT_REQUEST_FILE = 'examples/requests.json';
 
-const minimist = require('minimist');
-
-const { read_file, write_file, exec_command, list_directory } = require('./utils');
-
-const configFilePath = './config.json';
-
-// 读取配置文件
-async function readConfig() {
-  try {
-    const configContent = await read_file(configFilePath);
-    return JSON.parse(configContent);
-  } catch (error) {
-    return {};
-  }
-}
-
-// 保存配置文件
-async function saveConfig(config) {
-  await write_file(configFilePath, JSON.stringify(config, null, 2));
-}
-
-// 发送 HTTP 请求
-async function sendRequest(method, url, headers = {}, body = null) {
-  try {
-    const response = await fetch(url, {
+function makeRequest(method, url, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
       method,
-      headers,
-      body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(body) 
-      : null
+      headers
+    }
+
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
+      }
+    }
+
+    https.request(url, options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          body: JSON.parse(data)
+        });
+      });
+    }).on('error', (err) => {
+      reject(err);
     });
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  });
 }
 
-// 格式化响应
-function formatResponse(response) {
-  const { status, headers } = response;
-  const headerString = Object.entries(headers).map(([key, value]) => `${key}: ${value}`).join('
-');
-  const responseString = `Status: ${status}
-Headers:
-${headerString}
-Body: ${JSON.stringify(response.body, null, 2)}`;
-  return responseString;
+function parseRequestFile(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data.toString()));
+      }
+    });
+  });
 }
 
-// 主程序
-async function main() {
-  const args = minimist(process.argv.slice(2));
-  const config = await readConfig();
+function run() {
+  const args = parse(process.argv.slice(2));
 
-  let { method, url } = args;
-  let headers = args.headers || {};
-  let body = args.body || null;
-
-  if (args['request-file']) {
-    const requestContent = await read_file(args['request-file']);
-    const request = JSON.parse(requestContent);
-    method = request.method;
-    url = request.url;
-    headers = request.headers || {};
-    body = request.body || null;
+  if (args._[0] === 'GET') {
+    makeRequest('GET', args.url, {}, {}).then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.error(error);
+    });
   }
 
-  const response = await sendRequest(method, url, headers, body);
-  console.log(formatResponse(response));
+  if (args._[0] === 'POST') {
+    makeRequest('POST', args.url, {}, args.body).then(response => {
+      console.log(response);
+    }).catch(error => {
+      console.error(error);
+    });
+  }
+
+  // Add more methods as needed
 }
 
-main().catch(error => {
-  console.error('Error:', error);
-});
+run();

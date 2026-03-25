@@ -1,38 +1,91 @@
-## README
+## JSON数据库工具
 
-This document describes how to use the JSON Database tool.
+这是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
 
-### Installation
+## 文件结构
 
-Make sure you have Node.js installed.
+- `database.js` - 数据库主程序
+- `README.md` - 使用文档
+- `test.js` - 测试文件
 
-Clone the repository: `git clone [repository-url]`
+## 使用方法
 
-Navigate to the repository directory: `cd json-db`
+1. 初始化数据库：
 
-Install dependencies: `npm install`
+   ```bash
+   node database.js init
+   ```
 
-### Usage
+2. 创建表：
 
-- Create a table: `node database.js create [table-name]`
-- Insert a record: `node database.js insert [table-name] --data '[data]'`
-- Find records: `node database.js find [table-name] --query '[query]'`
-- Update a record: `node database.js update [table-name] --id [id] --data '[data]'`
-- Delete a record: `node database.js delete [table-name] --id [id]'`
-- Save the database: `node database.js save`
+   ```bash
+   node database.js create <table_name>
+   ```
 
-### Examples
+3. 插入记录：
 
-- Create a 'users' table: `node database.js create users`
-- Insert a user: `node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'`
-- Find users with age 30: `node database.js find users --query '{\"age\":30}'`
-- Update the age of the first user: `node database.js update users --id 1 --data '{\"age\":31}'`
-- Delete the first user: `node database.js delete users --id 1`
+   ```bash
+   node database.js insert <table_name> --data '<data>'
+   ```
 
-### Contributing
+4. 查询记录：
 
-Contributions are welcome. Please follow the contributing guidelines.
+   ```bash
+   node database.js find <table_name> --query '<query>'
+   ```
 
-### License
+5. 更新记录：
 
-This project is licensed under the MIT License.
+   ```bash
+   node database.js update <table_name> --id <id> --data '<data>'
+   ```
+
+6. 删除记录：
+
+   ```bash
+   node database.js delete <table_name> --id <id>
+   ```
+
+7. 保存数据库：
+
+   ```bash
+   node database.js save
+   ```
+
+## 示例
+
+- 创建一个名为`users`的表：
+
+   ```bash
+   node database.js create users
+   ```
+
+- 插入一条记录：
+
+   ```bash
+   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
+   ```
+
+- 查询年龄为30的用户：
+
+   ```bash
+   node database.js find users --query '{\"age\":30}'
+   ```
+
+- 更新用户ID为1的年龄：
+
+   ```bash
+   node database.js update users --id 1 --data '{\"age\":31}'
+   ```
+
+- 删除用户ID为1的记录：
+
+   ```bash
+   node database.js delete users --id 1
+   ```
+
+- 保存数据库：
+
+   ```bash
+   node database.js save
+   ```

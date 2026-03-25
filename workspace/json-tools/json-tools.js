@@ -4,62 +4,54 @@ const path = require('path');
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
-const mkdirSync = fs.mkdirSync;
-const existsSync = fs.existsSync;
+const readFileAsync = readFile;
+const writeFileAsync = writeFile;
 
-const jsonTools = {
-  async format(filePath) {
+async function format(json, indent = 2) {
     try {
-      const data = await readFile(filePath, 'utf8');
-      const json = JSON.parse(data);
-      const formattedJson = JSON.stringify(json, null, 2);
-      await writeFile(filePath, formattedJson, 'utf8');
-      return formattedJson;
+        const formattedJson = JSON.stringify(json, null, indent);
+        return formattedJson;
     } catch (error) {
-      throw new Error('Invalid JSON or file read error');
+        throw new Error('Invalid JSON');
     }
-  },
+}
 
-  async sort(filePath, key) {
+async function sort(json, key) {
     try {
-      const data = await readFile(filePath, 'utf8');
-      const json = JSON.parse(data);
-      json.sort((a, b) => a[key].localeCompare(b[key]));
-      const sortedJson = JSON.stringify(json, null, 2);
-      await writeFile(filePath, sortedJson, 'utf8');
-      return sortedJson;
+        const sortedJson = JSON.stringify(json, (a, b) => {
+            if (a[key] < b[key]) return -1;
+            if (a[key] > b[key]) return 1;
+            return 0;
+        }, 2);
+        return sortedJson;
     } catch (error) {
-      throw new Error('Invalid JSON or file read error');
+        throw new Error('Invalid JSON');
     }
-  },
+}
 
-  async filter(filePath, condition) {
+async function filter(json, condition) {
     try {
-      const data = await readFile(filePath, 'utf8');
-      const json = JSON.parse(data);
-      const filteredJson = json.filter(item => eval(condition));
-      const filteredJsonString = JSON.stringify(filteredJson, null, 2);
-      await writeFile(filePath, filteredJsonString, 'utf8');
-      return filteredJsonString;
+        const filteredJson = JSON.stringify(json.filter(item => eval(condition)), 2);
+        return filteredJson;
     } catch (error) {
-      throw new Error('Invalid JSON or file read error');
+        throw new Error('Invalid JSON or Condition');
     }
-  },
+}
 
-  async merge(filePath1, filePath2) {
+async function merge(json1, json2) {
     try {
-      const data1 = await readFile(filePath1, 'utf8');
-      const data2 = await readFile(filePath2, 'utf8');
-      const json1 = JSON.parse(data1);
-      const json2 = JSON.parse(data2);
-      const mergedJson = { ...json1, ...json2 };
-      const mergedJsonString = JSON.stringify(mergedJson, null, 2);
-      await writeFile(filePath1, mergedJsonString, 'utf8');
-      return mergedJsonString;
+        return JSON.stringify({
+            ...json1,
+            ...json2
+        }, 2);
     } catch (error) {
-      throw new Error('Invalid JSON or file read error');
+        throw new Error('Invalid JSON');
     }
-  }
-};
+}
 
-module.exports = jsonTools;
+module.exports = {
+    format,
+    sort,
+    filter,
+    merge
+}

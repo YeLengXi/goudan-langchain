@@ -1,26 +1,52 @@
 const readline = require('readline');
-const { exec } = require('child_process');
+const rl = readline.createInterface(
+  {
+    input: process.stdin,
+    output: process.stdout
+  }
+);
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
+const { regexTest, regexValidateEmail, regexValidatePhone, regexValidateUrl, regexValidateIp, regexValidateDate } = require('./utils');
+
+rl.question('Enter command: ', (command) => {
+  const args = command.split(' ');
+  switch (args[0]) {
+    case '/':
+      regexTest(args[1], args[2]);
+      break;
+    case '--email':
+      regexValidateEmail(args[1]);
+      break;
+    case '--phone':
+      regexValidatePhone(args[1]);
+      break;
+    case '--url':
+      regexValidateUrl(args[1]);
+      break;
+    case '--ip':
+      regexValidateIp(args[1]);
+      break;
+    case '--date':
+      regexValidateDate(args[1]);
+      break;
+    default:
+      console.log('Invalid command.');
+  }
+  rl.close();
 });
 
-rl.question('Enter the regular expression: ', (regex) => {
-  rl.question('Enter the text to test: ', (text) => {
-    try {
-      const matches = text.match(new RegExp(regex, 'g'));
-      console.log(`Pattern: ${regex}`);
-      console.log(`Text: ${text}`);
-      if (matches) {
-        console.log(`Match: ${matches.join(', ')}`);
-        console.log(`Position: ${matches.map(match => `${match.index}-${match.index + match[0].length - 1}`).join(', ')}`);
-      } else {
-        console.log('No match found.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
+const fs = require('fs');
+const path = require('path');
+
+const regexUtilsPath = path.join(__dirname, 'utils.js');
+fs.readdir(regexUtilsPath, (err, files) => {
+  if (err) {
+    console.error('Error reading utils directory:', err);
+    return;
+  }
+  files.forEach(file => {
+    if (file.endsWith('.js')) {
+      require(regexUtilsPath + '/' + file);
     }
-    rl.close();
   });
 });

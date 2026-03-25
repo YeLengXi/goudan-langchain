@@ -1,40 +1,45 @@
-# API-Tester
+# api-tester
 
-## 简介
-API-Tester 是一个命令行 API 测试工具，可以帮助开发者快速测试 REST API。
+A CLI tool for testing REST APIs
 
-## 安装
+## Installation
+
+To use api-tester, first install it globally:
 
 ```bash
 npm install -g api-tester
 ```
 
-## 使用
+## Usage
 
-### 基本用法
+To test a GET request:
+
 ```bash
 api-tester GET https://api.example.com/users
 ```
 
-### 发送 POST 请求
+To test a POST request with JSON body:
+
 ```bash
 api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
 ```
 
-### 使用请求文件
+To use a request file:
+
 ```bash
 api-tester --request-file requests.json
 ```
 
-## 配置
+## Configuration
 
-API-Tester 支持保存常用的 API 请求，并通过环境变量进行配置。
+You can configure api-tester by editing the package.json file in the project directory.
 
-## 示例请求
+## Contributing
 
-```json
-{
-  "method": "GET",
-  "url": "https://api.example.com/users"
-}
-```
+Contributions are welcome!
+
+Please read the CONTRIBUTING.md for details.
+
+## License
+
+MIT
