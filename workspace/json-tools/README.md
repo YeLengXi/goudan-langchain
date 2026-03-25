@@ -1,18 +1,36 @@
-## JSON Tools
+## json-tools
 
-This tool provides functionalities to format, sort, filter, and merge JSON data.
+一个用于处理JSON数据的命令行工具。
 
-### Features
+## 功能
 
-- Format JSON output
-- Sort JSON by key-value
-- Filter JSON based on conditions
-- Merge JSON objects
+- 格式化JSON
+- 排序JSON
+- 过滤JSON
+- 合并JSON
 
-### Usage
+## 使用说明
 
-To format a JSON file:
+### 格式化JSON
 
 ```bash
 node json-tools.js format input.json
+```
+
+### 排序JSON
+
+```bash
+node json-tools.js sort input.json --key name
+```
+
+### 过滤JSON
+
+```bash
+node json-tools.js filter input.json --condition "age > 18"
+```
+
+## 安装
+
+```bash
+npm install json-tools
 ```

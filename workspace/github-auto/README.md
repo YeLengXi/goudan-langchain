@@ -15,14 +15,17 @@ npm install -g github-auto
 ### 创建仓库
 
 ```bash
-github-auto create <仓库名> --public
-github-auto create <仓库名> --private --description "描述"
+github-auto create my-project --public
 ```
 
-### 初始化本地仓库
+```bash
+github-auto create my-project --private --description "My awesome project"
+```
+
+### 初始化本地项目
 
 ```bash
-github-auto init --template <模板名>
+github-auto init --template nodejs
 ```
 
 ### 推送到 GitHub
@@ -33,5 +36,5 @@ github-auto push
 
 ## 注意
 
-- 您需要有一个 GitHub 账号和 Personal Access Token。
-- 在创建仓库时，请确保您有足够的权限。
+- 您需要设置 GitHub Personal Access Token。
+- 确保您的项目已经初始化了 git。

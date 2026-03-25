@@ -5,12 +5,13 @@ const marked = require('marked');
 
 // 解析JSDoc注释
 function parseJSDoc(注释) {
-  const regex = //\*([^*]|\*+[^*])*\*\//g;
+  const regex = /\*([^*]│[^*]\\*[^*])\*/g;
   let match;
   const comments = [];
 
   while ((match = regex.exec(注释)) !== null) {
-    comments.push(match[0]);n  }
+    comments.push(match[0]);
+  }
 
   return comments;
 }

@@ -1,48 +1,53 @@
-# 定时任务调度器
+const cron = require('node-cron');
+const fs = require('fs');
+const path = require('path');
 
-这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
+const configFilePath = process.argv[2] || 'tasks.json';
 
-## 安装
-
-1. 克隆仓库
-2. 进入项目目录
-3. 运行 `npm install`
-
-## 使用
-
-1. 创建一个配置文件，例如 `tasks.json`
-2. 在配置文件中定义任务
-3. 运行 `node scheduler.js --config tasks.json`
-
-## 配置文件示例
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
-    }
-  ]
+// 解析cron表达式
+function parseCronExpression(expression) {
+  const tokens = expression.split(' ');
+  return {
+    minute: tokens[0],
+    hour: tokens[1],
+    day: tokens[2],
+    month: tokens[3],
+    dayOfWeek: tokens[4]
+  };
 }
-```
 
-## 任务定义
+// 执行任务
+function executeTask(task) {
+  console.log(`执行任务: ${task.name} - ${new Date().toISOString()}`);
+  exec_command(task.command);
+}
 
-每个任务包含以下字段：
+// 调度任务
+function scheduleTasks(tasks) {
+  tasks.forEach(task => {
+    const cronExpression = parseCronExpression(task.cron);
+    cron.schedule(cronExpression, () => {
+      executeTask(task);
+    });
+  });
+}
 
-- `name`：任务名称
-- `cron`：cron表达式
-- `command`：要执行的命令
+// 读取配置文件
+function readConfigFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const config = JSON.parse(content);
+  return config;
+}
 
-## CLI接口
+// 主程序
+function main() {
+  try {
+    const config = readConfigFile(configFilePath);
+    const tasks = config.tasks;
+    scheduleTasks(tasks);
+  } catch (error) {
+    console.error('错误:', error);
+  }
+}
 
-```bash
-node scheduler.js --config tasks.json
-```
+main();

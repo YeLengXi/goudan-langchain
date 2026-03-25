@@ -1,46 +1,30 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const { parse } = require('minimist');
+#!/usr/bin/env node
+const { program } = require('commander');
 
-const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
+program
+  .command('GET <url>')
+  .action((url) => {
+    // TODO: Implement GET request
+  })
+  .command('POST <url> -d <data>')
+  .action((url, data) => {
+    // TODO: Implement POST request
+  })
+  .command('PUT <url> -d <data>')
+  .action((url, data) => {
+    // TODO: Implement PUT request
+  })
+  .command('DELETE <url>')
+  .action((url) => {
+    // TODO: Implement DELETE request
+  })
+  .command('PATCH <url> -d <data>')
+  .action((url, data) => {
+    // TODO: Implement PATCH request
+  })
+  .command('--request-file <file>')
+  .action((file) => {
+    // TODO: Implement request file handling
+  })
 
-function fetchApi(method, url, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method,
-      headers
-    }
-
-    if (body) {
-      options.body = body;
-    }
-
-    https.get(url, response => {
-      const { statusCode } = response;
-      const headers = response.headers;
-      const chunks = [];
-
-      response.on('data', chunk => {
-        chunks.push(chunk);
-      });
-
-      response.on('end', () => {
-        const body = Buffer.concat(chunks).toString();
-        resolve({ statusCode, headers, body });
-      });
-    }).on('error', error => {
-      reject(error);
-    });
-  });
-}
-
-function parseRequestFile(filePath) {
-  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  return requests;
-}
-
-module.exports = {
-  fetchApi,
-  parseRequestFile
-}
+program.parse(process.argv);

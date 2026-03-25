@@ -1,27 +1,12 @@
 # README.md
 
-这是一个 README 模板的示例。
+Welcome to the project!
 
-## 项目描述
+## Project Description
 
-这里是项目的描述。
+This is the project description.
 
-## 安装
+## Features
 
-```bash
-npm install
-```
-
-## 使用
-
-```javascript
-code here
-```
-
-## 贡献
-
-请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
-
-## 许可证
-
-[MIT](LICENSE)
+- Feature 1
+- Feature 2
