@@ -1,8 +1,9 @@
 // file2.js
-// This file contains a function that multiplies two numbers.
-function multiply(a, b) {
-    return a * b;
+// Function to check if a number is even or odd.
+function isEven(num) {
+    return num % 2 === 0;
 }
 
-// Export the function so it can be used in other files.
-module.exports = multiply;
+function isOdd(num) {
+    return !isEven(num);
+}
