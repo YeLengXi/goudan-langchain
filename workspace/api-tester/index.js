@@ -1,75 +1,54 @@
-const https = require('https');
+// This is the main program of the API tester.
+// It handles the command-line arguments, makes HTTP requests, and formats the responses.
+
+const fetch = require('node-fetch');
 const fs = require('fs');
 const path = require('path');
 
 const parseArgs = require('minimist');
-const { read_file, write_file, exec_command, list_directory } = require('./utils');
 
-const CONFIG_FILE = path.join(__dirname, 'config.json');
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
+const apiTester = async (args) => {
+  const { method, url, data, requestFile } = parseArgs(args);
 
-  if (args._[0] === 'GET' || args._[0] === 'POST' || args._[0] === 'PUT' || args._[0] === 'DELETE' || args._[0] === 'PATCH') {
-    const method = args._[0];
-    const url = args._[1];
-    const data = args.d || null;
-    const headers = args.h || {};
-
-    try {
-      const response = await fetchRequest(method, url, data, headers);
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  } else if (args._[0] === '--request-file') {
-    const requestFile = args._[1];
-    const requests = await read_file(requestFile);
-    const parsedRequests = JSON.parse(requests);
-
-    for (const request of parsedRequests) {
-      try {
-        const response = await fetchRequest(request.method, request.url, request.data, request.headers);
-        console.log(response);
-      } catch (error) {
-        console.error(error);
-      }
+  if (requestFile) {
+    const requests = JSON.parse(fs.readFileSync(requestFile, 'utf8'));
+    for (const request of requests) {
+      await makeRequest(method, request.url, request.data);
     }
   } else {
-    console.log('Unknown command');
+    await makeRequest(method, url, data);
   }
 }
 
-async function fetchRequest(method, url, data, headers) {
-  const options = {
+const makeRequest = async (method, url, data) => {
+  const headers = {
+    'Content-Type': 'application/json'
+  };
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const response = await fetch(url, {
     method,
-    headers
-  }
+    headers,
+    body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(data) : null
+  });
 
-  if (data) {
-    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-      options.body = JSON.stringify(data);
-      options.headers['Content-Type'] = 'application/json';
-    } else if (method === 'GET') {
-      const urlWithQuery = new URL(url);
-      urlWithQuery.searchParams.append('query', data);
-      url = urlWithQuery.toString();
-    }
-  }
+  const responseTime = Date.now() - startTime;
+  const responseJson = await response.json();
 
-  const start = Date.now();
-  const response = await fetch(url, options);
-  const duration = Date.now() - start;
-
-  const responseBody = await response.text();
-  const parsedResponse = JSON.parse(responseBody);
-
-  console.log(`Response Time: ${duration}ms`);
+  console.log(`Response Time: ${responseTime}ms`);
   console.log(`Status Code: ${response.status}`);
-  console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
-  console.log(parsedResponse);
+  console.log('Headers:', response.headers.raw());
+  console.log('Body:', responseJson);
 
-  return parsedResponse;
+  fs.writeFileSync(
+    path.join(__dirname, 'responses', `${Date.now()}.json`),
+    JSON.stringify(responseJson, null, 2)
+  );
 }
 
-main();
+module.exports = apiTester;

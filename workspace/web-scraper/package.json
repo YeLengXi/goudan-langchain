@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node scraper.js"
   },
-  "devDependencies": {
-    "node-fetch": "^1.0.2"
-  }
+  "keywords": [
+    "web-scraper",
+    "scraper"
+  ],
+  "author": "Your Name",
+  "license": "ISC"
 }

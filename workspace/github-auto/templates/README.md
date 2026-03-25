@@ -1,29 +1,23 @@
 # README.md
 
-Welcome to the project!
+## 项目描述
 
-This is a template for the README file of your project.
+这里是项目的描述。
 
-## Project Description
+## 项目结构
 
-Add a brief description of your project here.
+- README.md
+- .gitignore
+- LICENSE
 
-## Features
+## 使用说明
 
-List the features of your project here.
+这里是使用说明。
 
-## Installation
+## 贡献
 
-Instructions on how to install your project.
+这里是贡献指南。
 
-## Usage
+## 许可证
 
-Instructions on how to use your project.
-
-## Contributing
-
-Guidelines for contributing to the project.
-
-## License
-
-This project is licensed under [LICENSE NAME].
+MIT
