@@ -1,23 +1,68 @@
-const fs = require('fs');
-const https = require('https');
-const { exec } = require('child_process');
-const path = require('path');
+const axios = require('axios');const fs = require('fs');const path = require('path');const { exec } = require('child_process');const githubToken = 'YOUR_GITHUB_TOKEN';const githubApiUrl = 'https://api.github.com';const templatesDir = path.join(__dirname, '../templates');
 
-const GITHUB_API_URL = 'https://api.github.com';
-const README_TEMPLATE_PATH = path.join(__dirname, '../templates/README.md');
-const GITIGNORE_TEMPLATE_PATH = path.join(__dirname, '../templates/gitignore');
-const LICENSE_TEMPLATE_PATH = path.join(__dirname, '../templates/LICENSE');
-
-const githubAuto = {
-  create: async (projectName, isPublic, description) => {
-    // Implementation for creating a GitHub repository
-  },
-  init: async (template) => {
-    // Implementation for initializing the local repository
-  },
-  push: async () => {
-    // Implementation for pushing to GitHub
+function createRepo(username, repoName, isPublic, description) {
+  const repoUrl = `${githubApiUrl}/users/${username}/repos`;  const data = {
+    name: repoName,
+    private: !isPublic
   }
-};
+  if (description) {
+    data.description = description
+  }
+  return axios.post(repoUrl, data, {
+    headers: {
+      'Authorization': `token ${githubToken}`
+    }
+  });
+}
 
-module.exports = githubAuto;
+function initRepo(repoPath) {
+  if (!fs.existsSync(repoPath)) {
+    fs.mkdirSync(repoPath);
+  }
+  fs.writeFileSync(path.join(repoPath, 'README.md'), readFileSync(path.join(templatesDir, 'README.md')));
+  fs.writeFileSync(path.join(repoPath, '.gitignore'), readFileSync(path.join(templatesDir, '.gitignore')));
+  fs.writeFileSync(path.join(repoPath, 'LICENSE'), readFileSync(path.join(templatesDir, 'LICENSE')));
+  exec(`git -C ${repoPath} init`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    }
+    console.log(stdout);
+  });
+}
+
+function pushRepo(repoPath) {
+  exec(`git -C ${repoPath} add .`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    }
+    console.log(stdout);
+  });
+  exec(`git -C ${repoPath} commit -m 'Initial commit'`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    }
+    console.log(stdout);
+  });
+  exec(`git -C ${repoPath} remote add origin git@github.com:USERNAME/REPO.git`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    }
+    console.log(stdout);
+  });
+  exec(`git -C ${repoPath} push -u origin main`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+    }
+    console.log(stdout);
+  });
+}
+
+function readFileSync(filePath) {
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+module.exports = {
+  createRepo,
+  initRepo,
+  pushRepo
+};

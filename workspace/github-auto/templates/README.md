@@ -1,12 +1,23 @@
 # README.md Template
 
-This is a template for README.md file.
+Welcome to the project!
 
-## Project Name
-{{projectName}}
+## Project Description
 
-## Description
-{{description}}
+[Description goes here]
+
+## Installation
+
+[Installation instructions go here]
+
+## Usage
+
+[Usage instructions go here]
+
+## Contributing
+
+[Contributing guidelines go here]
 
 ## License
-MIT
+
+[License information goes here]
