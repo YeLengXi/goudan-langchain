@@ -1,32 +1,49 @@
-# README Template
+# README.md
 
 Welcome to the project!
 
-## Project Description
+## Project Setup
 
-Add a brief description of the project here.
-
-## Installation
+Install dependencies:
 
 ```bash
-# For Node.js
 npm install
-
-# For other languages
-# ...
 ```
 
-## Usage
+## Compiles and Hot Reloading for Development
 
 ```bash
-# Example command
-# ...
+npm run serve
 ```
+
+## Compiles and Minifies for Production
+
+```bash
+npm run build
+```
+
+## Lint and Fix Files
+
+```bash
+npm run lint
+```
+
+## Project Documentation
+
+[Documentation](https://example.com)
 
 ## Contributing
 
-Contributions are welcome! Please read the CONTRIBUTING.md for details.
+Contributions are welcome! Please read [CONTRIBUTING.md]
 
 ## License
 
-MIT
+[MIT License](https://example.com)
+
+## Issues
+
+Please open an issue if you find any problems.
+
+## Author
+
+[Your Name](https://example.com)

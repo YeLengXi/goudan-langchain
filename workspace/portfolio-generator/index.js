@@ -1,18 +1,17 @@
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
-const app = express();
-const port = 3000;
+const ejs = require('ejs');
 
-app.get('/', (req, res) => {
-    const portfolio = JSON.parse(fs.readFileSync(path.join(__dirname, 'portfolio.json')));
-    const template = fs.readFileSync(path.join(__dirname, 'templates/default.html'), 'utf-8');
-    const filledTemplate = template.replace(/{{(.*?)}}/g, (match, key) => {
-        return portfolio[key] ? portfolio[key] : '';
-    });
-    res.send(filledTemplate);
-});
+const portfolioFilePath = path.join(__dirname, 'portfolio.json');
+const templateFilePath = path.join(__dirname, 'templates/default.html');
+const outputDirectory = path.join(__dirname, 'output');
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
-});
+if (!fs.existsSync(outputDirectory)) {
+  fs.mkdirSync(outputDirectory);
+}
+
+const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf8'));
+const template = fs.readFileSync(templateFilePath, 'utf8');
+const outputHtml = ejs.render(template, portfolioData);
+
+fs.writeFileSync(path.join(outputDirectory, 'index.html'), outputHtml);

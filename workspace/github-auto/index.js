@@ -1,62 +1,68 @@
+const axios = require('axios');
 const fs = require('fs');
-const https = require('https');
-const { exec } = require('child_process');
 const path = require('path');
+const { exec } = require('child_process');
 
-const GITHUB_API_URL = 'https://api.github.com';
-const README_TEMPLATE_PATH = path.join(__dirname, '../templates/README.md');
-const GITIGNORE_TEMPLATE_PATHS = {
-  'default': path.join(__dirname, '../templates/gitignore/default.gitignore'),
-  'nodejs': path.join(__dirname, '../templates/gitignore/nodejs.gitignore')
-};
-const LICENSE_PATHS = {
-  'mit': path.join(__dirname, '../templates/LICENSE-MIT.txt'),
-  'apache': path.join(__dirname, '../templates/LICENSE-APACHE.txt'),
-  'gpl': path.join(__dirname, '../templates/LICENSE-GPL.txt')
-};
+const githubToken = 'YOUR_GITHUB_TOKEN';
+const githubApiUrl = 'https://api.github.com';
 
-const read_file = async (filePath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
+const createRepo = async (name, isPublic, description) => {
+  const repoUrl = `${githubApiUrl}/user/repos`;
+  const response = await axios.post(repoUrl, {
+    name,
+    description,
+    private: !isPublic
+  }, {
+    headers: {
+      'Authorization': `token ${githubToken}`,
+      'Accept': 'application/vnd.github.v3+json'
+    }
   });
+  return response.data;
 };
 
-const write_file = async (filePath, content) => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, content, 'utf8', (err) => {
+const initRepo = async (repo) => {
+  const { name, html_url } = repo;
+  exec(`git init ${path.join(__dirname, name)}`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    console.log('Git initialized.');
+    fs.copyFileSync(path.join(__dirname, 'templates', '.gitignore'), path.join(__dirname, name, '.gitignore'));
+    fs.copyFileSync(path.join(__dirname, 'templates', 'LICENSE'), path.join(__dirname, name, 'LICENSE'));
+    fs.copyFileSync(path.join(__dirname, 'templates', 'README.md'), path.join(__dirname, name, 'README.md'));
+    exec(`git add .`, (err, stdout, stderr) => {
       if (err) {
-        reject(err);
-      } else {
-        resolve();
+        console.error(err);
+        return;
       }
-    });
-  });
-};
-
-const exec_command = async (command) => {
-  return new Promise((resolve, reject) => {
-    exec(command, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({ stdout, stderr });
-      }
+      exec(`git commit -m 'Initial commit'`, (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log('Initial commit done.');
+        exec(`git remote add origin ${html_url}`, (err, stdout, stderr) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+          console.log('Remote added.');
+          exec(`git push -u origin main`, (err, stdout, stderr) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+            console.log('Pushed to GitHub.');
+          });
+        });
+      });
     });
   });
 };
 
 module.exports = {
-  GITHUB_API_URL,
-  README_TEMPLATE_PATH,
-  GITIGNORE_TEMPLATE_PATHS,
-  LICENSE_PATHS,
-  read_file,
-  write_file,
-  exec_command
+  createRepo,
+  initRepo
 };

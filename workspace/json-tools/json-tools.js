@@ -1,42 +1,97 @@
 const fs = require('fs');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const exec = util.promisify(require('child_process').exec);
-const listDirectory = util.promisify(fs.readdir);
+const { program } = require('commander');
 
-const read_file = async (file_path) => {
-    try {
-        const data = await readFile(file_path, 'utf8');
-        return data;
-    } catch (err) {
-        throw err;
-    }
-};
+// 读取文件内容
+function read_file(file_path) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(file_path, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+}
 
-const write_file = async (file_path, content) => {
-    try {
-        await writeFile(file_path, content, 'utf8');
-        return;
-    } catch (err) {
-        throw err;
-    }
-};
+// 写入文件内容
+function write_file(file_path, content) {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(file_path, content, 'utf8', (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
 
-const exec_command = async (command) => {
-    try {
-        const { stdout, stderr } = await exec(command);
-        return { stdout, stderr };
-    } catch (err) {
-        throw err;
-    }
-};
+// 格式化JSON
+function format(json, indent) {
+    return JSON.stringify(json, null, indent);
+}
 
-const list_directory = async (directory_path) => {
+// 排序JSON
+function sort(json, key) {
+    return JSON.stringify(json.sort((a, b) => {
+        if (a[key] < b[key]) {
+            return -1;
+        }
+        if (a[key] > b[key]) {
+            return 1;
+        }
+        return 0;
+    }));
+}
+
+// 过滤JSON
+function filter(json, condition) {
+    return JSON.stringify(json.filter(item => {
+        return condition(item);
+    }));
+}
+
+// 合并JSON
+function merge(json1, json2) {
+    return JSON.stringify({
+        ...json1,
+        ...json2
+    });
+}
+
+// 主程序
+async function main() {
+    const args = program.parse(process.argv);
+    const command = args._[0];
+    const file_path = args._[1];
+
     try {
-        const files = await listDirectory(directory_path);
-        return files;
-    } catch (err) {
-        throw err;
+        const data = await read_file(file_path);
+        const json = JSON.parse(data);
+
+        switch (command) {
+            case 'format':
+                console.log(format(json, parseInt(args.indent, 10) || 2));
+                break;
+            case 'sort':
+                console.log(sort(json, args.key));
+                break;
+            case 'filter':
+                console.log(filter(json, eval(args.condition)));
+                break;
+            case 'merge':
+                const merge_file_path = args._[2];
+                const merge_data = await read_file(merge_file_path);
+                const merge_json = JSON.parse(merge_data);
+                console.log(merge(json1, json2));
+                break;
+            default:
+                console.log('未知命令');
+        }
+    } catch (error) {
+        console.error(error);
     }
-};
+}
+
+main();

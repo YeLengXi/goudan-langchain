@@ -1,37 +1,41 @@
-const fetch = require('node-fetch');
+module.exports = {
+  fetchHTML: async (url) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.text();
+    } catch (error) {
+      throw new Error(`Failed to fetch ${url}: ${error.message}`);
+    }
+  },
 
-const cheerio = require('cheerio');
+  extractTitle: (html) => {
+    const titleMatch = html.match(/<title>(.*?)</title>/);
+    return titleMatch ? titleMatch[1] : null;
+  },
 
-const fs = require('fs');
+  extractLinks: (html) => {
+    const linkMatch = html.match(/<a [^>]*href=['"]([^'"]+)['"]/g);
+    return linkMatch ? linkMatch.map(link => link.replace(/<a [^>]*href=['"]([^'"]+)['"]/g, '$1')) : [];
+  },
 
-const program = require('commander');
+  extractImages: (html) => {
+    const imageMatch = html.match(/<img [^>]*src=['"]([^'"]+)['"]/g);
+    return imageMatch ? imageMatch.map(image => image.replace(/<img [^>]*src=['"]([^'"]+)['"]/g, '$1')) : [];
+  },
 
-program
-  .version('0.1.0')
-  .argument('<url>', 'url to scrape')
-  .action((url) => {
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then((html) => {
-        const $ = cheerio.load(html);
-        const title = $('title').text();
-        const links = $('a').map((i, el) => $(el).attr('href')).get();
-        const images = $('img').map((i, el) => $(el).attr('src')).get();
-        const data = {
-          title,
-          links,
-          images
-        };
-        fs.writeFileSync('output.json', JSON.stringify(data, null, 2));
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  });
-
-program.parse(process.argv);
+  scrape: async (url) 
+  {
+    const html = await fetchHTML(url);
+    const title = extractTitle(html);
+    const links = extractLinks(html);
+    const images = extractImages(html);
+    return {
+      title,
+      links,
+      images
+    }
+  }
+}
