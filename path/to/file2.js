@@ -1,8 +1,3 @@
-// file2.js
+const subtract = (a, b) => a - b;
 
-function subtract(a, b) {
-    return a - b;
-}
-
-// Export the function for use in other files
-module.exports = subtract;
+console.log(subtract(5, 3));

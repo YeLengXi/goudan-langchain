@@ -1,8 +1,3 @@
-// file1.js
+const sum = (a, b) => a + b;
 
-function add(a, b) {
-    return a + b;
-}
-
-// Export the function for use in other files
-module.exports = add;
+console.log(sum(1, 2));
