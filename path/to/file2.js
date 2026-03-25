@@ -1,8 +1,7 @@
-const calculator = {
-  add: (a, b) => a + b,
-  subtract: (a, b) => a - b,
-  multiply: (a, b) => a * b,
-  divide: (a, b) => b !== 0 ? a / b : null
-};
+const { add, subtract, multiply, divide } = require('./file1.js');
 
-module.exports = calculator;
+// Example usage
+console.log('Addition:', add(5, 3)); // Output: 8
+console.log('Subtraction:', subtract(5, 3)); // Output: 2
+console.log('Multiplication:', multiply(5, 3)); // Output: 15
+console.log('Division:', divide(5, 3)); // Output: 1.6666666666666667

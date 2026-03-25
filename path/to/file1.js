@@ -1,8 +1,15 @@
-const calculator = {
-  add: (a, b) => a + b,
-  subtract: (a, b) => a - b,
-  multiply: (a, b) => a * b,
-  divide: (a, b) => b !== 0 ? a / b : null
+const add = (a, b) => a + b;
+
+const subtract = (a, b) => a - b;
+
+const multiply = (a, b) => a * b;
+
+const divide = (a, b) => {
+    if (b === 0) {
+        return 'Error: Division by zero';
+    }
+    return a / b;
 };
 
-module.exports = calculator;
+// Export the functions for use in other files
+module.exports = { add, subtract, multiply, divide };
