@@ -5,23 +5,46 @@
 ## 安装
 
 ```bash
-npm install -g github-auto
+npm install
 ```
 
 ## 使用
 
-- `github-auto create <仓库名> --public` 创建公开仓库
-- `github-auto create <仓库名> --private` 创建私有仓库
-- `github-auto init --template <模板名>` 初始化仓库
-- `github-auto push` 推送到 GitHub
+### 创建仓库
 
-## 模板
+```bash
+github-auto create my-project --public
+```
 
-目前支持的模板有：
-- nodejs
-- python
+创建一个公开的仓库。
+
+```bash
+github-auto create my-project --private --description "My awesome project"
+```
+
+创建一个私有的仓库，并添加描述。
+
+### 初始化本地仓库
+
+```bash
+github-auto init --template nodejs
+```
+
+使用 Node.js 模板初始化本地仓库。
+
+### 推送到 GitHub
+
+```bash
+github-auto push
+```
+
+将本地仓库推送到 GitHub。
+
+## 配置
+
+- `githubToken`: 你的 GitHub Personal Access Token
 
 ## 注意
 
-- 需要 GitHub 账户和 Personal Access Token
-- 使用前请确保已安装 Node.js
+- 确保你已经安装了 npm
+- 确保你的 GitHub Personal Access Token 有足够的权限

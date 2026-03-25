@@ -6,20 +6,14 @@ This is a static website generator for creating personal portfolios.
 
 - Configuration file support
 - Template system
-- Generate website
-- Preview
-
-## Installation
-
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm start`
+- Generation functionality
+- Preview feature
 
 ## Usage
 
-1. Create a `portfolio.json` file with your information
-2. Run the generator
+1. Create a configuration file (portfolio.json)
+2. Run the generator with npm run generate
 
 ## License
 
-MIT
+ISC

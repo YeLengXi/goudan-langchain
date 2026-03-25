@@ -1,21 +1,29 @@
-# README 模板
+# README.md
 
-这是一个 README 模板的示例。
+Welcome to the project!
 
-## 项目介绍
+## Project Description
 
-这里是项目的介绍。
+This is the README file for the project.
 
-## 安装
+## Getting Started
+
+To get started with the project, follow these steps:
+
+1. Clone the repository
+
+2. Install dependencies
 
 ```bash
 npm install
 ```
 
-## 使用
+3. Run the project
 
-这里是项目的使用方法。
+```bash
+node index.js
+```
 
-## 贡献
+## License
 
-欢迎贡献代码。
+MIT License

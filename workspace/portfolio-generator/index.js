@@ -1,31 +1,27 @@
-// This is the main program of the portfolio generator.
-// It reads the portfolio configuration, generates the website, and serves it locally.
-
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
-const app = express();
-const port = 3000;
 
-const portfolioConfigPath = path.join(__dirname, 'portfolio.json');
-const templatePath = path.join(__dirname, 'templates/default.html');
+const portfolioFilePath = path.join(__dirname, 'portfolio.json');
+const templateFilePath = path.join(__dirname, 'templates/default.html');
+const outputDir = path.join(__dirname, 'output');
 
 // Read the portfolio configuration
-const portfolioConfig = JSON.parse(fs.readFileSync(portfolioConfigPath, 'utf8'));
+const portfolioData = JSON.parse(fs.readFileSync(portfolioFilePath, 'utf8'));
 
-// Generate the website
-const generateWebsite = () => {
-  const html = fs.readFileSync(templatePath, 'utf8').replace(/{{(.*?)}}/g, (match, key) => {
-    return portfolioConfig[key] || '';
-  });
-  fs.writeFileSync(path.join(__dirname, 'output'), html);
-};
+// Read the template
+const templateContent = fs.readFileSync(templateFilePath, 'utf8');
 
-// Serve the website locally
-app.use(express.static(path.join(__dirname, 'output')));
-
-// Start the server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-  generateWebsite();
+// Replace placeholders with portfolio data
+const outputContent = templateContent.replace(/{{(.*?)}}/g, (match, key) => {
+  return portfolioData[key] || '';
 });
+
+// Create output directory if it doesn't exist
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir);
+}
+
+// Write the output file
+fs.writeFileSync(path.join(outputDir, 'index.html'), outputContent);
+
+console.log('Portfolio generated successfully!');

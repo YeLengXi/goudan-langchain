@@ -1,1 +1,27 @@
-{"name":"","position":"","bio":"","skills":[],"projects":[],"social_links":{"github":"","linkedin":"","email":""}}
+{
+  "name": "John Doe",
+  "position": "Frontend Developer",
+  "bio": "I am a frontend developer with 5 years of experience. I am passionate about building beautiful and responsive websites.",
+  "skills": [
+    "HTML",
+    "CSS",
+    "JavaScript"
+  ],
+  "projects": [
+    {
+      "name": "Project 1",
+      "description": "This is my first project.",
+      "link": "https://example.com/project1"
+    },
+    {
+      "name": "Project 2",
+      "description": "This is my second project.",
+      "link": "https://example.com/project2"
+    }
+  ],
+  "social_links": {
+    "GitHub": "https://github.com/johndoe",
+    "LinkedIn": "https://linkedin.com/in/johndoe",
+    "Email": "johndoe@example.com"
+  }
+}
