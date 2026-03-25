@@ -1,7 +1,6 @@
-// file1.js
-
-function printMessage1() {
-    console.log('This is message from file1.js');
+function addNumbers(a, b) {
+    return a + b;
 }
 
-printMessage1();
+// 示例：计算两个数的和
+console.log(addNumbers(5, 3));
