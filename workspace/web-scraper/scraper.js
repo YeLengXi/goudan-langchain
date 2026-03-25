@@ -1,30 +1,26 @@
 const fetch = require('node-fetch');
+const cheerio = require('cheerio');
 
-const regexTitle = /<title>(.*?)</title>/g;
-const regexLinks = /<a [^>]*href="([^"]+)"/g;
-const regexImages = /<img [^>]*src="([^"]+)"/g;
-
-const scraper = async (url) => {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+module.exports = {
+  async scrape(url) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      const title = $("title").text();
+      const links = $("a").map((i, elem) => $(elem).attr('href')).get();
+      const images = $("img").map((i, elem) => $(elem).attr('src')).get();
+      return {
+        title,
+        links,
+        images
+      };
+    } catch (error) {
+      console.error('Error fetching or parsing the page:', error);
+      return null;
     }
-    const text = await response.text();
-
-    const title = text.match(regexTitle);
-    const links = text.match(regexLinks);
-    const images = text.match(regexImages);
-
-    return {
-      title: title ? title[1] : null,
-      links: links ? links.map(link => link.split('/')[4]) : [],
-      images: images ? images.map(image => image.split('/')[4]) : [],
-    }
-  } catch (error) {
-    console.error('Error fetching the URL:', error);
-    return null;
   }
 };
-
-module.exports = scraper;

@@ -1,65 +1,44 @@
 const fs = require('fs');
 const path = require('path');
 
-const configPath = process.argv[2];
+const parseConfig = (configPath) => {
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  return config;
+};
 
-// 读取配置文件
-function readConfig(filePath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        return reject(err);
-      }
-      try {
-        const config = JSON.parse(data);
-        resolve(config);
-      } catch (e) {
-        reject(e);
-      }
-    });
+const executeCommand = (command, file) => {
+  console.log(`Executing command for ${file}: ${command}`);
+  require('child_process').exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Error executing command for ${file}: ${err}`);
+      return;
+    }
+    console.log(`stdout: ${stdout}`);
+    console.log(`stderr: ${stderr}`);
   });
-}
+};
 
-// 执行命令
-function executeCommand(command, file) {
-  const filePlaceholder = '{file}';
-  const newCommand = command.replace(filePlaceholder, file);
-  exec_command({ command: newCommand });
-}
-
-// 监控目录
-function watchDirectory(config) {
-  const watchDir = config.watchDir;
+const monitorDirectory = (watchDir, events) => {
   fs.watch(watchDir, (eventType, filename) => {
-    if (eventType === 'rename') {
-      if (filename) {
-        const filePath = path.join(watchDir, filename);
-        fs.stat(filePath, (err, stats) => {
-          if (err) {
-            console.error(err);
-            return;
-          }
-          if (stats.isDirectory()) {
-            console.log(`Directory created: ${filePath}`);
-            executeCommand(config.events.create, filePath);
-          } else if (stats.isFile()) {
-            console.log(`File ${eventType}: ${filePath}`);
-            executeCommand(config.events[eventType], filePath);
-          }
-        });
-      }
+    if (eventType === 'rename' && filename) {
+      const event = filename.includes('create') ? 'create' : filename.includes('delete') ? 'delete' : 'modify';
+      executeCommand(events[event], filename);
     }
   });
-}
+};
 
-// 主函数
-async function main() {
+const main = () => {
+  const configPath = path.resolve(__dirname, process.argv[2] || 'config.json');
   try {
-    const config = await readConfig(configPath);
-    watchDirectory(config);
+    const config = parseConfig(configPath);
+    monitorDirectory(config.watchDir, config.events);
   } catch (err) {
-    console.error('Error:', err);
+    console.error(`Error: ${err}`);
   }
-}
+};
 
-main();
+module.exports = main;
+
+if (require.main === module) {
+  main();
+}

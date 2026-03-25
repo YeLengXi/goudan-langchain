@@ -1,48 +1,84 @@
 const https = require('https');
-const { parse } = require('minimist');
-const fs = require('fs');
-const path = require('path');
+const { program } = require('commander');
 
-const fetch = (url, options) => {
-  return new Promise((resolve, reject) => {
-    https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        resolve(JSON.parse(data));
-      });
-    }).on('error', error => {
-      reject(error);
-    });
+program
+  .version('1.0.0')
+  .description('A command-line API testing tool.');
+
+program
+  .command('GET <url>')
+  .description('Perform a GET request to the specified URL.')
+  .action((url) => {
+    performRequest('GET', url);
   });
-};
 
-const main = async () => {
-  const args = parse(process.argv.slice(2));
-  let method = args._[0];
-  let url = args._[1];
-  let data = args.d || null;
+program
+  .command('POST <url> -d <data>')
+  .description('Perform a POST request to the specified URL with JSON data.')
+  .action((url, data) => {
+    performRequest('POST', url, data);
+  });
 
-  if (method && url) {
-    try {
-      const options = {
-        method: method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: data ? JSON.stringify(data) : null
-      };
+program
+  .command('PUT <url> -d <data>')
+  .description('Perform a PUT request to the specified URL with JSON data.')
+  .action((url, data) => {
+    performRequest('PUT', url, data);
+  });
 
-      const response = await fetch(url, options);
-      console.log(response);
-    } catch (error) {
-      console.error(error);
+program
+  .command('DELETE <url>')
+  .description('Perform a DELETE request to the specified URL.')
+  .action((url) => {
+    performRequest('DELETE', url);
+  });
+
+program
+  .command('PATCH <url> -d <data>')
+  .description('Perform a PATCH request to the specified URL with JSON data.')
+  .action((url, data) => {
+    performRequest('PATCH', url, data);
+  });
+
+program
+  .command('--request-file <file>')
+  .description('Perform requests from a file.')
+  .action((file) => {
+    performRequestsFromFile(file);
+  });
+
+program.parse(process.argv);
+
+async function performRequest(method, url, data = null) {
+  const options = {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json'
     }
-  } else {
-    console.error('Invalid arguments.');
-  }
-};
+  };
 
-main();
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+
+  try {
+    const start = Date.now();
+    const response = await fetch(url, options);
+    const endTime = Date.now();
+    const responseTime = endTime - start;
+    const json = await response.json();
+    console.log(`Response Time: ${responseTime}ms`);
+    console.log('Status Code:', response.status);
+    console.log('Headers:', response.headers);
+    console.log('Body:', json);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+async function performRequestsFromFile(file) {
+  const data = JSON.parse(await read_file({"file_path": "<file_path>"}));
+  for (const request of data.requests) {
+    await performRequest(request.method, request.url, request.data);
+  }
+}

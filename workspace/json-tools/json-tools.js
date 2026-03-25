@@ -1,67 +1,90 @@
 const fs = require('fs');
-const util = require('util');
-const path = require('path');
+const program = require('commander');
 
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-
-const format = async (filePath, indent) => {
-  try {
-    const data = await readFile(filePath, 'utf8');
-    const parsedData = JSON.parse(data);
-    const formattedData = JSON.stringify(parsedData, null, indent);
-    await writeFile(filePath, formattedData, 'utf8');
-    console.log('JSON formatted successfully.');
-  } catch (error) {
-    console.error('Error formatting JSON:', error);
-  }
-};
-
-const sort = async (filePath, key) => {
-  try {
-    const data = await readFile(filePath, 'utf8');
-    const parsedData = JSON.parse(data);
-    const sortedData = parsedData.sort((a, b) => {
-      if (a[key] < b[key]) return -1;
-      if (a[key] > b[key]) return 1;
-      return 0;
+// 读取文件内容
+const read_file = (file_path) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(file_path, 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
     });
-    const sortedDataString = JSON.stringify(sortedData, null, 2);
-    await writeFile(filePath, sortedDataString, 'utf8');
-    console.log('JSON sorted successfully.');
-  } catch (error) {
-    console.error('Error sorting JSON:', error);
-  }
 };
 
-const filter = async (filePath, condition) => {
-  try {
-    const data = await readFile(filePath, 'utf8');
-    const parsedData = JSON.parse(data);
-    const filteredData = parsedData.filter(item => {
-      return condition(item);
+// 写入文件内容
+const write_file = (file_path, content) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile(file_path, content, 'utf8', (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
     });
-    const filteredDataString = JSON.stringify(filteredData, null, 2);
-    await writeFile(filePath, filteredDataString, 'utf8');
-    console.log('JSON filtered successfully.');
-  } catch (error) {
-    console.error('Error filtering JSON:', error);
-  }
 };
 
-const merge = async (filePath1, filePath2, outputFilePath) => {
-  try {
-    const data1 = await readFile(filePath1, 'utf8');
-    const data2 = await readFile(filePath2, 'utf8');
-    const parsedData1 = JSON.parse(data1);
-    const parsedData2 = JSON.parse(data2);
-    const mergedData = { ...parsedData1, ...parsedData2 };
-    const mergedDataString = JSON.stringify(mergedData, null, 2);
-    await writeFile(outputFilePath, mergedDataString, 'utf8');
-    console.log('JSON merged successfully.');
-  } catch (error) {
-    console.error('Error merging JSON:', error);
-  }
+// 格式化JSON
+const format = (json, indent) => {
+    return JSON.stringify(JSON.parse(json), null, indent);
 };
 
-module.exports = { format, sort, filter, merge };
+// 排序JSON
+const sort = (json, key) => {
+    const data = JSON.parse(json);
+    data.sort((a, b) => {
+        if (a[key] < b[key]) {
+            return -1;
+        }
+        if (a[key] > b[key]) {
+            return 1;
+        }
+        return 0;
+    });
+    return JSON.stringify(data, null, 2);
+};
+
+// 过滤JSON
+const filter = (json, condition) => {
+    const data = JSON.parse(json);
+    return JSON.stringify(data.filter(item => eval(condition)), null, 2);
+};
+
+// 合并JSON
+const merge = (json1, json2) => {
+    return JSON.stringify(JSON.parse(json1).concat(JSON.parse(json2)), null, 2);
+};
+
+// 处理命令行参数
+program.version('1.0.0').description('JSON数据处理工具').command('format <file>', '格式化JSON').argument('<file>', 'JSON文件路径').action((file) => {
+    read_file(file).then(data => {
+        console.log(format(data, 2));
+    }).catch(err => {
+        console.error('Error:', err);
+    });
+}).command('sort <file>', '排序JSON').argument('<file>', 'JSON文件路径').option('--key <key>', '排序的键').action((file, options) => {
+    read_file(file).then(data => {
+        console.log(sort(data, options.key));
+    }).catch(err => {
+        console.error('Error:', err);
+    });
+}).command('filter <file>', '过滤JSON').argument('<file>', 'JSON文件路径').option('--condition <condition>', '过滤条件').action((file, options) => {
+    read_file(file).then(data => {
+        console.log(filter(data, options.condition));
+    }).catch(err => {
+        console.error('Error:', err);
+    });
+}).command('merge <file1> <file2>', '合并JSON').argument('<file1>', 'JSON文件路径1').argument('<file2>', 'JSON文件路径2').action((file1, file2) => {
+    read_file(file1).then(data1 => {
+        read_file(file2).then(data2 => {
+            console.log(merge(data1, data2));
+        }).catch(err => {
+            console.error('Error:', err);
+        });
+    }).catch(err => {
+        console.error('Error:', err);
+    });
+}).parse(process.argv);
