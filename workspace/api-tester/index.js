@@ -1,75 +1,59 @@
-const https = require('https');
-const { parse } = require('minimist');
+const fetch = require('node-fetch');
+
+const parseArgs = require('minimist');
+
 const fs = require('fs');
 const path = require('path');
 
-const DEFAULT_REQUEST_FILE = 'requests.json';
+const requestsDir = path.join(__dirname, '../examples/requests.json');
 
-function makeRequest(method, url, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
-      method,
-      headers
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+
+  if (args._[0]) {
+    const method = args._[0].toUpperCase();
+    if (!methods.includes(method)) {
+      console.error(`Unsupported HTTP method: ${method}`);
+      return;
     }
 
-    if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
+    const url = args._[1];
+    const data = args.data || null;
+    const headers = args.headers || {};
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers,
+        body: data ? JSON.stringify(data) : null
+      });
+
+      const responseTime = Date.now() - start;
+      const responseBody = await response.json();
+
+      console.log(`Response Time: ${responseTime}ms`);
+      console.log(`Status Code: ${response.status}`);
+      console.log('Headers:', response.headers.raw());
+      console.log('Body:', responseBody);
+
+      if (args.save) {
+        fs.writeFileSync(path.join(__dirname, '../responses', `${method}-${url}-${Date.now()}.json`), JSON.stringify(responseBody, null, 2));
       }
+    } catch (error) {
+      console.error('Error:', error);
     }
-
-    https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: data
-        });
-      });
-    }).on('error', error => {
-      reject(error);
-    });
-  });
-}
-
-function parseArguments(args) {
-  const parsedArgs = parse(args);
-  const { method, url, _ } = parsedArgs;
-  let headers = parsedArgs.headers || {};
-  let body = parsedArgs.body || {};
-
-  if (_.length > 0) {
-    _.forEach(arg => {
-      if (arg.startsWith('-h') || arg.startsWith('--header')) {
-        const header = arg.split('=')[1];
-        headers[header.split(':')[0]] = header.split(':')[1];
-      }
-      if (arg.startsWith('-d') || arg.startsWith('--data')) {
-        body = JSON.parse(arg.split('=')[1]);
-      }
-    });
   }
 
-  return { method, url, headers, body };}
+  if (args.requestFile) {
+    const requests = JSON.parse(fs.readFileSync(requestsDir));
 
-function run() {
-  const args = process.argv.slice(2);
-  const { method, url, headers, body } = parseArguments(args);
-
-  makeRequest(method, url, headers, body)
-    .then(response => {
-      console.log(`Status Code: ${response.statusCode}`);
-      console.log(`Headers: ${JSON.stringify(response.headers)}`);
-      console.log(`Body: ${JSON.stringify(response.body)}`);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+    for (const request of requests) {
+      await main({ ...request });
+    }
+  }
 }
 
-run();
+start = Date.now();
+main();

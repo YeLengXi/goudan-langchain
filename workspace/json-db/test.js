@@ -1,13 +1,6 @@
 const DB = require('./database');
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const appendFile = util.promisify(fs.appendFile);
-const mkdir = util.promisify(fs.mkdir);
-const stat = util.promisify(fs.stat);
 
+// 创建数据库实例
 const db = new DB('./data.json');
 
 // 创建表

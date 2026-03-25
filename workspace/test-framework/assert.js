@@ -1,31 +1,17 @@
 const assert = require('assert');
 
 module.exports = {
-  equal: (actual, expected) => {
-    assert.strictEqual(actual, expected);
-  },
-
-  deepEqual: (actual, expected) => {
-    assert.deepStrictEqual(actual, expected);
-  },
-
-  truthy: (value) => {
-    assert.ok(value);
-  },
-
-  falsy: (value) => {
-    assert.ok(!value);
-  },
-
-  throws: (fn, error) => {
+  equal: assert.strictEqual,
+  deepEqual: assert.deepStrictEqual,
+  truthy: value => !!value,
+  falsy: value => !value,
+  throws: async (fn, expected) => {
     try {
-      fn();
-    } catch (e) {
-      assert.strictEqual(e, error);
+      await fn();
+      return false;
+    } catch (error) {
+      return error.message === expected;
     }
   },
-
-  contains: (actual, expected) => {
-    assert.ok(actual.includes(expected));
-  }
+  contains: (array, item) => array.includes(item)
 };

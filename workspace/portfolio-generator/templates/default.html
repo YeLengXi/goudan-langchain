@@ -7,8 +7,6 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       background-color: #f4f4f4;
     }
     .container {
@@ -16,61 +14,34 @@
       margin: auto;
       padding: 20px;
     }
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 20px;
-      text-align: center;
-    }
     h1 {
-      margin: 0;
-    }
-    p {
-      margin: 0;
-      padding: 10px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>{{name}}</h1>
-      <p>{{position}}</p>
-    </header>
-    <section>
-      <h2>About</h2>
-      <p>{{bio}}</p>
-    </section>
-    <section>
-      <h2>Skills</h2>
-      <ul>
-        {{#each skills}}
-          <li>{{this}}</li>
-        {{/each}}
-      </ul>
-    </section>
-    <section>
-      <h2>Projects</h2>
-      <ul>
-        {{#each projects}}
-          <li>
-            <h3>{{name}}</h3>
-            <p>{{description}}</p>
-            <a href="{{link}}">View Project</a>
-          </li>
-        {{/each}}
-      </ul>
-    </section>
-    <section>
-      <h2>Social Links</h2>
-      <ul>
-        {{#each social_links}}
-          <li>
-            <a href="{{this}}">{{this}}</a>
-          </li>
-        {{/each}}
-      </ul>
-    </section>
+    <h1><%= name %></h1>
+    <h2><%= position %></h2>
+    <p><%= bio %></p>
+    <h3>Skills</h3>
+    <ul>
+      <% skills.forEach(skill => { %>
+        <li><%= skill %></li>
+      <% }) %>
+    </ul>
+    <h3>Projects</h3>
+    <ul>
+      <% projects.forEach(project => { %>
+        <li><%= project.name %> - <%= project.description %> - <%= project.link %></li>
+      <% }) %>
+    </ul>
+    <h3>Social</h3>
+    <ul>
+      <% Object.keys(social).forEach(key => { %>
+        <li><a href="<%= social[key] %>"><%= key %></a></li>
+      <% }) %>
+    </ul>
   </div>
 </body>
 </html>

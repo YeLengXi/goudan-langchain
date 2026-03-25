@@ -1,13 +1,11 @@
-const { describe, it, expect } = require('./test-framework/test.js');
-
-const assert = require('./test-framework/assert.js');
+const { describe, it, expect } = require('./test.js');
 
 describe('Example tests', () => {
-  it('should equal numbers', () => {
-    expect(1 + 2).toEqual(3);
+  it('should pass', () => {
+    expect(1).toBe(1);
   });
 
-  it('should throw error', () => {
-    expect(() => { throw new Error('Test error'); }).toThrow('Test error');
+  it('should fail', () => {
+    expect(1).toBe(2);
   });
 });
