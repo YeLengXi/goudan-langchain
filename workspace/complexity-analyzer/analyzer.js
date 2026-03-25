@@ -1,63 +1,39 @@
 const fs = require('fs');
+const path = require('path');
 
-const analyze = (filePath, options = {}) => {
-  const { format = 'text', output = null } = options;
-
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      return;
-    }
-
-    const ast = parseCode(data);
+const analyzeFile = (filePath) => {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const tokens = tokenize(content);
+    const ast = parse(tokens);
     const complexity = calculateComplexity(ast);
-    const report = generateReport(complexity, format, output);
-
-    console.log(report);
-  });
+    return complexity;
 };
 
-const parseCode = (code) => {
-  // Implement code parsing logic here
-  return {
-    // Example structure
-    // - functions: [{ name: 'functionName', body: 'function body', complexity: 0 }],
-    // - complexity: 0
-  };
+const analyzeDirectory = (dirPath) => {
+    const files = fs.readdirSync(dirPath);
+    const complexities = files.map(file => {
+        const filePath = path.join(dirPath, file);
+        if (fs.statSync(filePath).isFile()) {
+            return analyzeFile(filePath);
+        }
+        return null;
+    }).filter(comp => comp !== null);
+    return complexities;
 };
 
 const calculateComplexity = (ast) => {
-  // Implement complexity calculation logic here
-  return {
-    // Example structure
-    // - functions: [{ name: 'functionName', cyclomaticComplexity: 0, cognitiveComplexity: 0, maintainabilityIndex: 0 }],
-    // - overall: {
-    //   - cyclomaticComplexity: 0,
-    //   - cognitiveComplexity: 0,
-    //   - maintainabilityIndex: 0
-    // }
-  };
+    // Implementation of complexity calculation
 };
 
-const generateReport = (complexity, format, output) => {
-  // Implement report generation logic here
-  return {
-    // Example structure
-    // - text: 'Code Complexity Report
-    //   =
-    //   
-    //   Function: functionName
-    //   - Cyclomatic Complexity: 0
-    //   - Cognitive Complexity: 0
-    //   - Risk Level: ✅ LOW
-    //   - Lines: 0
-    //   
-    //   Overall: 0 functions analyzed
-    //   0 HIGH risk, 0 LOW risk
-    //   
-    //   ',
-    // - json: JSON.stringify(complexity, null, 2)
-  };
+const tokenize = (content) => {
+    // Implementation of tokenization
 };
 
-module.exports = { analyze };
+const parse = (tokens) => {
+    // Implementation of parsing
+};
+
+module.exports = {
+    analyzeFile,
+    analyzeDirectory
+};

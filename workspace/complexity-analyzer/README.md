@@ -1,25 +1,22 @@
 # Complexity Analyzer
 
-This tool is designed to analyze the complexity of JavaScript code.
-
-## Features
-
-- Parses JavaScript code
-- Calculates Cyclomatic Complexity
-- Assesses risk level
-- Generates reports
-- Supports multiple files
+This tool analyzes JavaScript code and calculates its cyclomatic complexity, cognitive complexity, and maintainability index.
 
 ## Usage
 
 To analyze a single file:
 
-```bash
-node analyzer.js file.js
-```
+    node analyzer.js file.js
 
 To analyze a directory:
 
-```bash
-node analyzer.js src/
-```
+    node analyzer.js src/
+
+Options:
+
+    --format json    Output the report in JSON format
+    --output <file>    Output the report to a file
+
+## License
+
+MIT

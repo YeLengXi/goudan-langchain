@@ -1,54 +1,42 @@
-const axios = require('axios');
+// This is the main program of the API tester.
+// It parses CLI arguments, sends HTTP requests, and handles responses.
 
-const parseArgs = require('minimist');
+const fetch = require('node-fetch');
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 
-const { read_file, write_file, exec_command, list_directory } = require('./utils');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const API_TESTER = {
-  get: async (url) => {
-    try {
-      const response = await axios.get(url);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
+async function main() {
+  const args = process.argv.slice(2);
 
-  post: async (url, data) => {
-    try {
-      const response = await axios.post(url, data);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  put: async (url, data) => {
-    try {
-      const response = await axios.put(url, data);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  delete: async (url) => {
-    try {
-      const response = await axios.delete(url);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  patch: async (url, data) => {
-    try {
-      const response = await axios.patch(url, data);
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  if (args.length === 0) {
+    console.log('Usage: api-tester <method> <url> [options]');
+    process.exit(1);
   }
-};
 
-module.exports = API_TESTER;
+  const [method, url] = args.splice(0, 2);
+  const options = args.reduce((acc, arg) => {
+    const [key, value] = arg.split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: options.headers ? JSON.parse(options.headers) : {},
+      body: options.body ? JSON.parse(options.body) : null
+    });
+    const data = await response.json();
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+main();

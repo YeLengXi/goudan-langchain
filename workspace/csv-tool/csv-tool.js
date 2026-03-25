@@ -1,101 +1,92 @@
 const fs = require('fs');
-const path = require('path');
+const { parse, generate } = require('csv-parse/sync');
+const { StringDecoder } = require('string_decoder');
 
-// CSV解析器
-function parseCSV(data) {
-  const rows = data.split('
-');
-  const headers = rows[0].split(',').map(header => header.trim());
-  const parsedRows = rows.slice(1).map(row => {
-    const values = row.split(',').map(value => value.trim());
-    return headers.reduce((acc, header, index) => {
-      acc[header] = values[index];
-      return acc;
-    }, {});
-  });
-  return parsedRows;
+// 解析CSV文件
+function parseCSV(filePath) {
+    const decoder = new StringDecoder('utf8');
+    const fileBuffer = fs.readFileSync(filePath);
+    const fileContent = decoder.write(fileBuffer.toString());
+    const parsedData = parse(fileContent, {
+        columns: true,
+        skip_empty_lines: true
+    });
+    return parsedData;
 }
 
-// CSV生成器
-function generateCSV(data) {
-  const headers = Object.keys(data[0]).join(', ');
-  const rows = data.map(row => Object.values(row).join(', ')).join('
-');
-  return `${headers}
-${rows}`;
+// 生成CSV文件
+function generateCSV(data, filePath) {
+    const csv = require('csv-stringify/sync')(data, {
+        header: true
+    });
+    fs.writeFileSync(filePath, csv);
 }
 
 // CSV转JSON
-function csvToJson(csv) {
-  return parseCSV(csv).map(row => {
-    return row;
-  });
+function csvToJson(csvFilePath, jsonFilePath) {
+    const csvData = parseCSV(csvFilePath);
+    const jsonData = JSON.stringify(csvData, null, 2);
+    fs.writeFileSync(jsonFilePath, jsonData);
 }
 
 // CSV转Markdown表格
-function csvToMarkdown(csv) {
-  const data = parseCSV(csv);
-  const headers = data[0].map(header => `| ${header} |`).join('
-');
-  const rows = data.slice(1).map(row => row.map(value => `| ${value} |`).join('
-')).join('
-');
-  return `|---|
-${headers}
-${rows}`;
+function csvToMarkdown(csvFilePath, markdownFilePath) {
+    const csvData = parseCSV(csvFilePath);
+    const markdown = '\|' + csvData.columns.join('\|') + '\|
+|---|---|
+' + csvData.rows.map(row => '\|' + row.join('\|') + '\|
+').join('\n');
+    fs.writeFileSync(markdownFilePath, markdown);
 }
 
 // CSV转HTML表格
-function csvToHTML(csv) {
-  const data = parseCSV(csv);
-  const headers = data[0].map(header => `<th>${header}</th>`).join('
-');n  const rows = data.slice(1).map(row => row.map(value => `<td>${value}</td>`).join('
-')).join('
-');n  return `<table>
-  <tr>
-    ${headers}
-  </tr>
-  <tr>${rows}</tr>
-</table>`;
+function csvToHtml(csvFilePath, htmlFilePath) {
+    const csvData = parseCSV(csvFilePath);
+    const html = '<table>
+' + csvData.columns.map(column => '<th>' + column + '</th>').join('
+') + '
+</table>
+' + csvData.rows.map(row => '<tr>
+' + row.map(cell => '<td>' + cell + '</td>').join('
+') + '</tr>').join('
+');
+    fs.writeFileSync(htmlFilePath, html);
 }
 
 // CSV过滤
-function filterCSV(csv, column, value) {
-  const data = parseCSV(csv);
-  return data.filter(row => row[column] === value);
+function csvFilter(csvFilePath, column, value) {
+    const csvData = parseCSV(csvFilePath);
+    const filteredData = csvData.rows.filter(row => row[column] === value);
+    generateCSV(filteredData, csvFilePath);
 }
 
 // CSV排序
-function sortCSV(csv, column) {
-  const data = parseCSV(csv);
-  return data.sort((a, b) => {
-    if (a[column] < b[column]) return -1;
-    if (a[column] > b[column]) return 1;
-    return 0;
-  });
+function csvSort(csvFilePath, column) {
+    const csvData = parseCSV(csvFilePath);
+    const sortedData = csvData.rows.sort((a, b) => a[column] > b[column] ? 1 : -1);
+    generateCSV(sortedData, csvFilePath);
 }
 
 // CLI接口
-const cli = require('commander');
-cli.version('1.0.0');
-cli.command('convert <input> --format <format>').action((input, format) => {
-  const csv = fs.readFileSync(input, 'utf8');
-  const convertedData = format === 'json' ? csvToJson(csv) : csvToMarkdown(csv);
-  fs.writeFileSync(`output.${format}`, convertedData, 'utf8');
-});
-cli.command('filter <input> --column <column> --value <value>').action((input, column, value) => {
-  const csv = fs.readFileSync(input, 'utf8');
-  const filteredData = filterCSV(csv, column, value);
-  fs.writeFileSync('output.csv', generateCSV(filteredData), 'utf8');
-});
-cli.command('sort <input> --column <column>').action((input, column) => {
-  const csv = fs.readFileSync(input, 'utf8');
-  const sortedData = sortCSV(csv, column);
-  fs.writeFileSync('output.csv', generateCSV(sortedData), 'utf8');
-});
-cli.command('to-table <input> --format <format>').action((input, format) => {
-  const csv = fs.readFileSync(input, 'utf8');
-  const convertedData = format === 'markdown' ? csvToMarkdown(csv) : csvToHTML(csv);
-  fs.writeFileSync(`output.${format}`, convertedData, 'utf8');
-});
-cli.parse(process.argv);
+function cliInterface() {
+    const args = process.argv.slice(2);
+    switch (args[0]) {
+        case 'convert':
+            csvToJson(args[1], args[2]);
+            break;
+        case 'filter':
+            csvFilter(args[1], args[2], args[3]);
+            break;
+        case 'sort':
+            csvSort(args[1], args[2]);
+            break;
+        case 'to-table':
+            csvToMarkdown(args[1], args[2]);
+            break;
+        default:
+            console.log('未知命令');
+    }
+}
+
+// 运行CLI接口
+cliInterface();

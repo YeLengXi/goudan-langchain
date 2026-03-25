@@ -1,114 +1,51 @@
-const crypto = require('crypto');
+# 加密工具
 
-// 加密函数
-function encrypt(text, method, key) {
-  switch (method) {
-    case 'caesar':
-      return caesarCipher(text, key);
-    case 'base64':
-      return base64Encode(text);
-    case 'rot13':
-      return rot13(text);
-    case 'xor':
-      return xor(text, key);
-    case 'aes':
-      return aesEncrypt(text, key);
-    default:
-      throw new Error('Unsupported encryption method');
-  }
-}
+这个工具提供多种加密和解密算法，包括凯撒密码、Base64、ROT13、XOR和AES。
 
-// 解密函数
-function decrypt(encryptedText, method, key) {
-  switch (method) {
-    case 'caesar':
-      return caesarCipher(encryptedText, -key);
-    case 'base64':
-      return base64Decode(encryptedText);
-    case 'rot13':
-      return rot13(encryptedText, -key);
-    case 'xor':
-      return xor(encryptedText, key);
-    case 'aes':
-      return aesDecrypt(encryptedText, key);
-    default:
-      throw new Error('Unsupported decryption method');
-  }
-}
+## 安装
 
-// 凯撒密码加密
-function caesarCipher(text, key) {
-  return text.split('').map(char => {
-    if (char.match(/[a-z]/i)) {
-      let code = char.charCodeAt(0) + key;
-      if (code > 'z'.charCodeAt(0)) code -= 26;
-      if (code < 'a'.charCodeAt(0)) code += 26;
-      return String.fromCharCode(code);
-    }
-    return char;
-  }).join('');
-}
+```bash
+npm install
+```
 
-// 凯撒密码解密
-function caesarCipher(text, key) {
-  return caesarCipher(text, -key);
-}
+## 使用
 
-// Base64编码
-function base64Encode(text) {
-  return Buffer.from(text).toString('base64');
-}
+### 加密
 
-// Base64解码
-function base64Decode(text) {
-  return Buffer.from(text, 'base64').toString();
-}
+加密文本或文件。
 
-// ROT13加密
-function rot13(text) {
-  return text.split('').map(char => {
-    if (char.match(/[a-z]/i)) {
-      let code = char.charCodeAt(0) + 13;
-      if (code > 'z'.charCodeAt(0)) code -= 26;
-      if (code < 'a'.charCodeAt(0)) code += 26;
-      return String.fromCharCode(code);
-    }
-    return char;
-  }).join('');
-}
+```bash
+node encrypt.js "hello world" --method caesar --key 3
 
-// ROT13解密
-function rot13(text) {
-  return rot13(text, -13);
-}
+node encrypt.js "hello" --method base64
 
-// XOR加密
-function xor(text, key) {
-  return text.split('').map((char, index) => {
-    const keyChar = key[index % key.length];
-    return String.fromCharCode(char.charCodeAt(0) ^ keyChar.charCodeAt(0));
-  }).join('');
-}
+node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
 
-// XOR解密
-function xor(encryptedText, key) {
-  return xor(encryptedText, key);
-}
+```
 
-// AES加密
-function aesEncrypt(text, key) {
-  const cipher = crypto.createCipher('aes-256-cbc', key);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
+### 解密
 
-// AES解密
-function aesDecrypt(encryptedText, key) {
-  const decipher = crypto.createDecipher('aes-256-cbc', key);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
+解密文本或文件。
 
-module.exports = { encrypt, decrypt };
+```bash
+node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
+
+```
+
+## 加密算法
+
+- 凯撒密码：将字母移动固定位置。
+- Base64：将二进制数据转换为ASCII字符。
+- ROT13：将字母旋转13个位置。
+- XOR：使用密钥进行异或运算。
+- AES：高级加密标准。
+
+## 安全提示
+
+⚠️ 注意：这些是教育性质的简单加密
+- Caesar/ROT13：仅用于演示
+- Base64：编码，不是加密
+- XOR：简单加密
+- AES：相对安全
+
+不要用于生产环境或敏感数据！

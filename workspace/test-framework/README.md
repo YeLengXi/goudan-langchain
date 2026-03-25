@@ -2,20 +2,18 @@
 
 This is a simple JavaScript unit testing framework.
 
-## Installation
+## Features
 
-To use this framework, you need to install it in your project.
-
-```bash
-npm install workspace-test-framework
-```
+- Test organization
+- Assertion functions
+- Async test support
+- Error handling
+- Report generation
 
 ## Usage
 
-### Basic Usage
-
 ```javascript
-const { describe, it, expect } = require('workspace-test-framework');
+const { describe, it, expect } = require('./test.js');
 
 describe('Math operations', () => {
   it('should add numbers', () => {

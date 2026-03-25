@@ -1,37 +1,41 @@
-# 任务14: 文本加密解密工具
+## 使用文档
 
-## 目标
-创建一个简单的文本加密解密工具，支持多种加密算法。
+### 加密工具 (encrypt.js)
 
-## 必须创建的文件
-1. `workspace/encrypt-tool/encrypt.js` - 加密工具
-2. `workspace/encrypt-tool/decrypt.js` - 解密工具
-3. `workspace/encrypt-tool/README.md` - 使用文档
+加密文本或文件。
 
-## 工作流程
-立即执行以下操作：
-1. 实现加密算法：
-   - Caesar Cipher（凯撒密码）
-   - Base64编码
-   - ROT13
-   - 简单XOR加密
-   - AES加密（使用crypto模块）
-2. 实现解密功能
-3. 实现文件加密/解密
-4. 实现CLI接口
-5. 添加使用示例
+#### 用法
 
-## 功能要求
-- 多种加密算法
-- 文件加密/解密
-- 密钥管理
-- 错误处理
-- 安全提示
-
-## CLI接口
 ```bash
-node encrypt.js "hello world" --method caesar --key 3
-node encrypt.js "hello" --method base64
-node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
-node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
+node encrypt.js "text" --method method_name [options...]
+
+node encrypt.js file_path --method method_name [options...]
+
 ```
+
+#### 参数
+
+- text: 要加密的文本。
+- method_name: 加密方法，可以是 caesar、base64、rot13、xor 或 aes。
+- options:
+  - --key: 加密密钥（对于 aes 加密方法）。
+  - --output: 输出文件路径（对于文件加密）。
+
+### 解密工具 (decrypt.js)
+
+解密文本或文件。
+
+#### 用法
+
+```bash
+node decrypt.js encrypted_text --method method_name
+
+node decrypt.js file_path --method method_name
+
+```
+
+#### 参数
+
+- encrypted_text: 要解密的文本。
+- method_name: 解密方法，可以是 caesar、base64、rot13、xor 或 aes。
+

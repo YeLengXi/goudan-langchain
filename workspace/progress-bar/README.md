@@ -1,53 +1,32 @@
-# CLI Progress Bar Tool
+# progress-bar
 
-This tool provides a command line progress bar for displaying the progress of long-running tasks.
-
-## Features
-
-- Dynamic updates
-- Percentage display
-- ETA calculation
-- Multiple styles (standard, circular, dots, arrows)
-- Multi-progress bars
-- Colorful output
+This package provides a CLI progress bar tool for displaying the progress of long-running tasks.
 
 ## Installation
 
-To use this tool, clone the repository and install the dependencies:
+To use this package, you need to install it first:
 
 ```bash
-npm install
+npm install progress-bar
 ```
 
 ## Usage
 
-To use the progress bar, require the `progress.js` module and create a new instance of `ProgressBar`. You can specify the total number of items, width of the progress bar, and other options.
+To create a progress bar, you can use the `ProgressBar` class:
 
 ```javascript
-const ProgressBar = require('./progress.js');
+const ProgressBar = require('progress-bar');
 
-const bar = new ProgressBar({
-  total: 100,
-  width: 40,
-  complete: '█',
-  incomplete: '░'
-});
+const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: '░' });
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
-  // Do some work here
+  // Do some work
 }
 
-// For multi-progress bars, use the `multi` option
-const multi = new ProgressBar({
-  multi: true
-});
+// Multi progress bar
 
+const multi = new MultiProgressBar();
 const bar1 = multi.create('Download', 100);
 const bar2 = multi.create('Upload', 100);
-
-for (let i = 0; i <= 100; i++) {
-  bar1.update(i);
-  bar2.update(i);
-}
 ```

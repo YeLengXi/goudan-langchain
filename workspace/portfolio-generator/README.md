@@ -1,30 +1,34 @@
-# Portfolio Generator
+## Portfolio Generator
 
-This is a static website generator for creating personal portfolios.
+This is a simple portfolio generator that helps developers create a personal portfolio website quickly.
 
-## Features
+### Features
 
-- Read personal information from a configuration file
-- Support HTML templates
-- Generate complete websites
-- Customizable theme colors
+- Configuration file support
+  - Read personal information from `portfolio.json`
+  - Support name, position, bio, skills, project list
+  - Support social links (GitHub, LinkedIn, Email)
 
-## Usage
+- Template system
+  - HTML template
+  - Automatically fill in personal information
+  - Responsive design
+  - Modern UI
 
-1. Run the generator with the following command:
+- Generation function
+  - One-click generation of a complete website
+  - Support custom theme color
+  - Generate CSS and HTML
 
-   npm install
-   npm start
+- Preview function
+  - Local preview server
+  - Real-time reload
+  - Port configuration
 
-2. Configure your personal information in the portfolio.json file.
+### Usage
 
-3. Run the generator to create your website.
+1. Create a `portfolio.json` file and fill in your personal information.
+2. Run the generator script.
+3. Open the generated website in your browser.
 
-## Dependencies
-
-- Node.js
-- EJS (npm install ejs)
-
-## License
-
-MIT
+For more information, please refer to the `README.md` file.

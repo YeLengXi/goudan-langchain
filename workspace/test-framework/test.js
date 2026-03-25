@@ -12,19 +12,18 @@ const it = (name, callback) => {
   } catch (error) {
     console.error(`  ✗ ${name}
     ${error}
+`);
   }
 };
 
 const before = (callback) => {
   console.log(`
-before: ${callback.name}`);
+Before: ${callback.name}`);
   callback();
 };
 
 const after = (callback) => {
   console.log(`
-after: ${callback.name}`);
+After: ${callback.name}`);
   callback();
 };
-
-module.exports = { describe, it, before, after };
