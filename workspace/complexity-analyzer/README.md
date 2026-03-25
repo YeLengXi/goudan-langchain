@@ -1,33 +1,33 @@
 # Complexity Analyzer
 
-This tool analyzes the complexity of JavaScript code.
+This tool is used to analyze the complexity of JavaScript code.
 
 ## Installation
 
-To use this tool, you need to have Node.js installed.
+No installation required. Just copy the analyzer.js file to your project directory.
 
 ## Usage
 
 To analyze a single file:
 
-```bash
-node analyzer.js file.js
-```
+    node analyzer.js file.js
 
-To analyze all JavaScript files in a directory:
+To analyze multiple files in a directory:
 
-```bash
-node analyzer.js src/
-```
+    node analyzer.js src/
 
 To output the report in JSON format:
 
-```bash
-node analyzer.js --format json
-```
+    node analyzer.js --format json
 
 To output the report to a file:
 
-```bash
-node analyzer.js --output report.txt
-```
+    node analyzer.js --output report.txt
+
+## Features
+
+- Analyze JavaScript code complexity
+- Calculate cyclomatic complexity
+- Assess risk level
+- Generate report
+- Support multiple files
