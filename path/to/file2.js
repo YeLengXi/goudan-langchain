@@ -1,19 +1,18 @@
-const calculator = {
-    add: function(a, b) {
-        return a + b;
-    },
-    subtract: function(a, b) {
-        return a - b;
-    },
-    multiply: function(a, b) {
-        return a * b;
-    },
-    divide: function(a, b) {
-        if (b === 0) {
-            throw new Error('Division by zero is not allowed.');
-        }
-        return a / b;
-    }
+const multiply = (a, b) => a * b;
+const divide = (a, b) => {
+  if (b === 0) {
+    return 'Invalid operation';
+  }
+  return a / b;
 };
 
-module.exports = calculator;
+const calculate = (num1, num2, operation) => {
+  if (operation === 'multiply') {
+    return multiply(num1, num2);
+  } else if (operation === 'divide') {
+    return divide(num1, num2);
+  }
+  return 'Invalid operation';
+};
+
+module.exports = calculate;
