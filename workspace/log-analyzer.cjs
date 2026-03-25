@@ -1,54 +1,89 @@
-const read_file = require('fs').readFileSync;
+const fs = require('fs');
+const path = require('path');
 
-const parseAppLog = (logContent) => {
-  const lines = logContent.split('
+const supportedFormats = ['app', 'apache', 'error'];
+
+const parseLog = (logPath, format) => {
+  let parsedLogs = [];
+
+  switch (format) {
+    case 'app':
+      const appLogs = fs.readFileSync(logPath, 'utf8').split('
 ');
-  const parsedLogs = [];
+      appLogs.forEach(log => {
+        const [timestamp, level, message] = log.split(' ');
+        parsedLogs.push({ timestamp, level, message });
+      });
+      break;
 
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-    const level = line.match(/INFO|WARN|ERROR/);
-    const message = line.replace(timestamp, '').replace(level, '').trim();
+    case 'apache':
+      const apacheLogs = fs.readFileSync(logPath, 'utf8').split('
+');
+      apacheLogs.forEach(log => {
+        const parts = log.split(' ');
+        const timestamp = parts[3] + ' ' + parts[4];
+        const level = parts[6];
+        const message = parts.slice(7).join(' ');
+        parsedLogs.push({ timestamp, level, message });
+      });
+      break;
 
-    parsedLogs.push({ timestamp, level, message });
-  });
+    case 'error':
+      const errorLogs = fs.readFileSync(logPath, 'utf8').split('
+');
+      errorLogs.forEach(log => {
+        const stackTrace = log.split('
+');
+        parsedLogs.push({ stackTrace });
+      });
+      break;
+  }
 
   return parsedLogs;
 };
 
-const parseApacheLog = (logContent) => {
-  const lines = logContent.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{2}/);
-    const ip = line.match(/\d+\.\d+\.\d+\.\d+/);
-    const method = line.match(/\S+/);
-    const url = line.match(/\S+/);
-    const status = line.match(/\d+/);
-
-    parsedLogs.push({ timestamp, ip, method, url, status });
+const countErrors = logs => {
+  const errorTypes = {};
+  logs.forEach(log => {
+    if (log.level === 'ERROR') {
+      const errorType = log.message.match(/(.+): (.+)/)[1];
+      errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
+    }
   });
 
-  return parsedLogs;
+  return errorTypes;
 };
 
-const parseErrorLog = (logContent) => {
-  const lines = logContent.split('
-');
-  const parsedLogs = [];
+const searchLogs = (logs, keyword, startTime, endTime, level) => {
+  return logs.filter(log => {
+    const matchesKeyword = log.message.includes(keyword);
+    const withinTimeRange = log.timestamp >= startTime && log.timestamp <= endTime;
+    const matchesLevel = !level || log.level === level;
 
-  lines.forEach(line => {
-    const stackTrace = line.match(/at .+/);
-    parsedLogs.push({ stackTrace });
+    return matchesKeyword && withinTimeRange && matchesLevel;
   });
+};
 
-  return parsedLogs;
+const exportToJson = (logs, outputPath) => {
+  fs.writeFileSync(outputPath, JSON.stringify(logs, null, 2), 'utf8');
+};
+
+const exportToCsv = (logs, outputPath) => {
+  const headers = ['timestamp', 'level', 'message'];
+  const rows = logs.map(log => [
+    log.timestamp,
+    log.level,
+    log.message
+  ]);
+  const csv = [headers, ...rows].join('
+');
+  fs.writeFileSync(outputPath, csv, 'utf8');
 };
 
 module.exports = {
-  parseAppLog,
-  parseApacheLog,
-  parseErrorLog
-}
+  parseLog,
+  countErrors,
+  searchLogs,
+  exportToJson,
+  exportToCsv
+};

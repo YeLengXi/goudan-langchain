@@ -1,9 +1,10 @@
-name: api-tester
-version: "1.0.0"
-description: A command-line API testing tool.
-main": "index.js"
-scripts": {
-  "test": "echo \"Error: no test specified\"
-"}
-author: Goudan
-license: MIT
+{
+  "name": "api-tester",
+  "version": "1.0.0",
+  "description": "A command-line API testing tool.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1
+  },
+  "devDependencies": {}
+}
