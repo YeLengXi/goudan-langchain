@@ -1,15 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 
-const searchLogs = (logs, keyword, startTime, endTime, level) => {
-    return logs.filter(log => {
-        const matchesKeyword = log.message.includes(keyword);
-        const withinTimeRange = log.timestamp >= startTime && log.timestamp <= endTime;
-        const matchesLevel = !level || log.level === level;
-
-        return matchesKeyword && withinTimeRange && matchesLevel;
-    });
-};
-
-module.exports = {
-    searchLogs
+// 搜索引擎
+async function search_logs(log_data, keyword, start_time, end_time, log_level) {
+  // TODO: 实现搜索和过滤逻辑
+  return log_data;
 }

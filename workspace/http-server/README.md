@@ -1,6 +1,6 @@
 # Simple HTTP Server
 
-This is a simple HTTP server that serves static files from a specified directory.
+A simple HTTP static file server written in Node.js.
 
 ## Features
 
@@ -14,19 +14,8 @@ This is a simple HTTP server that serves static files from a specified directory
 
 ## Usage
 
-Start the server with the following command:
+To start the server, run:
 
 ```bash
 node server.js --port 8080 --dir ./public
 ```
-
-Replace `8080` with the desired port number and `./public` with the directory you want to serve.
-
-## Dependencies
-
-- Node.js
-- http
-- fs
-- path
-- url
-- mime

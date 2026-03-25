@@ -1,56 +1,31 @@
-const equal = (actual, expected) => {
-  if (actual === expected) {
-    return true;
-  }
-  return false;
-};
-
-const deepEqual = (actual, expected) => {
-  if (actual === expected) {
-    return true;
-  }
-  if (typeof actual !== 'object' || typeof expected !== 'object') {
-    return false;
-  }
-  const keysA = Object.keys(actual);
-  const keysB = Object.keys(expected);
-  if (keysA.length !== keysB.length) {
-    return false;
-  }
-  for (let key of keysA) {
-    if (!deepEqual(actual[key], expected[key])) {
-      return false;
-    }
-  }
-  return true;
-};
-
-const truthy = (value) => {
-  return !!value;
-};
-
-const falsy = (value) => {
-  return !value;
-};
-
-const throws = (fn, error) => {
-  try {
-    fn();
-    return false;
-  } catch (e) {
-    return e === error;
-  }
-};
-
-const contains = (actual, expected) => {
-  return actual.includes(expected);
-};
+const assert = require('assert');
 
 module.exports = {
-  equal,
-  deepEqual,
-  truthy,
-  falsy,
-  throws,
-  contains
+  equal: (actual, expected) => {
+    assert.strictEqual(actual, expected);
+  },
+
+  deepEqual: (actual, expected) => {
+    assert.deepStrictEqual(actual, expected);
+  },
+
+  truthy: (value) => {
+    assert.ok(value);
+  },
+
+  falsy: (value) => {
+    assert.ok(!value);
+  },
+
+  throws: (fn, error) => {
+    try {
+      fn();
+    } catch (e) {
+      assert.strictEqual(e, error);
+    }
+  },
+
+  contains: (actual, expected) => {
+    assert.ok(actual.includes(expected));
+  }
 };

@@ -1,27 +1,54 @@
-const describe = (name, fn) => {
-  console.log(
-    `
-${name}
-`);
-  fn();
-};
+const { describe, it, expect } = require('./test.js');
 
-const it = (name, fn) => {
-  try {
-    fn();
-    console.log(`  ✓ ${name}`);
-  } catch (error) {
-    console.error(`  ✗ ${name}
-    ${error}`);
-  }
-};
+function createTestFramework() {
+  let tests = [];
+  let currentTest = {
+    name: '',
+    tests: [],
+    before: () => {},
+    after: () => {}
+  };
 
-const before = (fn) => {
-  fn();
-};
+  return {
+    describe: (name, fn) => {
+      currentTest = {
+        name: name,
+        tests: [],
+        before: () => {},
+        after: () => {}
+      };
+      fn(currentTest);
+      tests.push(currentTest);
+    },
 
-const after = (fn) => {
-  fn();
-};
+    it: (name, fn) => {
+      currentTest.tests.push({ name, fn });
+    },
 
-module.exports = { describe, it, before, after };
+    before: (fn) => {
+      currentTest.before = fn;
+    },
+
+    after: (fn) => {
+      currentTest.after = fn;
+    },
+
+    run: () => {
+      tests.forEach(test => {
+        console.log(`Running test suite: ${test.name}`);
+        test.before();
+        test.tests.forEach(testCase => {
+          try {
+            testCase.fn();
+            console.log(`  ${testCase.name} ✓`);
+          } catch (error) {
+            console.error(`  ${testCase.name} ✗`, error);
+          }
+        });
+        test.after();
+      });
+    }
+  };
+}
+
+module.exports = createTestFramework();

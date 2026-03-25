@@ -1,36 +1,13 @@
-const read_file = require('fs').readFileSync;
-
-const logFormats = {
-    'app': /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} .+$/,
-    'apache': /^\[(.+) \d{2}/,
-    'error': /^Error:.+$/,
-};
-
-function parseLog(logContent) {
-    const lines = logContent.split('\n');
-    const parsedLogs = [];
-
-    lines.forEach(line => {
-        let match;
-        for (const format in logFormats) {
-            if ((match = line.match(logFormats[format]))) {
-                parsedLogs.push({
-                    type: format,
-                    content: line,
-                    timestamp: format === 'app' ? match[0].split(' ')[0] : null,
-                    level: format === 'app' ? match[0].split(' ')[1] : null,
-                    message: format === 'app' ? match[0].split(' ')[2] : line,
-                });
-                break;
-            }
-        }
-    });
-
-    return parsedLogs;
-}
+const fs = require('fs');
+const path = require('path');
+const 日志解析器 = require('./日志解析器');
+const 错误统计器 = require('./错误统计器');
+const 搜索引擎 = require('./搜索引擎');
+const 报告生成器 = require('./报告生成器');
 
 module.exports = {
-    read_file,
-    logFormats,
-    parseLog,
-}
+  parse_log: 日志解析器.parse_log,
+  count_errors: 错误统计器.count_errors,
+  search_logs: 搜索引擎.search_logs,
+  generate_report: 报告生成器.generate_report
+};

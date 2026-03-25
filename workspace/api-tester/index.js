@@ -1,87 +1,75 @@
 const https = require('https');
+const { parse } = require('minimist');
 const fs = require('fs');
 const path = require('path');
 
-const parseArgs = require('minimist');
-const { readFileSync } = require('fs');
-const { yellow, blue, green, red } = require('chalk');
+const DEFAULT_REQUEST_FILE = 'requests.json';
 
-const configFilePath = path.join(__dirname, 'config.json');
-
-// Load configuration
-let config = {};
-try {
-  config = JSON.parse(readFileSync(configFilePath, 'utf8'));
-} catch (error) {
-  console.error(red(`Error reading configuration file: ${error.message}`));
-}
-
-// Parse command line arguments
-const args = parseArgs(process.argv.slice(2));
-
-// Define HTTP methods
-const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-
-// Function to perform HTTP request
-async function performHttpRequest(method, url, headers = {}, body = null) {
-  const options = {
-    method,
-    headers
-  }
-
-  if (body) {
-    if (headers['Content-Type'] === 'application/json') {
-      body = JSON.stringify(body);
+function makeRequest(method, url, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      method,
+      headers
     }
-    options.body = body;
-  }
 
-  try {
-    const startTime = Date.now();
-    const response = await fetch(url, options);
-    const endTime = Date.now();
-    const responseTime = endTime - startTime;
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
+      }
+    }
 
-    console.log(green(`Status Code: ${response.status}`));
-    console.log(blue(`Response Time: ${responseTime}ms`));
-    console.log(yellow(`Headers:`));
-    console.log(JSON.stringify(response.headers.raw(), null, 2));
-
-    const data = await response.json();
-    console.log(green(`Data:`));
-    console.log(JSON.stringify(data, null, 2));
-
-    return data;
-  } catch (error) {
-    console.error(red(`Error: ${error.message}`));
-  }
+    https.get(url, response => {
+      let data = '';
+      response.on('data', chunk => {
+        data += chunk;
+      });
+      response.on('end', () => {
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: data
+        });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
+  });
 }
 
-// CLI interface
-async function cliInterface() {
-  if (args._.length === 0) {
-    console.log(red('No command specified.'));
-    return;
+function parseArguments(args) {
+  const parsedArgs = parse(args);
+  const { method, url, _ } = parsedArgs;
+  let headers = parsedArgs.headers || {};
+  let body = parsedArgs.body || {};
+
+  if (_.length > 0) {
+    _.forEach(arg => {
+      if (arg.startsWith('-h') || arg.startsWith('--header')) {
+        const header = arg.split('=')[1];
+        headers[header.split(':')[0]] = header.split(':')[1];
+      }
+      if (arg.startsWith('-d') || arg.startsWith('--data')) {
+        body = JSON.parse(arg.split('=')[1]);
+      }
+    });
   }
 
-  const method = args._[0].toUpperCase();
-  const url = args._[1];
+  return { method, url, headers, body };}
 
-  if (!httpMethods.includes(method)) {
-    console.log(red(`Invalid HTTP method: ${method}`));
-    return;
-  }
+function run() {
+  const args = process.argv.slice(2);
+  const { method, url, headers, body } = parseArguments(args);
 
-  let body = null;
-  if (args.d) {
-    body = JSON.parse(args.d);
-  }
-
-  if (args.f) {
-    body = JSON.parse(readFileSync(args.f, 'utf8'));
-  }
-
-  await performHttpRequest(method, url, {}, body);
+  makeRequest(method, url, headers, body)
+    .then(response => {
+      console.log(`Status Code: ${response.statusCode}`);
+      console.log(`Headers: ${JSON.stringify(response.headers)}`);
+      console.log(`Body: ${JSON.stringify(response.body)}`);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
-cliInterface();
+run();

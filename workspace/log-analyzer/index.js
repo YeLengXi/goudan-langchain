@@ -1,27 +1,54 @@
-const read_file = require('fs').readFile;
-const parseLog = require('./日志解析器/index');
-const errorStats = require('./错误统计器/index');
-const searchEngine = require('./搜索引擎/index');
-const reportGenerator = require('./报告生成器/index');
-const util = require('util');
-const readFile = util.promisify(read_file);
-const writeFile = util.promisify(write_file);
+const fs = require('fs');
+const path = require('path');
 
-const main = async (logPath) => {
-  const logs = await parseLog.parseAppLog(logPath);
-  const errors = errorStats.countErrors(logs);
-  const groupedLogs = errorStats.groupByType(logs);
-  const mostFrequentError = errorStats.showMostFrequentError(logs);
-  const searchedLogs = searchEngine.searchLogs(logs, 'timeout', null, null, 'ERROR');
-  const exportedLogs = await reportGenerator.exportToJson(logs);
+// 读取文件内容
+async function read_file(file_path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(file_path, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
 
-  console.log('Errors:', errors);
-  console.log('Grouped Logs:', groupedLogs);
-  console.log('Most Frequent Error:', mostFrequentError);
-  console.log('Searched Logs:', searchedLogs);
-  console.log('Exported Logs:', exportedLogs);
-};
+// 写入文件内容
+async function write_file(file_path, content) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(file_path, content, 'utf8', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
-module.exports = {
-  main
-};
+// 执行命令行命令
+async function exec_command(command) {
+  return new Promise((resolve, reject) => {
+    require('child_process').exec(command, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({stdout, stderr});
+      }
+    });
+  });
+}
+
+// 列出目录内容
+async function list_directory(directory_path) {
+  return new Promise((resolve, reject) => {
+    fs.readdir(directory_path, (err, files) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(files);
+      }
+    });
+  });
+}

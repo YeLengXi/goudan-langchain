@@ -1,44 +1,62 @@
 const { parse } = require('cron-parser');
 
-const tasks = [];
+class Scheduler {
+  constructor(configPath) {
+    this.configPath = configPath;
+    this.tasks = [];
+    this.parser = parse;
+  }
 
-function addTask(name, cron, command) {
-  const parser = parse(cron, {
-    iterator: true
-  });
-  const interval = parser.next().value;
-  const timer = setInterval(() => {
-    console.log(`Executing task: ${name}`);
-    execCommand(command);
-  }, interval);
-  tasks.push({
-    name,
-    cron,
-    command,
-    timer
-  });
-}
+  async loadConfig() {
+    const config = await this.readConfig();
+    this.tasks = config.tasks.map(task => ({
+      ...task,
+      nextRun: this.parser.parse(task.cron).next(),
+    }));
+  }
 
-function removeTask(name) {
-  const task = tasks.find(t => t.name === name);
-  if (task) {
-    clearInterval(task.timer);
-    tasks.splice(tasks.indexOf(task), 1);
+  async readConfig() {
+    const content = await read_file({ file_path: this.configPath });
+    return JSON.parse(content);
+  }
+
+  async addTask(task) {
+    const nextRun = this.parser.parse(task.cron).next();
+    this.tasks.push({
+      ...task,
+      nextRun,
+    });
+  }
+
+  async removeTask(taskName) {
+    this.tasks = this.tasks.filter(task => task.name !== taskName);
+  }
+
+  async run() {
+    const now = new Date();
+    const taskToRun = this.tasks.find(task => task.nextRun <= now);
+    if (taskToRun) {
+      await this.execCommand(taskToRun.command);
+      this.logTaskExecution(taskToRun.name);
+      this.updateNextRun(taskToRun);
+    }
+  }
+
+  async execCommand(command) {
+    try {
+      await exec_command({ command: command });
+    } catch (error) {
+      console.error(`Error executing command: ${command}`, error);
+    }
+  }
+
+  logTaskExecution(taskName) {
+    console.log(`Task ${taskName} executed at ${new Date().toISOString()}`);
+  }
+
+  updateNextRun(task) {
+    task.nextRun = this.parser.parse(task.cron).next();
   }
 }
 
-function execCommand(command) {
-  require('child_process').exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Error executing command: ${error}`);
-      return;
-    }
-    if (stderr) {
-      console.error(`Stderr: ${stderr}`);
-      return;
-    }
-    console.log(`Stdout: ${stdout}`);
-  });
-}
-
-module.exports = { addTask, removeTask };
+module.exports = Scheduler;

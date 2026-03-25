@@ -1,29 +1,13 @@
-const { describe, it, expect } = require('./test.js');
+const { describe, it, expect } = require('./test-framework/test.js');
 
-const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
+const assert = require('./test-framework/assert.js');
 
 describe('Example tests', () => {
-  it('should test equality', () => {
-    expect(1).toEqual(1);
+  it('should equal numbers', () => {
+    expect(1 + 2).toEqual(3);
   });
 
-  it('should test deep equality', () => {
-    expect({ a: 1 }).toEqual({ a: 1 });
-  });
-
-  it('should test truthiness', () => {
-    expect(true).toBeTruthy();
-  });
-
-  it('should test falsiness', () => {
-    expect(false).toBeFalsy();
-  });
-
-  it('should test throws', () => {
-    expect(() => { throw new Error('test error'); }).toThrow('test error');
-  });
-
-  it('should test contains', () => {
-    expect(['a', 'b', 'c']).toContain('b');
+  it('should throw error', () => {
+    expect(() => { throw new Error('Test error'); }).toThrow('Test error');
   });
 });

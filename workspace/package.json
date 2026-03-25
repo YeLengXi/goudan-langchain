@@ -13,12 +13,18 @@
     "axios": "^1.13.6",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
+    "cors": "^2.8.6",
     "cron": "^4.4.0",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
+    "esprima": "^4.0.1",
+    "estraverse": "^5.3.0",
     "express": "^5.2.1",
     "fs": "^0.0.1-security",
-    "minimist": "^1.2.8"
+    "log4js": "^6.9.1",
+    "mime": "^4.1.0",
+    "minimist": "^1.2.8",
+    "serve-static": "^2.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
