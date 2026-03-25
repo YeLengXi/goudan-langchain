@@ -1,28 +1,26 @@
-const { read_file, write_file, exec_command, list_directory } = require('./utils');
-
-// 日志解析器
-const parseLog = (logContent) => {
-  // TODO: 实现日志解析逻辑
-};
-
-// 错误统计器
-const countErrors = (logs) => {
-  // TODO: 实现错误统计逻辑
-};
-
-// 搜索引擎
-const searchLogs = (logs, keyword, startTime, endTime, level) => {
-  // TODO: 实现搜索和过滤逻辑
-};
-
-// 报告生成器
-const generateReport = (logs) => {
-  // TODO: 实现报告生成逻辑
-};
+const read_file = require('fs').readFileSync;
 
 module.exports = {
-  parseLog,
-  countErrors,
-  searchLogs,
-  generateReport
-};
+  exportToJson: (logs) => {
+    return JSON.stringify(logs, null, 2);
+  },
+
+  exportToCsv: (logs) => {
+    const headers = ['timestamp', 'level', 'message'];
+    const rows = logs.map(log => [
+      log.timestamp,
+      log.level,
+      log.message
+    ]);
+    return headers.join(',') + '
+' + rows.map(row => row.join(',')).join('
+');
+  },
+
+  generateReport: (logs) => {
+    const errorTypes = require('./error-statistics').countErrors(logs);
+    const mostFrequentError = require('./error-statistics').findMostFrequentError(errorTypes);
+    return `Total logs: ${logs.length}
+Most frequent error: ${mostFrequentError}
+`;}
+}
