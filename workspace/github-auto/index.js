@@ -1,12 +1,39 @@
-// 主程序
-const express = require('express');
-const app = express();
-const port = 3000;
+const axios = require('axios');
 
-app.get('/', (req, res) => {
-  res.send('GitHub Auto Tool');
-});
+const apiUrl = 'https://api.github.com';
+const gitUrl = 'https://github.com';
 
-app.listen(port, () => {
-  console.log(`GitHub Auto Tool running at http://localhost:${port}`);
-});
+const createRepository = async (username, repositoryName, isPrivate, description) => {
+  const token = 'YOUR_GITHUB_TOKEN';
+  const response = await axios.post(`${apiUrl}/user/repos`, {
+    name: repositoryName,
+    private: isPrivate,
+    description
+  }, {
+    headers: {
+      Authorization: `token ${token}`,
+    }
+  });
+
+  return response.data.clone_url;
+};
+
+const initializeGit = async (repositoryUrl) => {
+  const command = `git init
+  git remote add origin ${repositoryUrl}
+  git add .
+  git commit -m 'Initial commit'
+  git push -u origin main`;
+  exec_command(command);
+};
+
+const pushToGitHub = async (repositoryUrl) => {
+  const command = `git push origin main`; 
+  exec_command(command);
+};
+
+module.exports = {
+  createRepository,
+  initializeGit,
+  pushToGitHub
+};

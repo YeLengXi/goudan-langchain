@@ -1,22 +1,38 @@
-# GitHub Auto Tool
+# GitHub Auto
 
-这是一个用于自动化 GitHub 仓库创建、初始化和推送流程的工具。
+GitHub Auto is a CLI tool that automates the process of creating, initializing, and pushing GitHub repositories.
 
-## 安装
+## Features
+
+- Create repositories
+- Initialize local git repositories
+- Push to GitHub
+
+## Usage
+
+### Create a new repository
 
 ```bash
-npm install
+github-auto create <repository-name> --public
+github-auto create <repository-name> --private --description "My awesome project"
 ```
 
-## 使用
+### Initialize a local repository
 
 ```bash
-github-auto create my-project --public
+github-auto init --template <template>
 ```
 
-## 功能
+### Push to GitHub
 
-- 仓库创建
-- 本地初始化
-- 推送到 GitHub
-- 模板系统
+```bash
+github-auto push
+```
+
+## Configuration
+
+You can set your GitHub Personal Access Token in the environment variables.
+
+## License
+
+MIT
