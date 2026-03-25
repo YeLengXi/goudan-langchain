@@ -1,62 +1,54 @@
-const { parse } = require('cron-parser');
+# Cron Scheduler
 
-class Scheduler {
-  constructor(configPath) {
-    this.configPath = configPath;
-    this.tasks = [];
-    this.parser = parse;
-  }
+This is the main program for the Cron Scheduler. It uses Node.js to schedule tasks based on cron expressions.
 
-  async loadConfig() {
-    const config = await this.readConfig();
-    this.tasks = config.tasks.map(task => ({
-      ...task,
-      nextRun: this.parser.parse(task.cron).next(),
-    }));
-  }
+## Features
 
-  async readConfig() {
-    const content = await read_file({ file_path: this.configPath });
-    return JSON.parse(content);
-  }
+- Parse cron expressions
+- Schedule tasks
+- Add/remove tasks
+- Task execution logs
+- Configuration file support
 
-  async addTask(task) {
-    const nextRun = this.parser.parse(task.cron).next();
-    this.tasks.push({
-      ...task,
-      nextRun,
-    });
-  }
+## Usage
 
-  async removeTask(taskName) {
-    this.tasks = this.tasks.filter(task => task.name !== taskName);
-  }
+To run the scheduler, use the following command:
 
-  async run() {
-    const now = new Date();
-    const taskToRun = this.tasks.find(task => task.nextRun <= now);
-    if (taskToRun) {
-      await this.execCommand(taskToRun.command);
-      this.logTaskExecution(taskToRun.name);
-      this.updateNextRun(taskToRun);
+```bash
+node scheduler.js --config tasks.json
+```
+
+The --config flag is used to specify the configuration file containing the tasks to be scheduled.
+
+## Configuration File
+
+The configuration file is a JSON file that defines the tasks to be scheduled. The format is as follows:
+
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
     }
-  }
-
-  async execCommand(command) {
-    try {
-      await exec_command({ command: command });
-    } catch (error) {
-      console.error(`Error executing command: ${command}`, error);
-    }
-  }
-
-  logTaskExecution(taskName) {
-    console.log(`Task ${taskName} executed at ${new Date().toISOString()}`);
-  }
-
-  updateNextRun(task) {
-    task.nextRun = this.parser.parse(task.cron).next();
-  }
+  ]
 }
+```
 
-module.exports = Scheduler;
+Each task has a name, a cron expression, and a command to execute.
+
+## Testing
+
+To test the scheduler, run the following command:
+
+```bash
+test/scheduler.test.js
+```
+
+This will run the test cases for the scheduler.
