@@ -1,29 +1,22 @@
-# README Template
+# README 模板
 
-This is a template for the README file of a GitHub repository.
+这是一个 README 模板的示例。
 
-## Project Description
+## 项目描述
 
-[Project Name]
+[项目描述]
 
-[Project Description]
+## 安装
 
-## Features
+[安装说明]
 
-[List of features]
+## 使用
 
-## Installation
+[使用说明]
 
-[Installation instructions]
+## 贡献
 
-## Usage
+[贡献指南]
 
-[Usage instructions]
-
-## Contributing
-
-[Contribution guidelines]
-
-## License
-
-[License information]
+## 许可证
+[许可证信息]
