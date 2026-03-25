@@ -1,42 +1,23 @@
-// 主程序
-const axios = require('axios');
 const fs = require('fs');
-const path = require('path');
+const https = require('https');
 const { exec } = require('child_process');
+const path = require('path');
 
-const githubApiUrl = 'https://api.github.com';
-const token = 'YOUR_GITHUB_TOKEN';
+const GITHUB_API_URL = 'https://api.github.com';
+const README_TEMPLATE_PATH = path.join(__dirname, '../templates/README.md');
+const GITIGNORE_TEMPLATE_PATH = path.join(__dirname, '../templates/gitignore');
+const LICENSE_TEMPLATE_PATH = path.join(__dirname, '../templates/LICENSE');
 
-// 读取命令行参数
-const args = process.argv.slice(2);
-
-// 创建 GitHub 仓库
-async function createRepo(repoName, isPublic, description) {
-  const config = {
-    url: `${githubApiUrl}/user/repos",
-    method: 'post',
-    headers: {
-      'Authorization': `token ${token}`,
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    data: {
-      name: repoName,
-      private: !isPublic,
-      description
-    }
+const githubAuto = {
+  create: async (projectName, isPublic, description) => {
+    // Implementation for creating a GitHub repository
+  },
+  init: async (template) => {
+    // Implementation for initializing the local repository
+  },
+  push: async () => {
+    // Implementation for pushing to GitHub
   }
+};
 
-  try {
-    const response = await axios(config);
-    return response.data;
-  } catch (error) {
-    console.error('创建仓库失败:', error);
-    process.exit(1);
-  }
-}
-
-// 本地初始化
-function init(repoName) {
-  const projectPath = path.join(__dirname, repoName);
-  fs.mkdirSync(projectPath, { recursive: true });
-  fs.writeFileSync(path.join(projectPath, 'README.md'), ''al
+module.exports = githubAuto;

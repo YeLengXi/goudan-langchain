@@ -13,7 +13,8 @@ function formatCode(code, config = DEFAULT_CONFIG) {
   let formatted = code;
 
   // Normalize line endings
-  formatted = formatted.replace(/\r\n/g, '\n');
+  formatted = formatted.replace(/
+/g, '\n');
 
   // Step 1: Format arrow functions - add spaces
   if (config.formatArrowFunctions) {

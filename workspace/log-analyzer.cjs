@@ -1,49 +1,42 @@
-const read_file = require('fs').readFileSync;
-const write_file = require('fs').writeFileSync;
-const exec_command = require('child_process').exec;
+const fs = require('fs');
 
-// 日志解析器
-function parseLog(logData) {
-    // TODO: 实现日志解析逻辑
-}
+const analyzeLog = (filePath, options) => {
+  const content = fs.readFileSync(filePath, 'utf8').split('
+');
 
-// 错误统计器
-function countErrors(logData) {
-    // TODO: 实现错误统计逻辑
-}
+  // Log parsing
+  let parsedLogs = [];
+  content.forEach(line => {
+    if (line.includes('INFO') || line.includes('DEBUG') || line.includes('ERROR')) {
+      parsedLogs.push(line);
+    }
+  });
 
-// 搜索引擎
-function searchLogs(logData, keyword, startTime, endTime, level) {
-    // TODO: 实现搜索和过滤逻辑
-}
+  // Error statistics
+  let errorCounts = {};
+  parsedLogs.forEach(log => {
+    if (log.includes('ERROR')) {
+      const errorType = log.split(' ')[3];
+      errorCounts[errorType] = (errorCounts[errorType] || 0) + 1;
+    }
+  });
 
-// 报告生成器
-function generateReport(logData, errors, searchResults) {
-    // TODO: 实现报告生成逻辑
-}
+  // Search and filter
+  let filteredLogs = parsedLogs.filter(log => {
+    return options.search ? log.includes(options.search) : true;
+  });
 
-// 主函数
-function main() {
-    const logFilePath = process.argv[2];
-    const options = process.argv.slice(3);
+  // Export
+  if (options.export === 'json') {
+    const jsonContent = JSON.stringify({ logs: filteredLogs, errorCounts: errorCounts }, null, 2);
+    return jsonContent;
+  } else if (options.export === 'csv') {
+    const csvContent = parsedLogs.map(log => log.split(' ')).join('
+');
+    return csvContent;
+  }
 
-    const logData = read_file(logFilePath, 'utf8');
+  return { logs: filteredLogs, errorCounts: errorCounts };
+};
 
-    let errors = [];
-    let searchResults = [];
-
-    options.forEach(option => {
-        if (option.startsWith('--error')) {
-            errors = countErrors(logData);
-        }
-        if (option.startsWith('--search')) {
-            const args = option.split(' ')[1];
-            const [keyword, startTime, endTime, level] = args.split(',');
-            searchResults = searchLogs(logData, keyword, startTime, endTime, level);
-        }
-    });
-
-    generateReport(logData, errors, searchResults);
-}
-
-main();
+module.exports = analyzeLog;

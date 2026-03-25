@@ -11,12 +11,12 @@
     {
       "name": "Project 1",
       "description": "This is my first project.",
-      "link": "https://example.com/project1"
+      "url": "https://example.com/project1"
     },
     {
       "name": "Project 2",
       "description": "This is my second project.",
-      "link": "https://example.com/project2"
+      "url": "https://example.com/project2"
     }
   ],
   "social_links": {
