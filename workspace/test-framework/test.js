@@ -1,8 +1,10 @@
-const assert = require('./assert.js');
+const { describe, it, expect } = require('./test.js');
+
+const assert = require('assert');
 
 module.exports = {
   describe,
   it,
-  before,
-  after
+  expect,
+  assert
 };

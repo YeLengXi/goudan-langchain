@@ -1,48 +1,38 @@
-module.exports = {
-  fetch: async (url) => {
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.text();
-    } catch (error) {
-      console.error('Fetching error:', error);
-      throw error;
+const fetch = require('node-fetch');
+
+const scrape = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  },
-  extractTitle: (html) => {
-    const regex = /<title>(.*?)</title>/i;
-    const match = html.match(regex);
-    return match ? match[1] : null;
-  },
-  extractLinks: (html) => {
-    const regex = /<a [^>]*href="([^"]+)"/gi;
-    const matches = html.matchAll(regex);
-    const links = [];
-    for (const match of matches) {
-      links.push(match[1]);
-    }
-    return links;
-  },
-  extractImages: (html) => {
-    const regex = /<img [^>]*src="([^"]+)"/gi;
-    const matches = html.matchAll(regex);
-    const images = [];
-    for (const match of matches) {
-      images.push(match[1]);
-    }
-    return images;
-  },
-  scrape: async (url) => {
-    const html = await fetch(url);
-    const title = extractTitle(html);
-    const links = extractLinks(html);
-    const images = extractImages(html);
+    const html = await response.text();
+
+    const title = html.match(/<title>(.*?)</title>/)[1];
+    const links = html.match(/<a [^>]*href="([^"]+)"/g);
+    const images = html.match(/<img [^>]*src="([^"]+)"/g);
+
     return {
       title,
       links,
       images
     }
+  } catch (error) {
+    console.error('Error scraping the webpage:', error);
+    process.exit(1);
   }
 };
+
+const main = async () => {
+  const args = process.argv.slice(2);
+  if (args.length !== 1) {
+    console.error('Usage: node scraper.js <URL>');
+    process.exit(1);
+  }
+
+  const url = args[0];
+  const result = await scrape(url);
+  console.log(JSON.stringify(result, null, 2));
+};
+
+main();

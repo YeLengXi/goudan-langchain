@@ -1,63 +1,35 @@
-const readline = require('readline');
-const { encrypt, decrypt } = require('./index');
-const fs = require('fs');
-const path = require('path');
-const util = require('util');
+const { program } = require('commander');
 
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const stat = util.promisify(fs.stat);
+program.version('1.0.0');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
-const ask = async (question) => {
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      resolve(answer);
-    });
+program.command('encrypt')
+  .argument('<text>', 'Text to encrypt')
+  .option('--method <method>', 'Encryption method (caesar, base64, rot13, xor, aes)', 'caesar')
+  .option('--key <key>', 'Encryption key', '')
+  .option('--output <output>', 'Output file path', '')
+  .action((text, options) => {
+    const encrypted = encrypt(text, options.method, options.key);
+    if (options.output) {
+      fs.writeFileSync(options.output, encrypted);
+      console.log(`Encrypted text written to ${options.output}`);
+    } else {
+      console.log(encrypted);
+    }
   });
-};
 
-const encryptCLI = async () => {
-  const text = await ask('Enter text to encrypt: ');
-  const method = (await ask('Enter encryption method (caesar, base64, rot13, xor, aes): ')).toLowerCase();
-  const key = await ask('Enter key (for aes, leave empty for others): ');
-  const output = await ask('Enter output file name (leave empty for console output): ');
-  if (output && !path.extname(output)) {
-    output += '.bin';
-  }
-  await encrypt(text, method, key, output);
-};
+program.command('decrypt')
+  .argument('<input>', 'Input file path')
+  .option('--method <method>', 'Decryption method (caesar, base64, rot13, xor, aes)', 'aes')
+  .option('--key <key>', 'Decryption key', '')
+  .option('--output <output>', 'Output file path', '')
+  .action((input, options) => {
+    const decrypted = decrypt(fs.readFileSync(input, 'utf-8'), options.method, options.key);
+    if (options.output) {
+      fs.writeFileSync(options.output, decrypted);
+      console.log(`Decrypted text written to ${options.output}`);
+    } else {
+      console.log(decrypted);
+    }
+  });
 
-const decryptCLI = async () => {
-  const input = await ask('Enter file to decrypt: ');
-  const method = (await ask('Enter decryption method (caesar, base64, rot13, xor, aes): ')).toLowerCase();
-  const key = await ask('Enter key: ');
-  const output = await ask('Enter output file name: ');
-  if (output && !path.extname(output)) {
-    output += '.txt';
-  }
-  await decrypt(input, method, key, output);
-};
-
-rl.on('close', () => {
-  rl.close();
-});
-
-const startCLI = async () => {
-  const command = await ask('Enter command (encrypt, decrypt, exit): ');
-  if (command === 'encrypt') {
-    await encryptCLI();
-  } else if (command === 'decrypt') {
-    await decryptCLI();
-  } else if (command === 'exit') {
-    rl.close();
-  } else {
-    console.log('Unknown command');
-  }
-};
-
-startCLI();
+program.parse(process.argv);

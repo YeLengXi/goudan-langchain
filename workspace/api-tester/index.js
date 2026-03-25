@@ -1,54 +1,77 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const { parse } = require('minimist');
+#!/usr/bin/env node
 
-const DEFAULT_REQUEST_FILE = path.join(__dirname, '../examples/requests.json');
+const fetch = require('node-fetch');
 
-function fetchApi(url, method, headers, body) {
-  return new Promise((resolve, reject) => {
-    const options = {
+const minimist = require('minimist');
+
+const { read_file, write_file, exec_command, list_directory } = require('./utils');
+
+const configFilePath = './config.json';
+
+// 读取配置文件
+async function readConfig() {
+  try {
+    const configContent = await read_file(configFilePath);
+    return JSON.parse(configContent);
+  } catch (error) {
+    return {};
+  }
+}
+
+// 保存配置文件
+async function saveConfig(config) {
+  await write_file(configFilePath, JSON.stringify(config, null, 2));
+}
+
+// 发送 HTTP 请求
+async function sendRequest(method, url, headers = {}, body = null) {
+  try {
+    const response = await fetch(url, {
       method,
-      headers
-    }
-
-    if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
-      }
-    }
-
-    https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
-      response.on('end', () => {
-        resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: JSON.parse(data)
-        });
-      });
-    }).on('error', error => {
-      reject(error);
+      headers,
+      body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(body) 
+      : null
     });
-  });
+    return response;
+  } catch (error) {
+    throw error;
+  }
 }
 
-function parseRequestFile(filePath) {
-  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  return requests.map(request => {
-    return {
-      url: request.url,
-      method: request.method,
-      headers: request.headers || {},
-      body: request.body || null
-    };n  });
+// 格式化响应
+function formatResponse(response) {
+  const { status, headers } = response;
+  const headerString = Object.entries(headers).map(([key, value]) => `${key}: ${value}`).join('
+');
+  const responseString = `Status: ${status}
+Headers:
+${headerString}
+Body: ${JSON.stringify(response.body, null, 2)}`;
+  return responseString;
 }
 
-module.exports = {
-  fetchApi,
-  parseRequestFile
+// 主程序
+async function main() {
+  const args = minimist(process.argv.slice(2));
+  const config = await readConfig();
+
+  let { method, url } = args;
+  let headers = args.headers || {};
+  let body = args.body || null;
+
+  if (args['request-file']) {
+    const requestContent = await read_file(args['request-file']);
+    const request = JSON.parse(requestContent);
+    method = request.method;
+    url = request.url;
+    headers = request.headers || {};
+    body = request.body || null;
+  }
+
+  const response = await sendRequest(method, url, headers, body);
+  console.log(formatResponse(response));
 }
+
+main().catch(error => {
+  console.error('Error:', error);
+});

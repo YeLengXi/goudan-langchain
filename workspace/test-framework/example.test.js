@@ -1,11 +1,9 @@
-const { describe, it, expect } = require('./test.js');
+const { describe, it, expect } = require('./test-framework/test.js');
 
-describe('Example tests', () => {
-  it('should pass', () => {
-    expect(1).toBe(1);
-  });
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('./test-framework/assert.js');
 
-  it('should fail', () => {
-    expect(1).toBe(2);
+describe('Array operations', () => {
+  it('should include item', () => {
+    expect([1, 2, 3].includes(2)).toBe(true);
   });
 });

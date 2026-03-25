@@ -1,47 +1,48 @@
 const fs = require('fs');
 const path = require('path');
-const { describe, it, expect } = require('./test-framework/test.js');
+const { describe, it, before, after } = require('./test.js');
 const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
 
-const testFiles = fs.readdirSync('./tests').filter(file => file.endsWith('.test.js'));
+const testFiles = fs.readdirSync('tests').filter(file => file.endsWith('.test.js'));
+const tests = [];
+
+testFiles.forEach(file => {
+  const testSpecs = require(path.join('tests', file));
+  tests.push(...Object.values(testSpecs));
+});
 
 const runTests = () => {
-  testFiles.forEach(file => {
-    const testCases = require(file);
-    Object.keys(testCases).forEach(suite => {
-      describe(suite, () => {
-        Object.keys(testCases[suite]).forEach(test => {
-          it(test, () => {
-            if (testCases[suite][test].before) {
-              before(testCases[suite][test].before);
-            }
-            if (testCases[suite][test].test) {
-              testCases[suite][test].test();
-            }
-            if (testCases[suite][test].after) {
-              after(testCases[suite][test].after);
-            }
-          });
-        });
+  tests.forEach(testSpec => {
+    describe(testSpec.name, () => {
+      before(() => {
+        if (testSpec.before) {
+          testSpec.before();
+        }
+      });
+
+      it(testSpec.test, () => {
+        if (testSpec.async) {
+          testSpec.test();
+        } else {
+          try {
+            testSpec.test();
+          } catch (error) {
+            throw new Error(`Test failed: ${testSpec.test}
+              Error: ${error.message}`);
+          }
+        }
+      });
+
+      after(() => {
+        if (testSpec.after) {
+          testSpec.after();
+        }
       });
     });
   });
 };
 
-const watchTests = () => {
-  fs.watch('./tests', (event, filename) => {
-    if (event === 'change' && filename.endsWith('.test.js')) {
-      console.log('Test file changed. Running tests...');
-      runTests();
-    }
-  });
+module.exports = {
+  runTests,
+  watchTests
 };
-
-const verbose = process.argv.includes('--verbose');
-const watch = process.argv.includes('--watch');
-
-if (watch) {
-  watchTests();
-} else {
-  runTests();
-}

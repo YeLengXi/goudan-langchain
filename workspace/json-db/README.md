@@ -1,83 +1,38 @@
-## JSON数据库工具
+## README
 
-这是一个简单的基于JSON文件的数据库，支持CRUD操作和查询。
+This document describes how to use the JSON Database tool.
 
-## 文件结构
+### Installation
 
-- `database.js`: 数据库主程序
-- `README.md`: 使用文档
-- `test.js`: 测试文件
+Make sure you have Node.js installed.
 
-## 安装
+Clone the repository: `git clone [repository-url]`
 
-确保你已经安装了Node.js。
+Navigate to the repository directory: `cd json-db`
 
-## 使用
+Install dependencies: `npm install`
 
-1. 创建数据库文件
+### Usage
 
-   ```bash
-   node database.js create <table_name>
-   ```
+- Create a table: `node database.js create [table-name]`
+- Insert a record: `node database.js insert [table-name] --data '[data]'`
+- Find records: `node database.js find [table-name] --query '[query]'`
+- Update a record: `node database.js update [table-name] --id [id] --data '[data]'`
+- Delete a record: `node database.js delete [table-name] --id [id]'`
+- Save the database: `node database.js save`
 
-2. 插入记录
+### Examples
 
-   ```bash
-   node database.js insert <table_name> --data '<data>'
-   ```
+- Create a 'users' table: `node database.js create users`
+- Insert a user: `node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'`
+- Find users with age 30: `node database.js find users --query '{\"age\":30}'`
+- Update the age of the first user: `node database.js update users --id 1 --data '{\"age\":31}'`
+- Delete the first user: `node database.js delete users --id 1`
 
-3. 查询记录
+### Contributing
 
-   ```bash
-   node database.js find <table_name> --query '<query>'
-   ```
+Contributions are welcome. Please follow the contributing guidelines.
 
-4. 更新记录
+### License
 
-   ```bash
-   node database.js update <table_name> --id <id> --data '<data>'
-   ```
-
-5. 删除记录
-
-   ```bash
-   node database.js delete <table_name> --id <id>
-   ```
-
-6. 保存数据库
-
-   ```bash
-   node database.js save
-   ```
-
-## 示例
-
-创建表:
-
-   ```bash
-   node database.js create users
-   ```
-
-插入记录:
-
-   ```bash
-   node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
-   ```
-
-查询记录:
-
-   ```bash
-   node database.js find users --query '{\"age\":30}'
-   ```
-
-更新记录:
-
-   ```bash
-   node database.js update users --id 1 --data '{\"age\":31}'
-   ```
-
-删除记录:
-
-   ```bash
-   node database.js delete users --id 1
-   ```
+This project is licensed under the MIT License.

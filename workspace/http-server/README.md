@@ -1,21 +1,20 @@
 # Simple HTTP Server
 
-A simple HTTP static file server written in Node.js.
+This is a simple HTTP server that serves static files from a specified directory.
 
 ## Features
 
-- Serves static files
-- Directory browsing
-- MIME type detection
-- CORS support
-- Request logging
-- Error handling (404, 500)
-- Graceful shutdown
+- Serves static files from a specified directory.
+- Supports directory browsing.
+- Auto-detects MIME types.
+- Supports CORS.
+- Logs requests.
+- Handles errors (404, 500, etc.).
+- Graceful shutdown.
 
 ## Usage
 
-To start the server, run:
-
 ```bash
 node server.js --port 8080 --dir ./public
+node server.js --port 3000 --dir ./dist
 ```

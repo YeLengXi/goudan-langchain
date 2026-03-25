@@ -1,124 +1,141 @@
 const fs = require('fs');
-const { Transform } = require('stream');
+const path = require('path');
 
 // CSV解析器
-class CSVParser extends Transform {
-  constructor(options) {
-    super(options);
-    this.rowIndex = 0;
-    this.currentRow = [];
-  }
-
-  _transform(chunk, encoding, callback) {
-    const lines = chunk.toString().split('
+function parseCSV(file_path) {
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(file_path)
+      .on('data', (chunk) => {
+        let rows = chunk.toString().split('
 ');
-    for (let line of lines) {
-      if (this.rowIndex === 0) {
-        this.currentRow = line.split(',');
-      } else {
-        this.currentRow = line.split(',').map(item => item.replace(/"""/g, '"').replace(/"'/g, '"'));
-      }
-      this.push(this.currentRow.join('
-') + '
-');
-    }
-    this.rowIndex++;
-    callback();
-  }
-
-  _flush(callback) {
-    callback();
-  }
+        let parsedRows = [];
+        rows.forEach((row) => {
+          let cells = row.split(',');
+          let parsedCells = [];
+          cells.forEach((cell) => {
+            parsedCells.push(cell.replace(/""/g, '"').replace(/\\/g, '\').replace(/\\"/g, '"'));
+          });
+          parsedRows.push(parsedCells);
+        });
+        resolve(parsedRows);
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .on('end', () => {
+        // 解析完成
+      });
+  });
 }
 
 // CSV生成器
-function generateCSV(data, headers) {
-  const csvData = [headers].map(header => header.join(',')).join('
-') + '
-' + data.map(row => row.join(',')).join('
-')
-  return csvData;
+function generateCSV(data) {
+  let csv = '';
+  data.forEach((row) => {
+    row.forEach((cell) => {
+      csv += cell + ',';
+    });
+    csv += '\n';n  });
+  return csv.slice(0, -1);
 }
 
 // CSV转JSON
-function csvToJson(csv) {
-  const rows = csv.split('
-');
-  const headers = rows[0].split(',');
-  const jsonRows = rows.slice(1).map(row => {
-    return headers.reduce((obj, header, index) => {
-      obj[header] = row[index];
-      return obj;
-    }, {});
+function csvToJson(file_path) {
+  return parseCSV(file_path).then((data) => {
+    return JSON.stringify(data, null, 2);
   });
-  return jsonRows;
 }
 
 // CSV转Markdown表格
-function csvToMarkdown(csv) {
-  const rows = csv.split('
-');
-  const headers = rows[0].split(',').map(header => `| ${header.trim()} |`).join('') + ' |
-  |---|---|
-' + rows.slice(1).map(row => row.split(',').map(item => `| ${item.trim()} |`).join('')).join('
-') + '
-';
-  return rows[0] + '
-' + rows.slice(1).map(row => row.split(',').map(item => item.trim()).join('|')).join('
-') + '
-';
+function csvToMarkdown(file_path) {
+  return parseCSV(file_path).then((data) => {
+    let markdown = '| Header 1 | Header 2 |
+    markdown += '| --- | --- |
+    data.forEach((row) => {
+      markdown += '| ' + row.join(' | ') + ' |
+    });
+    return markdown;
+  });
 }
 
 // CSV转HTML表格
-function csvToHTML(csv) {
-  const rows = csv.split('
-');
-  const headers = rows[0].split(',').map(header => `<th>${header}</th>`).join('') + '</tr>
-' + rows.slice(1).map(row => `<tr>${row.split(',').map(item => `<td>${item}</td>`).join('')}</tr>`).join('
-') + '</table>
-';
-  return `<table>${headers.join('
-<tr>')}</table>` + rows.slice(1).map(row => `<tr>${row.split(',').map(item => `<td>${item}</td>`).join('')}</tr>`).join('
-') + '</table>
-';
+function csvToHTML(file_path) {
+  return parseCSV(file_path).then((data) => {
+    let html = '<table>
+    <tr>
+      <th>Header 1</th>
+      <th>Header 2</th>
+    </tr>
+    data.forEach((row) => {
+      html += '<tr>
+        <td>' + row.join('</td><td>') + '</td>
+      </tr>
+    });
+    html += '</table>
+    return html;
+  });
 }
 
 // CSV过滤
-function filterCSV(csv, column, value) {
-  const rows = csv.split('
-');
-  const headers = rows[0].split(',');
-  const columnIndex = headers.indexOf(column);
-  return rows.slice(1).filter(row => row.split(',')[columnIndex] === value).join('
-') + '
-';
+function filterCSV(file_path, column, value) {
+  return parseCSV(file_path).then((data) => {
+    return data.filter((row) => row[column] === value);
+  });
 }
 
 // CSV排序
-function sortCSV(csv, column, order) {
-  const rows = csv.split('
-');
-  const headers = rows[0].split(',');
-  const columnIndex = headers.indexOf(column);
-  return rows.sort((a, b) => {
-    const aValue = a.split(',')[columnIndex];
-    const bValue = b.split(',')[columnIndex];
-    if (order === 'asc') {
-      return aValue.localeCompare(bValue);
-    } else if (order === 'desc') {
-      return bValue.localeCompare(aValue);
-    }
-  }).join('
-') + '
-';
+function sortCSV(file_path, column) {
+  return parseCSV(file_path).then((data) => {
+    return data.sort((a, b) => {
+      return a[column] > b[column] ? 1 : -1;
+    });
+  });
 }
 
-module.exports = {
-  CSVParser,
-  generateCSV,
-  csvToJson,
-  csvToMarkdown,
-  csvToHTML,
-  filterCSV,
-  sortCSV
-};
+// CLI接口
+function cli() {
+  const args = process.argv.slice(2);
+  const command = args[0];
+  const file_path = args[1];
+  let options = {};
+  args.slice(2).forEach((arg) => {
+    const [key, value] = arg.split('=');
+    options[key] = value;
+  });
+
+  switch (command) {
+    case 'convert':
+      if (options.format === 'json') {
+        csvToJson(file_path).then((json) => {
+          console.log(json);
+        });
+      }
+      break;
+    case 'filter':
+      if (options.column && options.value) {
+        filterCSV(file_path, options.column, options.value).then((filteredData) => {
+          console.log(filteredData);
+        });
+      }
+      break;
+    case 'sort':
+      if (options.column) {
+        sortCSV(file_path, options.column).then((sortedData) => {
+          console.log(sortedData);
+        });
+      }
+      break;
+    case 'to-table':
+      if (options.format === 'markdown') {
+        csvToMarkdown(file_path).then((markdown) => {
+          console.log(markdown);
+        });
+      }
+      break;
+    default:
+      console.log('Unknown command');
+  }
+}
+
+// 运行CLI接口
+cli();

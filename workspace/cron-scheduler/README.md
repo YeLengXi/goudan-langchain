@@ -1,41 +1,30 @@
 ## 定时任务调度器
 
-这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
-
-## 功能
-
-- 解析cron表达式
-- 定时执行任务
-- 支持多个任务
-- 任务执行历史
-- 错误处理和重试
+本调度器可以根据cron表达式定时执行任务。
 
 ## 使用说明
 
-1. 创建一个配置文件，例如 tasks.json
-2. 在配置文件中定义任务，例如：
+1. 创建配置文件 tasks.json，内容格式如下：
 
 ```json
 {
   "tasks": [
     {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
+      "name": "任务名称",
+      "cron": "cron表达式",
+      "command": "要执行的命令"
     },
     {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
+      "name": "另一个任务名称",
+      "cron": "另一个cron表达式",
+      "command": "另一个要执行的命令"
     }
   ]
 }
 ```
-3. 运行调度器：
 
-    node scheduler.js --config tasks.json
+2. 运行调度器：
 
-## 示例
-
-- 每天凌晨2点执行备份任务
-- 每小时执行清理任务
+```bash
+node scheduler.js --config tasks.json
+```

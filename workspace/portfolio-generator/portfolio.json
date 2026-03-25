@@ -1,24 +1,25 @@
 {
   "name": "John Doe",
-  "position": "Software Developer",
-  "bio": "I am a passionate software developer with 5 years of experience in building web applications.",
+  "position": "Software Engineer",
+  "bio": "I am a passionate software engineer with 5 years of experience in web development. I specialize in JavaScript and React.",
   "skills": [
-    "HTML",
-    "CSS",
     "JavaScript",
-    "React"
+    "React",
+    "Node.js",
+    "CSS"
   ],
   "projects": [
     {
-      "name": "Project 1",
-      "description": "A web application for managing tasks.",n      "link": "https://example.com/project1"
+      "name": "Portfolio Website",
+      "description": "A personal portfolio website to showcase my work.",n      "link": "https://johndoeportfolio.com"
     },
     {
-      "name": "Project 2",
-      "description": "A mobile app for tracking fitness.",n      "link": "https://example.com/project2"
+      "name": "E-commerce Application",
+      "description": "An e-commerce application built with React and Node.js.",
+      "link": "https://ecommerceapp.com"
     }
   ],
-  "social_links": {
+  "social": {
     "GitHub": "https://github.com/johndoe",
     "LinkedIn": "https://linkedin.com/in/johndoe",
     "Email": "johndoe@example.com"

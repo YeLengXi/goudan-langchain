@@ -1,53 +1,50 @@
-const encrypt = require('./encrypt');
+const fs = require('fs');
+const { encrypt, decrypt } = require('./encrypt');
 
-// Caesar Cipher
-function caesarCipher(text, key) {
-  return text.split('').map(char => {
-    if (char.match(/[a-z]/i)) {
-      let charCode = char.charCodeAt(0);
-      charCode = charCode >= 65 && charCode <= 90 ? charCode - 65 + key : charCode - 97 + key;
-      charCode = charCode > 90 ? charCode - 26 : charCode < 65 ? charCode + 26 : charCode;
-      return String.fromCharCode(charCode);
-    }
-    return char;
-  }).join('');
+// 解密函数
+function decrypt(encryptedText, method, key, output) {
+  let decryptedText = '';
+
+  switch (method) {
+    case 'caesar':
+      decryptedText = caesarCipher(encryptedText, -key);
+      break;
+    case 'base64':
+      decryptedText = Buffer.from(encryptedText, 'base64').toString('utf-8');
+      break;
+    case 'rot13':
+      decryptedText = rot13(encryptedText);
+      break;
+    case 'xor':
+      decryptedText = xor(encryptedText, key);
+      break;
+    case 'aes':
+      decryptedText = aesDecrypt(encryptedText, key);
+      break;
+    default:
+      throw new Error('Unsupported decryption method');
+  }
+
+  fs.writeFileSync(output, decryptedText);
 }
 
-// Base64 Encoding
-function base64Encode(text) {
-  return Buffer.from(text).toString('base64');
+// 主函数
+function main(args) {
+  const method = args.method;
+  const key = args.key ? args.key : '';
+  const input = args.input;
+  const output = args.output ? args.output : input;
+
+  if (!method || !input) {
+    console.error('Missing arguments');
+    return;
+  }
+
+  let encryptedText = fs.readFileSync(input, 'utf-8');
+  decrypt(encryptedText, method, key, output);
 }
 
-// ROT13
-function rot13(text) {
-  return text.split('').map(char => {
-    if (char.match(/[a-z]/i)) {
-      let charCode = char.charCodeAt(0);
-      charCode = charCode >= 65 && charCode <= 90 ? charCode - 65 + 13 : charCode - 97 + 13;
-      charCode = charCode > 90 ? charCode - 26 : charCode < 65 ? charCode + 26 : charCode;
-      return String.fromCharCode(charCode);
-    }
-    return char;
-  }).join('');
+// 运行主函数
+if (require.main === module) {
+  main(process.argv.slice(2));
 }
-
-// Simple XOR Encryption
-function xorEncrypt(text, key) {
-  return text.split('').map((char, index) => char.charCodeAt(0) ^ key.charCodeAt(index % key.length)).map(charCode => String.fromCharCode(charCode)).join('');
-}
-
-// AES Encryption
-function aesEncrypt(text, key) {
-  const cipher = crypto.createCipher('aes-256-cbc', key);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
-
-module.exports = {
-  caesarCipher,
-  base64Encode,
-  rot13,
-  xorEncrypt,
-  aesEncrypt
-};

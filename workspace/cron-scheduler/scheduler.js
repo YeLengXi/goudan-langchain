@@ -1,61 +1,66 @@
-const cron = require('node-cron');
+# scheduler.js
+
+const cron = require('cron');
 const fs = require('fs');
 const path = require('path');
 
-// 读取配置文件
-function readConfig(filePath) {
-  const configPath = path.join(__dirname, filePath);
-  const content = fs.readFileSync(configPath, 'utf-8');
-  return JSON.parse(content);
-}
+const tasksConfigPath = process.argv[2];
 
 // 解析cron表达式
 function parseCronExpression(expression) {
-  // 这里可以使用第三方库来解析cron表达式，但为了不使用外部依赖，我们将手动解析
-  // 简单实现，只支持基本格式
-  const parts = expression.split(' ');
-  const cronObj = {
-    minute: parts[0],
-    hour: parts[1],
-    day: parts[2],
-    month: parts[3],
-    dayOfWeek: parts[4]
-  };
-  return cronObj;
+  const cronPattern = expression.split(' ');
+  return cron.Cron.parse(cronPattern);
 }
 
-// 创建任务
-function createTask(task) {
-  const cronObj = parseCronExpression(task.cron);
-  const job = cron.schedule(cronObj, () => {
-    console.log(`执行任务: ${task.name} - ${new Date().toLocaleString()}`);
-    execCommand(task.command);
-  });
-  job.start();
-}
-
-// 执行命令
-function execCommand(command) {
-  const { spawn } = require('child_process');
-  const process = spawn(command);
-  process.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`);
-  });
-  process.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
-  process.on('close', (code) => {
-    console.log(`命令执行完成，退出码 ${code}`);
+// 执行任务
+function executeTask(task) {
+  console.log(`执行任务：${task.name} - ${new Date().toLocaleString()}`);
+  require('child_process').exec(task.command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`执行任务 ${task.name} 时出错：${error}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`执行任务 ${task.name} 时有错误输出：${stderr}`);
+      return;
+    }
+    console.log(`任务 ${task.name} 执行完成，输出：${stdout}`);
   });
 }
 
-// 主程序
+// 获取所有任务
+function getAllTasks() {
+  const tasksConfig = fs.readFileSync(tasksConfigPath, 'utf-8');
+  const tasks = JSON.parse(tasksConfig).tasks;
+  return tasks;
+}
+
+// 添加任务
+function addTask(task) {
+  const tasks = getAllTasks();
+  tasks.push(task);
+  fs.writeFileSync(tasksConfigPath, JSON.stringify({ tasks }, null, 2), 'utf-8');
+}
+
+// 删除任务
+function deleteTask(taskName) {
+  const tasks = getAllTasks();
+  const index = tasks.findIndex(task => task.name === taskName);
+  if (index !== -1) {
+    tasks.splice(index, 1);
+    fs.writeFileSync(tasksConfigPath, JSON.stringify({ tasks }, null, 2), 'utf-8');
+  }
+}
+
+// 主函数
 function main() {
-  const config = readConfig(process.argv[2]);
-  config.tasks.forEach(task => {
-    createTask(task);
+  const tasks = getAllTasks();
+  tasks.forEach(task => {
+    const cronJob = cron.CronJob(task.cron, () => executeTask(task), null, true);
+    cronJob.start();
+    console.log(`任务 ${task.name} 已添加到调度器`);
   });
 }
 
-// 运行主程序
+// 运行主函数
 main();

@@ -1,48 +1,66 @@
+// This is a code complexity analyzer for JavaScript files.
+// It calculates cyclomatic complexity, cognitive complexity, and maintainability index.
+// It generates a report with function list, complexity scores, risk levels, and optimization suggestions.
+//
+// Dependencies:
+// - esprima
+// - escomplex
+// - fs
+// - path
+//
+const esprima = require('esprima');
+const escomplex = require('escomplex');
 const fs = require('fs');
 const path = require('path');
 
-const extractFunctions = (content) => {
-  const functionRegex = /function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(.*\)\s*{([^}]*?)}/g;
-  let match;
-  const functions = [];
-
-  while ((match = functionRegex.exec(content)) !== null) {
-    const functionName = match[1];
-    const functionBody = match[2];
-    const complexity = calculateCyclomaticComplexity(functionBody);
-    const cognitiveComplexity = calculateCognitiveComplexity(functionBody);
-    const maintainabilityIndex = calculateMaintainabilityIndex(functionBody);
-
-    functions.push({
-      name: functionName,
-      complexity,
-      cognitiveComplexity,
-      maintainabilityIndex
-    });
-  }
-
-  return functions;
+const analyzeFile = (filePath) => {
+  const code = fs.readFileSync(filePath, 'utf8');
+  const ast = esprima.parse(code, {
+    tolerant: true
+  });
+  const analysis = escomplex.analyze(ast, {
+    language: 'javascript'
+  });
+  return analysis;
 };
 
-const calculateCyclomaticComplexity = (functionBody) => {
-  // Implementation to calculate cyclomatic complexity
-  // Return the calculated complexity value
-
-  return 0;
+const generateReport = (analysis) => {
+  const report = [];
+  analysis.forEach((func) => {
+    const complexity = func.cyclomaticComplexity + func.cognitiveComplexity + func.maintainabilityIndex;
+    const riskLevel = complexity >= 50 ? '🚨 HIGH' : complexity >= 21 ? '⚠️ MEDIUM' : complexity >= 11 ? '✅ LOW' : '❌ LOW';
+    report.push(
+      `Function: ${func.id}
+      - Cyclomatic Complexity: ${func.cyclomaticComplexity}
+      - Cognitive Complexity: ${func.cognitiveComplexity}
+      - Maintainability Index: ${func.maintainabilityIndex}
+      - Risk Level: ${riskLevel}
+      - Lines: ${func.loc.lines}
+    `);
+  });
+  return report.join('
+');
 };
 
-const calculateCognitiveComplexity = (functionBody) => {
-  // Implementation to calculate cognitive complexity
-  // Return the calculated complexity value
-
-  return 0;
+const analyzeDirectory = (directoryPath) => {
+  const files = fs.readdirSync(directoryPath);
+  const analysisResults = files.map((file) => {
+    const filePath = path.join(directoryPath, file);
+    if (fs.statSync(filePath).isFile() && file.endsWith('.js')) {
+      return analyzeFile(filePath);
+    }
+    return null;
+  }).filter((result) => result !== null);
+  return analysisResults;
 };
 
-const calculateMaintainabilityIndex = (functionBody) => {
-  // Implementation to calculate maintainability index
-  // Return the calculated index value
-
-  return 0;
+const outputReport = (report, outputPath) => {
+  fs.writeFileSync(outputPath, report, 'utf8');
 };
 
-module.exports = { extractFunctions };
+module.exports = {
+  analyzeFile,
+  generateReport,
+  analyzeDirectory,
+  outputReport
+};

@@ -1,22 +1,36 @@
-# github-auto
+# GitHub Auto
 
-GitHub 仓库自动化工具。
+A tool to automate GitHub repository creation, initialization, and push process.
 
-## 安装
+## Features
 
-npm install
+- Create repositories on GitHub
+- Initialize repositories locally
+- Push repositories to GitHub
 
-## 使用
+## Installation
 
-### 创建仓库
+```bash
+npm install -g github-auto
+```
 
-github-auto create <仓库名> --public
-github-auto create <仓库名> --private --description "描述"
+## Usage
 
-### 初始化
+### Create a repository
 
-github-auto init --template <模板>
+```bash
+github-auto create <repository-name> --public
+github-auto create <repository-name> --private --description "My awesome project"
+```
 
-### 推送
+### Initialize a repository
 
+```bash
+github-auto init --template <template>
+```
+
+### Push to GitHub
+
+```bash
 github-auto push
+```

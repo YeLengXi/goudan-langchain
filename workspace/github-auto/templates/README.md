@@ -1,17 +1,31 @@
-# README.md
+# README Template
 
-## 模板内容
+This is a template for the README file of a GitHub repository.
 
-### README.md
+## Project Name
 
-# 项目名称
+Your project name here.
 
-这里是项目描述。
+## Description
 
-### .gitignore
+A brief description of your project.
 
-node_modules/
+## Features
 
-### LICENSE
+List the features of your project.
+
+## Installation
+
+Instructions on how to install your project.
+
+## Usage
+
+Instructions on how to use your project.
+
+## Contributing
+
+Guidelines for contributing to the project.
+
+## License
 
 MIT

@@ -1,24 +1,34 @@
-const ProgressBar = require('cli-progress');
+const ProgressBar = require('./progress.js');
 
-class ProgressBar {
-  constructor(options) {
-    this.total = options.total || 100;
-    this.width = options.width || 40;
-    this.complete = options.complete || '█';
-    this.incomplete = options.incomplete || '░';
-    this.bar = new ProgressBar SingleBar({
-      clearOnComplete: false,
-      hideCursor: true
-    });
-  }
-
-  update(value) {
-    this.bar.update(value);
-  }
-
-  complete() {
-    this.bar.finish();
-  }
+// 创建一个新的进度条实例
+function createProgressBar(name, total, width, complete, incomplete) {
+  return new ProgressBar({
+    name: name,
+    total: total,
+    width: width,
+    complete: complete,
+    incomplete: incomplete
+  });
 }
 
-module.exports = ProgressBar;
+// 更新进度条
+function updateProgressBar(bar, value) {
+  bar.update(value);
+}
+
+// 创建多进度条实例
+function createMultiProgressBar() {
+  return {
+    bars: [],
+    create: function(name, total) {
+      const bar = createProgressBar(name, total, 40, '█', '░');
+      this.bars.push(bar);
+      return bar;
+    },
+    update: function() {
+      this.bars.forEach(bar => {
+        bar.update();
+      });
+    }
+  }
+}

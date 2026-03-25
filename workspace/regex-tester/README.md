@@ -1,6 +1,18 @@
 # Regex Tester
 
-This tool allows you to test regular expressions and debug them.
+This tool is a regex tester and debugger. It allows you to test regular expressions, extract capture groups, replace text, split text, and validate common patterns like email, phone number, URL, IP address, and date format.
+
+## Usage
+
+To use the tool, run the following command:
+
+```bash
+node tester.js "/\d+/" --text "hello 123 world"
+node tester.js --email "test@example.com"
+node tester.js --phone "13800138000"
+node tester.js --url "https://example.com"
+node tester.js replace "/\s+/g" --text "hello   world" --with "+"
+```
 
 ## Features
 
@@ -8,19 +20,15 @@ This tool allows you to test regular expressions and debug them.
 - Show match results
 - Extract capture groups
 - Regular expression replacement
-- Common regular expression libraries
+- Common regex libraries
 - Error handling
 
-## Usage
-
-To test a regular expression:
+## CLI Interface
 
 ```bash
 node tester.js "/\d+/" --text "hello 123 world"
-```
-
-To validate an email:
-
-```bash
 node tester.js --email "test@example.com"
+node tester.js --phone "13800138000"
+node tester.js --url "https://example.com"
+node tester.js replace "/\s+/g" --text "hello   world" --with "+"
 ```

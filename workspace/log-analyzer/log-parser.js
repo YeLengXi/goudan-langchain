@@ -1,22 +1,25 @@
 const read_file = require('fs').readFileSync;
 
-module.exports = {
-  parseAppLog: (log) => {
-    const lines = log.split('\n');
-    const parsedLogs = lines.map(line => {
-      const parts = line.split(' ');
+const logFormats = {
+  application: /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3} ([A-Z]+) (.+)$/,
+  access: /^\[(.+)\] "(.+)" (\d+) (\d+) (-|) "(.+)" "(.+)"$/,
+  error: /^.*Exception in thread "(.+)".*Exception: (.+)$/,
+};
+
+function parseLog(log) {
+  for (const [formatName, formatRegex] of Object.entries(logFormats)) {
+    const match = log.match(formatRegex);
+    if (match) {
       return {
-        timestamp: parts[0],
-        level: parts[1],
-        message: parts.slice(2).join(' '),
-      }
-    });
-    return parsedLogs;
-  },
-  parseApacheLog: (log) => {
-    // Apache日志解析逻辑
-  },
-  parseErrorLog: (log) => {
-    // 错误日志解析逻辑
+        format: formatName,
+        data: match.slice(1).map((part) => part.trim()),
+      };
+    }
   }
+  return null;
+}
+
+module.exports = {
+  parseLog,
+  logFormats,
 }

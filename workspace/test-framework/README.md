@@ -1,27 +1,24 @@
-# Simple Test Framework
+# Test Framework
 
-This is a simple test framework for JavaScript.
+This is a simple JavaScript unit testing framework.
 
 ## Installation
 
-To use this framework, you need to install it in your project.
+Install the test framework by running:
 
 ```bash
-npm install simple-test-framework
+npm install --save-dev workspace/test-framework
 ```
 
 ## Usage
 
-```javascript
-const { describe, it, expect } = require('simple-test-framework');
+To run tests, execute:
 
-describe('Math operations', () => {
-  it('should add numbers', () => {
-    expect(add(1, 2)).toBe(3);
-  });
-
-  it('should subtract numbers', () => {
-    expect(subtract(5, 2)).toBe(3);
-  });
-});
+```bash
+node test.js <test-file> [options]
 ```
+
+Options:
+
+- --verbose: Show verbose output
+- --watch: Watch for file changes and re-run tests

@@ -1,35 +1,40 @@
-# api-tester
+# API-Tester
 
-A command-line API testing tool.
+## 简介
+API-Tester 是一个命令行 API 测试工具，可以帮助开发者快速测试 REST API。
 
-## Installation
+## 安装
 
-To install api-tester, run:
+```bash
+npm install -g api-tester
+```
 
-    npm install -g api-tester
+## 使用
 
-## Usage
+### 基本用法
+```bash
+api-tester GET https://api.example.com/users
+```
 
-To test an API, run:
+### 发送 POST 请求
+```bash
+api-tester POST https://api.example.com/users -d '{\"name\":\"John\"}'
+```
 
-    api-tester [method] [url]
+### 使用请求文件
+```bash
+api-tester --request-file requests.json
+```
 
-Options:
+## 配置
 
-  -d, --data [data]  Set request body
-  -H, --header [header]  Set request header
-  -f, --file [file]  Read requests from a file
+API-Tester 支持保存常用的 API 请求，并通过环境变量进行配置。
 
-## Examples
+## 示例请求
 
-To send a GET request to https://api.example.com/users:
-
-    api-tester GET https://api.example.com/users
-
-To send a POST request to https://api.example.com/users with JSON body:
-
-    api-tester POST https://api.example.com/users -d '{"name":"John"}'
-
-To read requests from a file:
-
-    api-tester --request-file requests.json
+```json
+{
+  "method": "GET",
+  "url": "https://api.example.com/users"
+}
+```

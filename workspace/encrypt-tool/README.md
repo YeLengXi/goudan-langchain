@@ -1,25 +1,35 @@
-# encrypt-tool
+# 文本加密解密工具
 
-This tool provides a simple text encryption and decryption utility with multiple encryption algorithms.
+这是一个简单的文本加密解密工具，支持多种加密算法。
 
-## Features
+## 安装
 
-- Multiple encryption algorithms
-- File encryption/decryption
-- Key management
-- Error handling
-- Security tips
+确保你已经安装了Node.js。
 
-## Usage
+## 使用方法
 
-To encrypt a text:
+- 加密文本
+  node encrypt.js "hello world" --method caesar --key 3
 
-```bash
-node encrypt.js "hello world" --method caesar --key 3
-```
+- 加密文件
+  node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
 
-To decrypt a text:
+- 解密文件
+  node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
 
-```bash
-node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
-```
+## 加密算法
+
+- Caesar Cipher（凯撒密码）
+- Base64编码
+- ROT13
+- 简单XOR加密
+- AES加密
+
+## 注意
+
+- Caesar/ROT13：仅用于演示
+- Base64：编码，不是加密
+- XOR：简单加密
+- AES：相对安全
+
+不要用于生产环境或敏感数据！

@@ -1,13 +1,37 @@
 const fs = require('fs');
 const path = require('path');
-const 日志解析器 = require('./日志解析器');
-const 错误统计器 = require('./错误统计器');
-const 搜索引擎 = require('./搜索引擎');
-const 报告生成器 = require('./报告生成器');
+const { parseLog } = require('./log-parser');
+const { countErrors } = require('./error-statistics');
+const { searchLogs } = require('./search-engine');
+const { exportToJson, exportToCsv, generateReport } = require('./report-generator');
 
-module.exports = {
-  parse_log: 日志解析器.parse_log,
-  count_errors: 错误统计器.count_errors,
-  search_logs: 搜索引擎.search_logs,
-  generate_report: 报告生成器.generate_report
-};
+const logFilePath = process.argv[2];
+const options = process.argv.slice(3);
+
+const logs = fs.readFileSync(logFilePath, 'utf-8').split('\n').map(parseLog).filter((log) => log !== null);
+
+options.forEach((option) => {
+  const [key, value] = option.split('=');
+  switch (key) {
+    case '--error':
+      const errorTypes = countErrors(logs);
+      console.log('Error types:', errorTypes);
+      break;
+    case '--search':
+      const [keyword, startTime, endTime, level] = value.split(',');
+      const filteredLogs = searchLogs(logs, keyword, new Date(startTime).getTime(), new Date(endTime).getTime(), level);
+      console.log('Filtered logs:', filteredLogs);
+      break;
+    case '--export':
+      const [format, ...rest] = value.split(',');
+      switch (format) {
+        case 'json':
+          exportToJson(logs);
+          break;
+        case 'csv':
+          exportToCsv(logs);
+          break;
+      }
+      break;
+  }
+});

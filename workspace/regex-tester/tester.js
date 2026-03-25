@@ -1,23 +1,22 @@
 const readline = require('readline');
+const { exec } = require('child_process');
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
 rl.question('Enter the regular expression: ', (regex) => {
-  rl.question('Enter the text to be tested: ', (text) => {
+  rl.question('Enter the text to test: ', (text) => {
     try {
-      const pattern = new RegExp(regex, 'g');
-      const matches = text.match(pattern);
+      const matches = text.match(new RegExp(regex, 'g'));
+      console.log(`Pattern: ${regex}`);
+      console.log(`Text: ${text}`);
       if (matches) {
-        console.log(`Pattern: ${regex}`);
-        console.log(`Text: ${text}`);
-        matches.forEach((match, index) => {
-          console.log(`Match: ${match}`);
-          console.log(`Position: ${text.indexOf(match) + 1}-${text.indexOf(match) + match.length}`);
-        });
+        console.log(`Match: ${matches.join(', ')}`);
+        console.log(`Position: ${matches.map(match => `${match.index}-${match.index + match[0].length - 1}`).join(', ')}`);
       } else {
-        console.log('No matches found.');
+        console.log('No match found.');
       }
     } catch (error) {
       console.error('Error:', error);
