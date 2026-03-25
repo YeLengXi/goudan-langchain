@@ -1,3 +1,5 @@
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
+
 const describe = (name, fn) => {
   const suite = {
     name,
@@ -25,4 +27,4 @@ const after = fn => suite => {
   suite.after.push(fn);
 };
 
-module.exports = { describe, it, before, after };
+module.exports = { describe, it, before, after, equal, deepEqual, truthy, falsy, throws, contains };

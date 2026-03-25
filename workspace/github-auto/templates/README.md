@@ -1,27 +1,31 @@
-# README.md
+# README Template
 
-这是一个 README 模板。
+This is a template for the README file of a GitHub repository.
 
-## 项目描述
+## Project Name
 
-[项目描述内容]
+[Your Project Name]
 
-## 安装
+## Description
 
-```bash
-npm install
-```
+[Your project description here]
 
-## 使用
+## Features
 
-```bash
-npm run start
-```
+[List of features here]
 
-## 贡献
+## Installation
 
-[贡献指南内容]
+[Instructions for installation]
 
-## 许可证
+## Usage
 
-[许可证内容]
+[Instructions for usage]
+
+## Contributing
+
+[Instructions for contributing]
+
+## License
+
+[License information]

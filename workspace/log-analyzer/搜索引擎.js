@@ -1,8 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+# 搜索引擎
 
-// 搜索引擎
-async function search_logs(log_data, keyword, start_time, end_time, log_level) {
-  // TODO: 实现搜索和过滤逻辑
-  return log_data;
-}
+// 按关键词搜索
+const searchByKeyword = (logs, keyword) => {
+  return logs.filter(log => log.message.includes(keyword));
+};
+
+// 按时间范围过滤
+const filterByTimeRange = (logs, startTime, endTime) => {
+  return logs.filter(log => new Date(log.timestamp) >= new Date(startTime) && new Date(log.timestamp) <= new Date(endTime));
+};
+
+// 按日志级别过滤
+const filterByLogLevel = (logs, level) => {
+  return logs.filter(log => log.level === level);
+};
+
+module.exports = {
+  searchByKeyword,
+  filterByTimeRange,
+  filterByLogLevel
+};

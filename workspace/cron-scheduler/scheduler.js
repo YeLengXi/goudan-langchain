@@ -1,36 +1,47 @@
-# Cron Scheduler
+const { parse } = require('node-cron');
 
-This is a simple cron scheduler that can execute tasks based on cron expressions.
+const tasks = [];
 
-## Features
-
-- Parse cron expressions
-- Schedule and execute tasks
-- Support multiple tasks
-- Task execution history
-- Error handling and retry
-
-## Usage
-
-To use the scheduler, create a JSON configuration file with the following format:
-
-```json
-{
-  "tasks": [
-    {
-      "name": "task_name",
-      "cron": "cron_expression",
-      "command": "command_to_execute"
-    },
-    {
-      // Another task
-    }
-  ]
+function addTask(name, cron, command) {
+  tasks.push({
+    name,
+    cron,
+    command,
+    nextRun: parse(cron)
+  });
 }
-```
 
-Then, run the scheduler with the --config option followed by the path to the configuration file:
+function removeTask(name) {
+  tasks = tasks.filter(task => task.name !== name);
+}
 
-```bash
-node scheduler.js --config path/to/config.json
-```
+function executeTasks() {
+  const now = new Date();
+  for (const task of tasks) {
+    if (now >= task.nextRun) {
+      console.log(`Executing task: ${task.name} at ${task.nextRun.toISOString()}`);
+      exec_command(task.command);
+      task.nextRun = parse(task.cron);
+    }
+  }
+}
+
+function exec_command(command) {
+  require('child_process').exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing command: ${error}`);
+      return;
+    }
+    if (stderr) {
+      console.error(`Stderr: ${stderr}`);
+      return;
+    }
+    console.log(`Stdout: ${stdout}`);
+  });
+}
+
+module.exports = {
+  addTask,
+  removeTask,
+  executeTasks
+};

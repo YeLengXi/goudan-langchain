@@ -1,74 +1,54 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
+const { parse } = require('minimist');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const DEFAULT_REQUEST_FILE = 'requests.json';
+const CONFIG_FILE = 'config.json';
 
-async function main() {
-  const args = process.argv.slice(2);
-
-  if (args.length === 0) {
-    console.log('Usage: api-tester <method> <url> [options]');
-    process.exit(1);
-  }
-
-  const [method, url] = args.splice(0, 2);
-  const options = args.reduce((acc, arg) => {
-    if (arg.startsWith('-')) {
-      const [key, value] = arg.split('=');
-      acc[key.slice(1)] = value;
-    }
-    return acc;
-  }, {});
-
-  try {
-    const response = await fetchRequest(method, url, options);
-    console.log(JSON.stringify(response, null, 2));
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-async function fetchRequest(method, url, options) {
-  const { headers, body } = options;
-
-  const promise = new Promise((resolve, reject) => {
-    const req = https.request({
+function fetchApi(url, method, headers, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
       method,
-      url,
-      headers: headers || {},
-      body: body || null
-    }, res => {
+      headers
+    }
+
+    if (body) {
+      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+        options.headers['Content-Type'] = 'application/json';
+        body = JSON.stringify(body);
+      }
+    }
+
+    https.get(url, response => {
       let data = '';
-      res.on('data', chunk => {
+      response.on('data', chunk => {
         data += chunk;
       });
-      res.on('end', () => {
+      response.on('end', () => {
         resolve({
-          status: res.statusCode,
-          headers: res.headers,
+          statusCode: response.statusCode,
+          headers: response.headers,
           body: JSON.parse(data)
         });
       });
-    });
-
-    req.on('error', error => {
+    }).on('error', error => {
       reject(error);
     });
-
-    if (body) {
-      req.write(body);
-      req.end();
-    } else {
-      req.end();
-    }
   });
-
-  return promise;
 }
 
-main();
+function parseRequestFile(filePath) {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(content);
+}
+
+function saveResponseToFile(filePath, content) {
+  fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8');
+}
+
+module.exports = {
+  fetchApi,
+  parseRequestFile,
+  saveResponseToFile
+}

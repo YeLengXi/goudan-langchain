@@ -1,14 +1,17 @@
-# 定时任务调度器
+# Cron Scheduler
 
-本调度器可以按照cron表达式执行任务。
+This is a simple cron scheduler that can execute tasks based on cron expressions.
 
-## 安装
+## Installation
 
-确保你已经安装了Node.js。
+Make sure you have Node.js installed.
 
-## 使用
+## Usage
 
-1. 创建一个配置文件（tasks.json），例如：
+1. Create a configuration file, for example `tasks.json`.
+2. Run `node scheduler.js --config tasks.json`.
+
+## Configuration File Example
 
 ```json
 {
@@ -27,19 +30,8 @@
 }
 ```
 
-2. 运行调度器：
+## CLI Interface
 
 ```bash
 node scheduler.js --config tasks.json
 ```
-
-## 配置文件说明
-
-- tasks: 任务列表
-  - name: 任务名称
-  - cron: cron表达式
-  - command: 执行命令
-
-## CLI参数
-
-- --config: 指定配置文件路径
