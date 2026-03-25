@@ -1,27 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const read_file = require('fs').readFileSync;
 
-const logFormats = {
-  APP: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?(INFO|ERROR|WARN).*/g,
-  APACHE: /^(\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} \S+) "(\S+) (\S+) (\S+)" "(\S+)" "(\S+)"$/g,
-  ERROR: /^(.*):\s*(at|throw of) (.*)$/gm
+const searchLogs = (logs, keyword, startTime, endTime, level) => {
+    return logs.filter(log => {
+        const matchesKeyword = log.message.includes(keyword);
+        const matchesTime = log.timestamp >= startTime && log.timestamp <= endTime;
+        const matchesLevel = !level || log.level === level;
+
+        return matchesKeyword && matchesTime && matchesLevel;
+    });
 };
 
-function parseLog(logData, format) {
-  const regex = logFormats[format];
-  const logs = [];
-  let match;
-
-  while ((match = regex.exec(logData)) !== null) {
-    logs.push(match[0]);
-  }
-
-  return logs;
-}
-
-function searchLogs(logs, keyword, level) {
-  return logs.filter(log => {
-    return log.includes(keyword) && (level ? log.includes(level) : true);
-  });
+module.exports = {
+    searchLogs
 }

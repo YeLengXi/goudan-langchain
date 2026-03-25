@@ -1,33 +1,64 @@
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const read_file = require('fs').readFileSync;
 
-const logFormats = {
-  APP: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?(INFO|ERROR|WARN).*/g,
-  APACHE: /^(\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} \S+) "(\S+) (\S+) (\S+)" "(\S+)" "(\S+)"$/g,
-  ERROR: /^(.*):\s*(at|throw of) (.*)$/gm
+const parseAppLog = (logData) => {
+    const lines = logData.split('
+');
+    const parsedLogs = lines.map(line => {
+        const match = line.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - ([A-Z]+) - (.*)/);
+        if (match) {
+            return {
+                timestamp: match[1],
+                level: match[2],
+                message: match[3]
+            }
+        }
+        return null;
+    }).filter(log => log !== null);
+
+    return parsedLogs;
 };
 
-function parseLog(logData, format) {
-  const regex = logFormats[format];
-  const logs = [];
-  let match;
+const parseApacheLog = (logData) => {
+    const lines = logData.split('
+');
+    const parsedLogs = lines.map(line => {
+        const match = line.match(/^(\d{2}\/\d{2}\/\d{4}:\d{2}:\d{2}:\d{2}) - \-(.*?) - "(.*?)" - (\d+) - (\d+)-\-(\d+) - "(.*?)"$/);
+        if (match) {
+            return {
+                timestamp: match[1],
+                method: match[4],
+                url: match[5],
+                status: match[6],
+                bytes: match[7],
+                referer: match[8]
+            }
+        }
+        return null;
+    }).filter(log => log !== null);
 
-  while ((match = regex.exec(logData)) !== null) {
-    logs.push(match[0]);
-  }
+    return parsedLogs;
+};
 
-  return logs;
-}
+const parseErrorLog = (logData) => {
+    const lines = logData.split('
+');
+    const parsedLogs = lines.map(line => {
+        const match = line.match(/^([^:]+):([^:]+):(.*)/);
+        if (match) {
+            return {
+                file: match[1],
+                line: match[2],
+                message: match[3]
+            }
+        }
+        return null;
+    }).filter(log => log !== null);
 
-function countErrors(logs) {
-  const errorTypes = {};
-  logs.forEach(log => {
-    const match = log.match(/ERROR: (.*)/);
-    if (match) {
-      const errorType = match[1];
-      errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
-    }
-  });
-  return errorTypes;
+    return parsedLogs;
+};
+
+module.exports = {
+    parseAppLog,
+    parseApacheLog,
+    parseErrorLog
 }

@@ -1,19 +1,50 @@
 # Portfolio Generator
 
-This is a simple portfolio generator for developers. It allows you to create a static website with your personal information and projects.
+This is a static website generator for creating personal portfolios. It allows you to easily create a professional-looking portfolio website by providing your personal information and project details.
 
 ## Features
 
-- Read personal information from a JSON file
-- Support HTML template
-- Generate a complete website
-- Preview the website locally
+- Read personal information from a configuration file
+- Support for HTML templates
+- Generate CSS and HTML files
+- Local server for previewing
 
 ## Usage
 
-1. Run "npm install"
-2. Run "npm start"
+1. Install the generator:
 
-## License
+   npm install -g portfolio-generator
 
-MIT
+2. Create a configuration file (portfolio.json):
+
+   {
+     "name": "Your Name",
+     "position": "Your Position",
+     "bio": "Your bio",
+     "skills": ["Skill 1", "Skill 2", ...],
+     "projects": [
+       {
+         "name": "Project 1",
+         "description": "Description of Project 1",
+         "link": "https://github.com/yourname/project1"
+       },
+       {
+         "name": "Project 2",
+         "description": "Description of Project 2",
+         "link": "https://github.com/yourname/project2"
+       }
+     ],
+     "social_links": {
+       "GitHub": "https://github.com/yourname",
+       "LinkedIn": "https://linkedin.com/in/yourname",
+       "Email": "yourname@example.com"
+     }
+   }
+
+3. Generate the website:
+
+   portfolio-generator
+
+4. Preview the website:
+
+   Open the output/index.html file in your browser.

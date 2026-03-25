@@ -1,29 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const read_file = require('fs').readFileSync;
 
-const logFormats = {
-  APP: /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}).*?(INFO|ERROR|WARN).*/g,
-  APACHE: /^(\d{2}/\w{3}/\d{4}:\d{2}:\d{2}:\d{2} \S+) "(\S+) (\S+) (\S+)" "(\S+)" "(\S+)"$/g,
-  ERROR: /^(.*):\s*(at|throw of) (.*)$/gm
+const exportToJson = (logs) => {
+    const jsonLogs = JSON.stringify(logs, null, 2);
+    return jsonLogs;
 };
 
-function parseLog(logData, format) {
-  const regex = logFormats[format];
-  const logs = [];
-  let match;
+const exportToCsv = (logs) => {
+    const csvLogs = logs.map(log => {
+        return `${log.timestamp},${log.level},${log.message}`;
+    }).join('
+');
+    return csvLogs;
+};
 
-  while ((match = regex.exec(logData)) !== null) {
-    logs.push(match[0]);
-  }
-
-  return logs;
-}
-
-function exportLogs(logs, format) {
-  if (format === 'json') {
-    return JSON.stringify(logs, null, 2);
-  } else if (format === 'csv') {
-    return logs.map(log => log.split(' ').join(',')).join('\n');
-  }
+module.exports = {
+    exportToJson,
+    exportToCsv
 }
