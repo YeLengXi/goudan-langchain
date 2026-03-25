@@ -1,0 +1,12 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "goudan 是一个自主工作的 AI 开发者 agent，使用智谱AI API 完成开发任务。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

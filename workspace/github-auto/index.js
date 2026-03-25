@@ -1,81 +1,41 @@
-const fs = require('fs');
-const https = require('https');
-const { exec } = require('child_process');
-const path = require('path');
+const axios = require('axios');const fs = require('fs');const path = require('path');const { read_file, write_file, exec_command, list_directory } = require('./utils.js');const program = require('commander');require('dotenv').config();
 
-const githubToken = 'YOUR_GITHUB_TOKEN';
-const githubApiUrl = 'https://api.github.com';
-
-const createRepository = (name, isPublic, description) => {
-  const options = {
-    hostname: 'api.github.com',
-    path: `/user/repos`,
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${githubToken}`,
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    json: true,
-    body: {
+const createGitHubRepo = async (token, name, isPublic, description) => {
+  try {
+    const response = await axios.post('https://api.github.com/user/repos', {
       name,
-      private: !isPublic
-    }
-  }
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
-      if (res.statusCode === 201) {
-        resolve(res.body);
-      } else {
-        reject(new Error('Failed to create repository'));
+      private: !isPublic,
+      description
+    }, {
+      headers: {
+        'Authorization': `token ${token}
       }
     });
-
-    req.on('error', (e) => {
-      reject(e);
-    });
-
-    req.write(JSON.stringify(options.body));
-    req.end();
-  });
+    return response.data;
+  } catch (error) {
+    console.error('Error creating GitHub repo:', error);
+    throw error;
+  }
 };
 
-const initRepository = (path) => {
-  return new Promise((resolve, reject) => {
-    exec(`git init ${path}`, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout);
-      }
-    });
-  });};
+program
+  .command('create <name> [options]')
+  .description('创建 GitHub 仓库')
+  .option('--public', '创建公开仓库', false)
+  .option('--private', '创建私有仓库', false)
+  .option('--description <description>', '仓库描述', '')
+  .action(async (name, options) => {
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      console.error('GitHub token is required. Please set GITHUB_TOKEN in your environment variables.');
+      process.exit(1);
+    }
+    try {
+      const repo = await createGitHubRepo(token, name, options.public, options.description);
+      console.log(`Repository created: ${repo.html_url}`);
+    } catch (error) {
+      console.error('Failed to create GitHub repo:', error);
+    }
+  });
 
-const addFiles = (path) => {
-  return new Promise((resolve, reject) => {
-    exec(`cd ${path} && git add .`, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout);
-      }
-    });
-  });};
-
-const commitAndPush = (path) => {
-  return new Promise((resolve, reject) => {
-    exec(`cd ${path} && git commit -m 'Initial commit' && git remote add origin https://github.com/YOUR_USERNAME/your-repo.git && git push -u origin main`, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout);
-      }
-    });
-  });};
-
-module.exports = {
-  createRepository,
-  initRepository,
-  addFiles,
-  commitAndPush
-}
+program.parse(process.argv);
