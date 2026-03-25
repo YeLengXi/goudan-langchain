@@ -1,22 +1,31 @@
-# 报告生成器
+const fs = require('fs');
+const path = require('path');
+const { analyzeLog } = require('./log-analyzer');
+const { errorStats } = require('./错误统计器');
+const { searchLogs } = require('./搜索引擎');
 
-// 导出为 JSON
-const exportToJson = (logs) => {
-  // 实现导出为 JSON 逻辑
+const exportToJSON = (logData) => {
+    const data = JSON.stringify(logData, null, 2);
+    fs.writeFileSync(path.join(__dirname, 'exported.json'), data, 'utf-8');
 };
 
-// 导出为 CSV
-const exportToCsv = (logs) => {
-  // 实现导出为 CSV 逻辑
+const exportToCSV = (logData) => {
+    const headers = ['type', 'line'];
+    const rows = logData.map(item => [item.type, item.line]);
+    const data = [headers, ...rows].map(row => row.join(',')).join('\n');
+    fs.writeFileSync(path.join(__dirname, 'exported.csv'), data, 'utf-8');
 };
 
-// 生成统计报告
-const generateStatisticsReport = (logs) => {
-  // 实现生成统计报告逻辑
+const generateReport = (logData) => {
+    const stats = errorStats(logData);
+    const report = `Error Report:
+${Object.keys(stats).map(key => `${key}: ${stats[key]}`).join('
+')}`;
+    fs.writeFileSync(path.join(__dirname, 'report.txt'), report, 'utf-8');
 };
 
 module.exports = {
-  exportToJson,
-  exportToCsv,
-  generateStatisticsReport
+    exportToJSON,
+    exportToCSV,
+    generateReport
 };

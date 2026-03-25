@@ -1,46 +1,71 @@
-const axios = require('axios');
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 
-const yargs = require('yargs/yargs');
-const { hideBin } = require('yargs/helpers');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const argv = yargs(hideBin(process.argv)).argv;
+const packageJson = require('./package.json');
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+async function main() {
+  const args = process.argv.slice(2);
+  if (args.length === 0) {
+    console.log('Usage: api-tester <method> <url> [options]');
+    process.exit(1);
+  }
 
-async function testApi(method, url, data, headers) {
+  const [method, url] = args[0].split(' ');
+  const options = args.slice(2).reduce((acc, arg) => {
+    const [key, value] = arg.split('=');
+    acc[key] = value;
+    return acc;
+  }, {});
+
   try {
-    const response = await axios({
-      method,
-      url,
-      data,
-      headers
-    });
-    console.log('Response:', response.data);
-    console.log('Status Code:', response.status);
-    console.log('Headers:', response.headers);
-    console.log('Time:', new Date().toISOString());
+    const response = await fetchRequest(method, url, options);
+    console.log(response);
   } catch (error) {
-    console.error('Error:', error);
+    console.error(error);
   }
 }
 
-if (argv._[0]) {
-  const [method, url] = argv._[0].split(' ');
-  if (methods.includes(method.toUpperCase())) {
-    if (method.toUpperCase() === 'POST' || method.toUpperCase() === 'PUT' || method.toUpperCase() === 'PATCH') {
-      data = JSON.parse(argv.d || '{}');
-    }
-    headers = argv.h ? { ...argv.h } : {};
-    testApi(method.toUpperCase(), url, data, headers);
-  } else {
-    console.error('Invalid method. Supported methods: GET, POST, PUT, DELETE, PATCH');
+async function fetchRequest(method, url, options) {
+  const { headers, body } = options;
+  const headersObj = headers ? JSON.parse(headers) : {};
+  const bodyObj = body ? JSON.parse(body) : {};
+
+  const fetchOptions = {
+    method,
+    headers: headersObj
   }
-} else if (argv.requestFile) {
-  const requests = require('fs').readFileSync(argv.requestFile, 'utf-8').toString();
-  const parsedRequests = JSON.parse(requests);
-  parsedRequests.forEach(request => {
-    testApi(request.method, request.url, request.data, request.headers);
+
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    fetchOptions.body = JSON.stringify(bodyObj);
+  }
+
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now();
+    https.get(url, response => {
+      const chunks = [];
+      response.on('data', chunk => chunks.push(chunk));
+      response.on('end', () => {
+        const endTime = Date.now();
+        const data = Buffer.concat(chunks).toString();
+        const parsedData = JSON.parse(data);
+        resolve({
+          statusCode: response.statusCode,
+          headers: response.headers,
+          body: parsedData,
+          responseTime: endTime - startTime
+        });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
   });
-} else {
-  console.error('Please provide a valid command. Usage: api-tester [method] [url] [-d data] [-h headers] [--request-file file]');
 }
+
+main();

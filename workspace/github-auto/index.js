@@ -1,14 +1,34 @@
-const read_file = require('./read_file');const write_file = require('./write_file');const exec_command = require('./exec_command');const list_directory = require('./list_directory');const { GitHubAPI } = require('./github-api');const fs = require('fs');const path = require('path');module.exports = {
-  createRepository: async (owner, name, isPrivate, description) => {
-    // 实现创建仓库的逻辑
-  },
-  initializeLocalRepository: async (template) => {
-    // 实现本地初始化仓库的逻辑
-  },
-  pushToGitHub: async (owner, name) => {
-    // 实现推送到 GitHub 的逻辑
-  },
-  applyTemplate: async (templateName, directoryPath) => {
-    // 实现应用模板的逻辑
-  }
+const axios = require('axios');
+
+const createRepository = async (name, isPublic, description) => {
+  const token = 'YOUR_GITHUB_TOKEN';
+  const response = await axios.post('https://api.github.com/user/repos', {
+    name,
+    private: !isPublic
+  }, {
+    headers: {
+      Authorization: `token ${token}`
+    }
+  });
+
+  return response.data;
+};
+
+const initializeGit = async (repository) => {
+  // 初始化 git
+  // 创建项目结构
+  // 添加初始文件
+  // 第一次提交
+
+  // 推送到 GitHub
+  // 添加 remote
+  // 推送到 main 分支
+  // 设置默认分支
+
+  return repository;
+};
+
+module.exports = {
+  createRepository,
+  initializeGit
 };

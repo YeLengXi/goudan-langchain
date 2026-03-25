@@ -1,22 +1,16 @@
-# 错误统计器
+const analyzeLog = require('./log-analyzer').analyzeLog;
 
-// 统计错误数量
-const countErrors = (logs) => {
-  // 实现错误数量统计逻辑
-};
-
-// 按类型分组
-const groupByType = (logs) => {
-  // 实现按类型分组逻辑
-};
-
-// 显示最频繁的错误
-const showMostFrequent = (logs) => {
-  // 实现显示最频繁的错误逻辑
+const errorStats = (logData) => {
+    const stats = {};
+    logData.forEach(item => {
+        if (item.type === 'error') {
+            const errorType = item.line.match(/at (\S+)\((\S+)\):\/\/(\S+)\/(\S+):\s*(\d+):\s*(.*)/)[1];
+            stats[errorType] = (stats[errorType] || 0) + 1;
+        }
+    });
+    return stats;
 };
 
 module.exports = {
-  countErrors,
-  groupByType,
-  showMostFrequent
+    errorStats
 };
