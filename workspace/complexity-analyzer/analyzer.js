@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const esprima = require('esprima');
-const escodegen = require('escodegen');
+const { calculateCyclomaticComplexity, calculateCognitiveComplexity, calculateMaintainabilityIndex } = require('./utils');
 const { analyze } = require('cognitive-complexity');
 
 const analyzeCode = async (filePath) => {
@@ -9,17 +8,29 @@ const analyzeCode = async (filePath) => {
   const ast = esprima.parse(code, {
     sourceType: 'module'
   });
-  const complexity = calculateComplexity(ast);
-  const report = generateReport(complexity);
+  const cyclomaticComplexity = calculateCyclomaticComplexity(ast);
+  const cognitiveComplexity = calculateCognitiveComplexity(code);
+  const maintainabilityIndex = calculateMaintainabilityIndex(cyclomaticComplexity);
+  const report = generateReport(cyclomaticComplexity, cognitiveComplexity, maintainabilityIndex);
   fs.writeFileSync(path.join(filePath, 'report.txt'), report);
 };
 
-const calculateComplexity = (ast) => {
-  // Implementation of complexity calculation goes here
-};
+const generateReport = (cyclomaticComplexity, cognitiveComplexity, maintainabilityIndex) => {
+  let riskLevel = 'LOW';
+  if (cyclomaticComplexity > 50) {
+    riskLevel = 'HIGH';
+  } else if (cyclomaticComplexity > 20) {
+    riskLevel = 'MEDIUM';
+  }
 
-const generateReport = (complexity) => {
-  // Implementation of report generation goes here
-};
+  return `Code Complexity Report
+======================
 
-module.exports = { analyzeCode };
+Function: ${filePath}
+- Cyclomatic Complexity: ${cyclomaticComplexity}
+- Cognitive Complexity: ${cognitiveComplexity}
+- Maintainability Index: ${maintainabilityIndex}
+- Risk Level: ${riskLevel}
+
+Overall: 1 function analyzed
+1 ${riskLevel} risk`;}
