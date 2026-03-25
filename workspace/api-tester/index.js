@@ -1,77 +1,58 @@
-const axios = require('axios');
-const dotenv = require('dotenv');
-const inquirer = require('inquirer');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 
-dotenv.config();
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
-const contentType = ['application/json', 'multipart/form-data'];
+const executeRequest = async (method, url, headers, body) => {
+  const options = {
+    method,
+    headers
+  }
 
-async function main() {
+  if (body) {
+    if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+      options.headers['Content-Type'] = 'application/json';
+      body = JSON.stringify(body);
+    }
+  }
+
   try {
-    const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'method',
-        message: 'Enter HTTP method (GET, POST, PUT, DELETE, PATCH): ',
-        validate: (value) => methods.includes(value) || 'Invalid method'
-      },
-      {
-        type: 'input',
-        name: 'url',
-        message: 'Enter URL: '
-      },
-      {
-        type: 'list',
-        name: 'contentType',
-        message: 'Select content type (application/json, multipart/form-data): ',
-        choices: contentType
-      },
-      {
-        type: 'input',
-        name: 'body',
-        message: 'Enter request body (leave blank for empty body):
-        ',
-        when: (answers) => answers.contentType === 'application/json'
-      },
-      {
-        type: 'input',
-        name: 'formData',
-        message: 'Enter form data (leave blank for empty form data):
-        ',
-        when: (answers) => answers.contentType === 'multipart/form-data'
-      }
-    ]);
+    const start = Date.now();
+    const response = await fetch(url, options);
+    const endTime = Date.now();
+    const time = endTime - start;
 
-    const { method, url, contentType, body, formData } = answers;
-
-    let options = {
-      method: method,
-      url: url
-    }
-
-    if (contentType === 'application/json') {
-      options.headers = {
-        'Content-Type': 'application/json'
-      }
-      options.data = JSON.parse(body);
-    } else if (contentType === 'multipart/form-data') {
-      options.headers = {
-        'Content-Type': 'multipart/form-data'
-      }
-      options.data = formData;
-    }
-
-    const response = await axios(options);
-    console.log('Status Code:', response.status);
-    console.log('Headers:', response.headers);
-    console.log('Response Time:', response.duration);
-    console.log('Response:', response.data);
+    const data = await response.json();
+    console.log(`Status Code: ${response.status}
+Response Time: ${time}ms
+Headers: ${JSON.stringify(response.headers.raw())}
+Data: ${JSON.stringify(data)}`);
   } catch (error) {
     console.error('Error:', error);
   }
 }
 
-main();
+rl.on('line', async (input) => {
+  const [method, url, ...args] = input.split(' ');
+  let headers = {};
+  let body = null;
+
+  args.forEach(arg => {
+    if (arg.startsWith('-')) {
+      if (arg === '-d') {
+        body = JSON.parse(args.pop());
+      } else {
+        headers[arg.substring(2)] = args.pop();
+      }
+    }
+  });
+
+  await executeRequest(method, url, headers, body);
+}).on('close', () => {
+  rl.close();
+});

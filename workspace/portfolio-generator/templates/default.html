@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio</title>
+  <title>{{name}}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,11 +14,14 @@
       margin: auto;
       padding: 20px;
     }
-    header {
-      background-color: #333;
-      color: #fff;
-      padding: 10px;
+    .header {
       text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+    }
+    .bio {
+      margin-top: 20px;
     }
     .skills {
       margin-top: 20px;
@@ -31,8 +34,8 @@
       display: inline-block;
       margin-right: 10px;
       padding: 5px 10px;
-      background-color: #555;
-      color: #fff;
+      background-color: #007bff;
+      color: white;
       border-radius: 5px;
     }
     .projects {
@@ -41,36 +44,45 @@
     .project {
       margin-bottom: 20px;
     }
+    .project h3 {
+      margin: 0;
+    }
+    .project img {
+      max-width: 100%;
+      height: auto;
+    }
+    .project p {
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
+    <div class="header">
       <h1>{{name}}</h1>
       <p>{{position}}</p>
-    </header>
-    <section>
-      <h2>About</h2>
+    </div>
+    <div class="bio">
       <p>{{bio}}</p>
-    </section>
-    <section class="skills">
+    </div>
+    <div class="skills">
       <h2>Skills</h2>
       <ul>
         {{#each skills}}
           <li>{{this}}</li>
         {{/each}}
       </ul>
-    </section>
-    <section class="projects">
+    </div>
+    <div class="projects">
       <h2>Projects</h2>
       {{#each projects}}
         <div class="project">
           <h3>{{name}}</h3>
+          <img src="{{image}}" alt="{{name}}">
           <p>{{description}}</p>
-          <a href="{{link}}" target="_blank">View Project</a>
         </div>
       {{/each}}
-    </section>
+    </div>
   </div>
 </body>
 </html>

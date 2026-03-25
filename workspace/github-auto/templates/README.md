@@ -1,23 +1,13 @@
-# README Template
+# README.md Template
 
 Welcome to the project!
 
-## Project Description
+This README.md is a template provided by the GitHub Auto tool. You can edit this file to add more details about your project.
 
-[Your project description here]
+## Project Setup
 
-## Installation
+Install dependencies:
 
-[Installation instructions here]
-
-## Usage
-
-[Usage instructions here]
-
-## Contributing
-
-[Contribution guidelines here]
-
-## License
-
-[License information here]
+```bash
+npm install
+```
