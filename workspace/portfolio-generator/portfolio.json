@@ -11,13 +11,12 @@
   "projects": [
     {
       "name": "Project 1",
-      "description": "This is my first project.",
-      "link": "https://example.com/project1"
+      "description": "A web application for managing tasks.",n      "url": "https://example.com/project1"
     },
     {
       "name": "Project 2",
-      "description": "This is my second project.",
-      "link": "https://example.com/project2"
+      "description": "A social media platform.",
+      "url": "https://example.com/project2"
     }
   ],
   "social_links": {
