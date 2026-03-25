@@ -1,22 +1,23 @@
 {
   "name": "John Doe",
   "position": "Frontend Developer",
-  "bio": "I am a frontend developer with 5 years of experience. I specialize in building responsive and modern websites.",
+  "bio": "I am a frontend developer with 5 years of experience. I specialize in React and Redux.",
   "skills": [
-    "HTML5",
-    "CSS3",
+    "React",
+    "Redux",
     "JavaScript",
-    "React"
+    "HTML"
   ],
   "projects": [
     {
       "name": "Project 1",
-      "description": "A responsive website for a company.",n      "url": "https://example.com/project1"
+      "description": "A project about ...",
+      "link": "https://example.com/project1"
     },
     {
       "name": "Project 2",
-      "description": "A modern web application.",
-      "url": "https://example.com/project2"
+      "description": "A project about ...",
+      "link": "https://example.com/project2"
     }
   ],
   "social_links": {

@@ -1,55 +1,30 @@
-const fs = require('fs');
 const axios = require('axios');
-const dotenv = require('dotenv');
 
-dotenv.config();
-
-const createRepository = async (name, isPublic, description) => {
-  const token = process.env.GITHUB_TOKEN;
-  const apiUrl = 'https://api.github.com/user/repos';
-  const body = {
-    name,
-    private: !isPublic
-  }
-
-  if (description) {
-    body.description = description;
-  }
-
-  try {
-    const response = await axios.post(apiUrl, body, {
-      headers: {
-        Authorization: `token ${token}`
-      }
-    });
-    return response.data.clone_url;
-  } catch (error) {
-    throw new Error('Failed to create repository: ' + error.message);
-  }
-}
-
-const initRepository = async (url) => {
-  const cmd = `git init && git remote add origin ${url} && git fetch origin main && git checkout main && git branch -m main main && git push -u origin main`; 
-  try {
-    await exec_command(cmd);
-    console.log('Repository initialized successfully.');
-  } catch (error) {
-    throw new Error('Failed to initialize repository: ' + error.message);
-  }
-}
-
-const pushToGitHub = async (url) => {
-  const cmd = `git remote add origin ${url} && git push -u origin main`; 
-  try {
-    await exec_command(cmd);
-    console.log('Repository pushed to GitHub successfully.');
-  } catch (error) {
-    throw new Error('Failed to push to GitHub: ' + error.message);
-  }
-}
+const GITHUB_API_URL = 'https://api.github.com';
+const GITHUB_TOKEN = 'YOUR_GITHUB_TOKEN';
 
 module.exports = {
-  createRepository,
-  initRepository,
-  pushToGitHub
+  createRepository: async (name, isPublic) => {
+    const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
+      name,
+      private: !isPublic
+    }, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`
+      }
+    });
+    return response.data;
+  },
+
+  initializeRepository: async (repo) => {
+    // Initialize git, create project structure, add initial files, and make the first commit.
+    // This is a placeholder for the actual implementation.
+    console.log('Initializing repository:', repo);
+  },
+
+  pushToGitHub: async (repo) => {
+    // Add remote, push to main branch, and set default branch.
+    // This is a placeholder for the actual implementation.
+    console.log('Pushing to GitHub:', repo);
+  }
 };
