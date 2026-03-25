@@ -1,21 +1,7 @@
-const fs = require('fs');
-const readline = require('readline');
+const regexTester = require('./regex-tester');
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-rl.question('Enter regex pattern: ', (regex) => {
-    rl.question('Enter text to test: ', (text) => {
-        const matches = text.match(new RegExp(regex));
-        if (matches) {
-            console.log(`Match: ${matches[0]}
-Position: ${text.indexOf(matches[0])}
-`);
-        } else {
-            console.log('No match found');
-        }
-        rl.close();
-    });
-});
+module.exports = {
+  match: (pattern, text) => regexTester.match(pattern, text),
+  replace: (pattern, text, replacement) => regexTester.replace(pattern, text, replacement),
+  split: (pattern, text) => regexTester.split(pattern, text)
+};

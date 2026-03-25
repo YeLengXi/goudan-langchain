@@ -4,62 +4,73 @@ const path = require('path');
 class DB {
   constructor(file_path) {
     this.file_path = file_path;
-    this.data = this.load();
+    this.tables = {};
+    this.init();
   }
 
-  load() {
-    try {
-      const content = fs.readFileSync(this.file_path, 'utf8');
-      return JSON.parse(content);
-    } catch (error) {
-      return {};
+  init() {
+    const data = fs.readFileSync(this.file_path, 'utf8');
+    if (data) {
+      this.tables = JSON.parse(data);
     }
-  }
-
-  save() {
-    fs.writeFileSync(this.file_path, JSON.stringify(this.data, null, 2), 'utf8');
   }
 
   createTable(table_name) {
-    if (!this.data.tables) {
-      this.data.tables = {};
-    }
-    if (!this.data.tables[table_name]) {
-      this.data.tables[table_name] = [];
+    if (!this.tables[table_name]) {
+      this.tables[table_name] = {
+        records: [],
+        next_id: 1
+      };
+      this.save();
     }
   }
 
   insert(table_name, record) {
-    const table = this.data.tables[table_name];
-    record.id = table.length + 1;
-    table.push(record);
+    const table = this.tables[table_name];
+    if (!table) {
+      throw new Error('Table not found');
+    }
+    record.id = table.next_id++;
+    table.records.push(record);
+    this.save();
   }
 
   find(table_name, query) {
-    const table = this.data.tables[table_name];
-    return table.filter(record => this.matches(record, query));
+    const table = this.tables[table_name];
+    if (!table) {
+      throw new Error('Table not found');
+    }
+    return table.records.filter(record => this.match(record, query));
   }
 
   update(table_name, id, data) {
-    const table = this.data.tables[table_name];
-    const index = table.findIndex(record => record.id === id);
-    if (index !== -1) {
-      table[index] = { ...table[index], ...data };
+    const table = this.tables[table_name];
+    if (!table) {
+      throw new Error('Table not found');
     }
+    const record = table.records.find(record => record.id === id);
+    if (!record) {
+      throw new Error('Record not found');
+    }
+    Object.assign(record, data);
+    this.save();
   }
 
   delete(table_name, id) {
-    const table = this.data.tables[table_name];
-    const index = table.findIndex(record => record.id === id);
-    if (index !== -1) {
-      table.splice(index, 1);
+    const table = this.tables[table_name];
+    if (!table) {
+      throw new Error('Table not found');
     }
+    table.records = table.records.filter(record => record.id !== id);
+    this.save();
   }
 
-  matches(record, query) {
-    return Object.keys(query).every(key => {
-      return record[key] === query[key];
-    });
+  save() {
+    fs.writeFileSync(this.file_path, JSON.stringify(this.tables, null, 2), 'utf8');
+  }
+
+  match(record, query) {
+    return Object.keys(query).every(key => record[key] === query[key]);
   }
 }
 

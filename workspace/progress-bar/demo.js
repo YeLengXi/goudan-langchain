@@ -2,18 +2,26 @@ const ProgressBar = require('./progress.js');
 
 const cliProgress = require('cli-progress');
 
-const bar = new cliProgress.SingleBar({}, {
-  format: '[{bar}] {percentage}% | {value}/{total}',
-  barCompleteChar: '\u2588',
-  barIncompleteChar: '\u2591',
-  hideCursor: true
-});
+class MultiProgressBar {
+  constructor() {
+    this.bars = [];
+  }
 
-bar.start(100);
+  create(label, total) {
+    const bar = new cliProgress.Bar({
+      format: '[{bar}] {percentage}% | {label} | {value}/{total}',
+      barCompleteChar: '\u2588',
+      barIncompleteChar: '\u2591',
+      width: 30,
+      total
+    });
+    this.bars.push({ bar, label, total });
+    return bar;
+  }
 
-for (let i = 0; i <= 100; i++) {
-  bar.update(i);
-  console.log('Processing files...');
+  update() {
+    this.bars.forEach(bar => {
+      bar.update(bar.total);
+    });
+  }
 }
-
-bar.finish();

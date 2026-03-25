@@ -1,62 +1,68 @@
-const analyzeCodeComplexity = (filePath) => {
-    const code = read_file(filePath).content;
-    const functions = parseFunctions(code);
-    const complexityReport = generateComplexityReport(functions);
-    write_file({ "file_path": "workspace/complexity-analyzer/complexity-report.txt", "content": complexityReport });
-};
+// analyzer.js
 
-const parseFunctions = (code) => {
-    const functionRegex = /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(.*\)\s*{[^}]*}/g;
-    let match;
-    const functions = [];
-    while ((match = functionRegex.exec(code)) !== null) {
-        const functionName = match[1];
-        const functionBody = match[0];
-        const controlFlowStatements = countControlFlowStatements(functionBody);
-        functions.push({ functionName, controlFlowStatements });
+const fs = require('fs');
+const path = require('path');
+
+const calculateCyclomaticComplexity = (ast) => {
+  let complexity = 1;
+  ast.body.forEach((node) => {
+    if (node.type === 'IfStatement' || node.type === 'ForStatement' || node.type === 'WhileStatement' || node.type === 'DoWhileStatement' || node.type === 'SwitchStatement' || node.type === 'TryStatement') {
+      complexity += 1;
     }
-    return functions;
-};
+  });
+  return complexity;
+}
 
-const countControlFlowStatements = (code) => {
-    const controlFlowRegex = /(?:if|else|for|while|do-while|switch|case|catch|?:|&&|\|\|)/g;
-    const statements = code.match(controlFlowRegex) || [];
-    return statements.length;
-};
+const calculateCognitiveComplexity = (code) => {
+  const regex = /(?:if|else|for|while|do|switch|case|try|catch|throw|return|break|continue|new|this|super|function|class|module|export|import|const|let|var|async|await|=>|\+|\-|\*|\/|&&|\|\|\!|\=|\<|\>|\?|:|\,|\;|\{|\}|\[|\]|\()|\{|\}|\[|\]|\(|\)|\+|\-|\*|\/|&&|\|\|\!|\=|\<|\>|\?|:|\,|\;)/g;
+  const matches = code.match(regex);
+  return matches ? matches.length : 0;
+}
 
-const generateComplexityReport = (functions) => {
-    let report = "Code Complexity Report\n======================\n";
-    functions.forEach(functionInfo => {
-        const complexity = functionInfo.controlFlowStatements + 1;
-        const cognitiveComplexity = calculateCognitiveComplexity(functionInfo.functionName);
-        const riskLevel = getRiskLevel(complexity);
-        report += `Function: ${functionInfo.functionName}\n`;
-        report += `- Cyclomatic Complexity: ${complexity}\n`; 
-        report += `- Cognitive Complexity: ${cognitiveComplexity}\n`; 
-        report += `- Risk Level: ${riskLevel}\n`; 
-        report += `- Lines: ${functionInfo.functionName.length}\n\n`; 
-    });
-    report += `Overall: ${functions.length} functions analyzed\n${getHighRiskCount(functions)} HIGH risk, ${getLowRiskCount(functions)} LOW risk\n`; 
-    return report;
-};
+const analyzeFile = (filePath) => {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const ast = esprima.parseScript(content, {
+    tolerant: true
+  });
 
-const calculateCognitiveComplexity = (functionName) => {
-    const complexityRegex = /([a-zA-Z_][a-zA-Z0-9_]*)\s*=/g;
-    const variables = functionName.match(complexityRegex) || [];
-    return variables.length + 1;
-};
+  const functions = ast.body.filter(node => node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression').map(node => ({
+    name: node.id ? node.id.name : 'Anonymous',
+    complexity: calculateCyclomaticComplexity(ast),
+    cognitiveComplexity: calculateCognitiveComplexity(content),
+    lines: content.split('
+').length
+  }));
 
-const getRiskLevel = (complexity) => {
-    if (complexity <= 10) return "✅ LOW";
-    if (complexity <= 20) return "⚠️ MEDIUM";
-    if (complexity <= 50) return "❌ HIGH";
-    return "🚨 EXTREMELY HIGH";
-};
+  return functions;
+}
 
-const getHighRiskCount = (functions) => {
-    return functions.filter(f => f.controlFlowStatements + 1 > 50).length;
-};
+const generateReport = (functions) => {
+  let report = 'Code Complexity Report
+======================
 
-const getLowRiskCount = (functions) => {
-    return functions.filter(f => f.controlFlowStatements + 1 <= 10).length;
-};
+';
+  functions.forEach(func => {
+    report += `Function: ${func.name}
+    - Cyclomatic Complexity: ${func.complexity}
+    - Cognitive Complexity: ${func.cognitiveComplexity}
+    - Risk Level: ${func.complexity >= 21 ? '❌ HIGH' : func.complexity >= 11 ? '⚠️ MEDIUM' : '✅ LOW'}
+    - Lines: ${func.lines}
+
+`;}
+  report += `Overall: ${functions.length} functions analyzed
+${functions.filter(func => func.complexity >= 21).length} HIGH risk, ${functions.filter(func => func.complexity >= 11 && func.complexity < 21).length} MEDIUM risk, ${functions.filter(func => func.complexity < 11).length} LOW risk
+`;}
+  return report;
+}
+
+const analyzeDirectory = (dirPath) => {
+  const files = fs.readdirSync(dirPath);
+  const results = files.map(file => analyzeFile(path.join(dirPath, file)));
+  return results.flat();
+}
+
+module.exports = {
+  analyzeFile,
+  analyzeDirectory,
+  generateReport
+}

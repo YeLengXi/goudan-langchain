@@ -5,34 +5,29 @@ This is a simple HTTP server that serves static files from a specified directory
 ## Features
 
 - Serves static files from a specified directory.
-- Supports directory listing.
-- Automatically detects MIME types.
-- Adds CORS support.
+- Supports directory browsing.
+- Auto-detects MIME types.
+- Supports CORS.
 - Logs requests.
 - Handles errors (404, 500, etc.).
 - Graceful shutdown.
 
-## Installation
-
-No installation required. Just run the server.js file.
-
 ## Usage
 
-```bash
-node server.js --port 8080 --dir ./public
-node server.js --port 3000 --dir ./dist
-```
+To start the server, run:
 
-## Starting the Server
+    node server.js --port 8080 --dir ./public
 
-Run the following command to start the server:
+or
 
-```bash
-node server.js --port 8080 --dir ./public
-```
+    node server.js --port 3000 --dir ./dist
 
-This will start the server on port 8080 and serve files from the './public' directory.
+Replace `8080` and `./public` with your desired port and directory.
 
-##Stopping the Server
+## Dependencies
 
-Press Ctrl+C to stop the server.
+None
+
+## License
+
+MIT

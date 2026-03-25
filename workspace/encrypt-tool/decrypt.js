@@ -1,37 +1,21 @@
-const { caesarCipher, base64Encode, rot13, xorEncrypt, aesEncrypt } = require('./encrypt');
+const fs = require('fs');
+const path = require('path');
+const { encryptFile, decryptFile } = require('./encrypt');
 
-// Caesar Cipher
-function caesarDecipher(text, key) {
-  return caesarCipher(text, -key);
+const args = process.argv.slice(2);
+const command = args[0];
+const inputPath = args[1];
+const outputPath = args[3] || inputPath.replace(/\.txt$/, '.dec.txt');
+const method = args[2];
+const key = args[4] || ''; // 默认为空字符串
+
+switch (command) {
+  case 'encrypt':
+    encryptFile(inputPath, outputPath, method, key);
+    break;
+  case 'decrypt':
+    decryptFile(inputPath, outputPath, method, key);
+    break;
+  default:
+    console.error('Unknown command');
 }
-
-// Base64 Decoding
-function base64Decode(text) {
-  return Buffer.from(text, 'base64').toString('utf8');
-}
-
-// ROT13
-function rot13Decipher(text) {
-  return rot13(text, -13);
-}
-
-// Simple XOR Decryption
-function xorDecrypt(text, key) {
-  return xorEncrypt(text, -key);
-}
-
-// AES Decryption
-function aesDecrypt(text, key) {
-  const decipher = crypto.createDecipher('aes-256-cbc', key);
-  let decrypted = decipher.update(text, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
-
-module.exports = {
-  caesarDecipher,
-  base64Decode,
-  rot13Decipher,
-  xorDecrypt,
-  aesDecrypt
-};

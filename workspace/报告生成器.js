@@ -1,26 +1,27 @@
-const read_file = require('fs').readFileSync;
-const write_file = require('fs').writeFileSync;
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 
-const exportToJson = (parsedLogs) => {
-  const jsonContent = JSON.stringify(parsedLogs, null, 2);
-  write_file('exported_logs.json', jsonContent);
-};
+function exportToJson(parsedData) {
+  const jsonContent = JSON.stringify(parsedData, null, 2);
+  fs.writeFileSync('exported_data.json', jsonContent, 'utf8');
+}
 
-const exportToCsv = (parsedLogs) => {
-  const csvContent = parsedLogs.map(log => {
-    return `${log.timestamp},${log.level},${log.message}`;
+function exportToCsv(parsedData) {
+  const csvContent = parsedData.map(entry => {
+    return [entry.timestamp, entry.level, entry.message].join(',');
   }).join('
 ');
-  write_file('exported_logs.csv', csvContent);
-};
+  fs.writeFileSync('exported_data.csv', csvContent, 'utf8');
+}
 
-const generateReport = (parsedLogs) => {
-  const errorCounts = countErrors(parsedLogs);
-  const reportContent = `Report:
-${errorCounts.map(error => `${error[0]}: ${error[1]} times`).join('
-')}`;
-  write_file('report.txt', reportContent);
-};
+function generateReport(parsedData) {
+  const reportContent = `Log Analysis Report
+
+Total Entries: ${parsedData.length}
+Most Frequent Error: ${parsedData.filter(entry => entry.level === 'ERROR').map(entry => entry.message).join(', ')}`;
+  fs.writeFileSync('report.txt', reportContent, 'utf8');
+}
 
 module.exports = {
   exportToJson,

@@ -1,54 +1,34 @@
 const fs = require('fs');
 const path = require('path');
+const { parseLog } = require('./log-analyzer.cjs');
+const { countErrors } = require('./错误统计器.js');
+const { searchLogs } = require('./搜索引擎.js');
+const { exportLogs } = require('./报告生成器.js');
 
-// 读取文件内容
-async function read_file(file_path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(file_path, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
-}
+const analyzeLog = (args) => {
+  const logPath = args._[1];
+  const format = args._.includes('--error') ? 'error' : 'app';
+  const exportFormat = args._.includes('--export') ? args._[args._.indexOf('--export') + 1] : 'json';
 
-// 写入文件内容
-async function write_file(file_path, content) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(file_path, content, 'utf8', (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
+  let logData = parseLog(logPath, format);
 
-// 执行命令行命令
-async function exec_command(command) {
-  return new Promise((resolve, reject) => {
-    require('child_process').exec(command, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({stdout, stderr});
-      }
-    });
-  });
-}
+  if (args._.includes('--error')) {
+    logData = countErrors(logData);
+  }
 
-// 列出目录内容
-async function list_directory(directory_path) {
-  return new Promise((resolve, reject) => {
-    fs.readdir(directory_path, (err, files) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(files);
-      }
-    });
-  });
-}
+  if (args._.includes('--search')) {
+    const searchKeyword = args._[args._.indexOf('--search') + 1];
+    const timeRange = args._.includes('--time-range') ? {
+      start: args._[args._.indexOf('--time-range') + 1],
+      end: args._[args._.indexOf('--time-range') + 2]
+    } : null;
+    const level = args._.includes('--level') ? args._[args._.indexOf('--level') + 1] : null;
+    logData = searchLogs(logPath, searchKeyword, timeRange, level);
+  }
+
+  const exportPath = path.join(__dirname, 'exported-log.' + exportFormat);
+  fs.writeFileSync(exportPath, exportLogs(logData, exportFormat));
+  console.log('Exported to', exportPath);
+};
+
+analyzeLog(process.argv);

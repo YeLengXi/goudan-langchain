@@ -1,17 +1,25 @@
 const DB = require('./database');
 
+// 初始化数据库
 const db = new DB('./data.json');
 
+// 创建表
 db.createTable('users');
 
-db.insert('users', { name: 'Alice', age: 30 });
+// 插入
+const user = { name: 'Alice', age: 30 }
+db.insert('users', user);
 
-db.insert('users', { name: 'Bob', age: 25 });
+// 查询
+const users = db.find('users', { age: 30 });
+console.log(users);
 
-db.find('users', { age: 30 });
+// 更新
+const updatedUser = { ...user, age: 31 }
+db.update('users', user.id, updatedUser);
 
-db.update('users', 1, { age: 31 });
+// 删除
+db.delete('users', user.id);
 
-db.delete('users', 1);
-
+// 保存
 db.save();

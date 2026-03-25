@@ -1,53 +1,61 @@
-# 日志解析器
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 
-// 解析应用日志
-const parseApplicationLog = (log) => {
-  const regex = /^([\d\-\:\.\s]+) ([A-Z]+) (.+)$/;
-  const match = log.match(regex);
-  if (match) {
-    return {
-      timestamp: match[1],
-      level: match[2],
-      message: match[3]
-    }
-  }
-  return null;
-};
+const supportedFormats = ['app', 'apache', 'error'];
 
-// 解析访问日志
-const parseAccessLog = (log) => {
-  const regex = /^([\d\-\:\.\s]+) "([\w]+) ([^ ]+) ([^ ]+)" ([^ ]+) "([^ ]+)" "([^ ]+)"$/;
-  const match = log.match(regex);
-  if (match) {
-    return {
-      timestamp: match[1],
-      method: match[2],
-      url: match[3],
-      status: match[4],
-      bytes: match[5],
-      referer: match[6],
-      user_agent: match[7]
-    }
-  }
-  return null;
-};
+function parseLog(fileContent, format) {
+  let parsedData = [];
 
-// 解析错误日志
-const parseErrorLog = (log) => {
-  // 这里只是一个示例，实际解析可能需要更复杂的正则表达式或解析逻辑
-  const regex = /^([\d\-\:\.\s]+) [A-Z]+:(.+)/;
-  const match = log.match(regex);
-  if (match) {
-    return {
-      timestamp: match[1],
-      error: match[2]
-    }
+  if (format === 'app') {
+    const lines = fileContent.split('
+');
+    lines.forEach(line => {
+      const parts = line.split(' ');
+      const timestamp = parts[0];
+      const level = parts[1];
+      const message = parts.slice(2).join(' ');
+      parsedData.push({ timestamp, level, message });
+    });
+  } else if (format === 'apache') {
+    const lines = fileContent.split('
+');
+    lines.forEach(line => {
+      const parts = line.split(' ');
+      const timestamp = parts[0] + ' ' + parts[1];
+      const level = parts[2];
+      const message = parts.slice(3).join(' ');
+      parsedData.push({ timestamp, level, message });
+    });
+  } else if (format === 'error') {
+    const lines = fileContent.split('
+');
+    lines.forEach(line => {
+      const parts = line.split('
+');
+      const message = parts[0];
+      parsedData.push({ message });
+    });
   }
-  return null;
-};
+
+  return parsedData;
+}
+
+function analyzeLog(file_path) {
+  const fileContent = fs.readFileSync(file_path, 'utf8');
+  const format = fileContent.match(/^\[(.*?)\]/)[1];
+
+  if (!supportedFormats.includes(format)) {
+    throw new Error('Unsupported log format');
+  }
+
+  const parsedData = parseLog(fileContent, format);
+
+  // Error analysis logic here
+
+  return parsedData;
+}
 
 module.exports = {
-  parseApplicationLog,
-  parseAccessLog,
-  parseErrorLog
-};
+  analyzeLog
+}

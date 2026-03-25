@@ -1,10 +1,13 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('minimist');
 
-const DEFAULT_REQUEST_FILE = 'requests.json';
-const CONFIG_FILE = 'config.json';
+const parseArgs = require('minimist');
+const { readFileSync } = require('fs');
+
+const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
+
+const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
 function fetchApi(url, method, headers, body) {
   return new Promise((resolve, reject) => {
@@ -14,41 +17,68 @@ function fetchApi(url, method, headers, body) {
     }
 
     if (body) {
-      if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-        options.headers['Content-Type'] = 'application/json';
-        body = JSON.stringify(body);
-      }
+      options.body = body;
     }
 
     https.get(url, response => {
-      let data = '';
-      response.on('data', chunk => {
-        data += chunk;
-      });
+      const { statusCode, headers: responseHeaders } = response;
+      const chunks = [];
+      response.on('data', chunk => chunks.push(chunk));
       response.on('end', () => {
+        const body = Buffer.concat(chunks).toString();
         resolve({
-          statusCode: response.statusCode,
-          headers: response.headers,
-          body: JSON.parse(data)
+          statusCode,
+          responseHeaders,
+          body
         });
       });
-    }).on('error', error => {
-      reject(error);
+    }).on('error', err => {
+      reject(err);
     });
   });
 }
 
-function parseRequestFile(filePath) {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
+function parseRequestBody(method, body) {
+  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+    if (body.startsWith('{')) {
+      return JSON.parse(body);
+    } else if (body.startsWith('form')) {
+      return body;
+    }
+  }
+  return null;
 }
 
-function saveResponseToFile(filePath, content) {
-  fs.writeFileSync(filePath, JSON.stringify(content, null, 2), 'utf-8');
+function run() {
+  const args = parseArgs(process.argv.slice(2));
+  const { method, url, _ } = args;
+  let body = args.d || args.data || null;
+
+  if (!method || !url) {
+    console.error('Missing method or URL.');
+    process.exit(1);
+  }
+
+  if (!methods.includes(method)) {
+    console.error(`Unsupported method: ${method}`);
+    process.exit(1);
+  }
+
+  body = parseRequestBody(method, body);
+
+  fetchApi(url, method, {}, body)
+    .then(response => {
+      console.log(`Status Code: ${response.statusCode}`);
+      console.log('Headers:', response.responseHeaders);
+      console.log('Body:', response.body);
+
+      if (args.save) {
+        fs.writeFileSync(args.save, JSON.stringify(response, null, 2));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
-module.exports = {
-  fetchApi,
-  parseRequestFile,
-  saveResponseToFile
-}
+run();

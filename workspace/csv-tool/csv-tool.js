@@ -1,69 +1,73 @@
 const fs = require('fs');
-const { parse, format } = require('csv');
-const { program } = require('commander');
+const { parse, format } = require('csv-parser');
+const { StringDecoder } = require('string_decoder');
 
-// 解析CSV文件
-function parseCSV(filePath) {
+// CSV解析器
+function parseCSV(file_path) {
   return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        const records = parse(data, {
-          relax_column_count: true
+    const results = [];
+    const decoder = new StringDecoder('utf8');
+    fs.createReadStream(file_path)
+      .on('data', (chunk) => {
+        const lines = decoder.write(chunk).split('
+');
+        lines.forEach((line) => {
+          if (line) {
+            results.push(parse(line));
+          }
         });
-        resolve(records);
-      }
-    });
-  });
-}
-
-// 生成CSV文件
-function generateCSV(records, filePath) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(filePath, format(records, {
-      header: true
-    }), 'utf8', (err) => {
-      if (err) {
+      })
+      .on('end', () => {
+        resolve(results);
+      })
+      .on('error', (err) => {
         reject(err);
-      } else {
-        resolve();
-      }
-    });
+      });
   });
 }
 
-// 转换CSV到JSON
-function csvToJson(filePath) {
-  return parseCSV(filePath).then(records => {
-    return JSON.stringify(records, null, 2);
+// CSV生成器
+function generateCSV(data, file_path) {
+  return new Promise((resolve, reject) => {
+    const stream = fs.createWriteStream(file_path);
+    stream.write(format(data) + '
+');
+    stream.end();
+    resolve();
   });
 }
 
-// 转换CSV到Markdown表格
-function csvToMarkdown(filePath) {
-  return parseCSV(filePath).then(records => {
+// CSV转JSON
+function csvToJson(file_path) {
+  return parseCSV(file_path).then((data) => {
+    return JSON.stringify(data, null, 2);
+  });
+}
+
+// CSV转Markdown表格
+function csvToMarkdown(file_path) {
+  return parseCSV(file_path).then((data) => {
     let markdown = '| Header 1 | Header 2 |
     markdown += '|---|---|
-    records.forEach(record => {
-      markdown += '| ' + record.join(' | ') + ' |
+    data.forEach((row) => {
+      markdown += '| ' + row.join(' | ') + ' |
     });
     return markdown;
   });
 }
 
-// 转换CSV到HTML表格
-function csvToHtml(filePath) {
-  return parseCSV(filePath).then(records => {
+// CSV转HTML表格
+function csvToHtml(file_path) {
+  return parseCSV(file_path).then((data) => {
     let html = '<table>
       <tr>
         <th>Header 1</th>
         <th>Header 2</th>
       </tr>
-    </tr>
-    records.forEach(record => {
-      html += ' '<tr>
-        <td>' + record.join('</td><td>') + '</td>
+    </table>
+    data.forEach((row) => {
+      html += '<tr>
+        <td>' + row.join('</td><td>') + '</td>
       </tr>
     });
     html += '</table>
@@ -71,79 +75,34 @@ function csvToHtml(filePath) {
   });
 }
 
-// 过滤CSV文件
-function filterCSV(filePath, column, value) {
-  return parseCSV(filePath).then(records => {
-    return records.filter(record => record[column] === value);
+// CSV过滤
+function filterCSV(file_path, column, value) {
+  return parseCSV(file_path).then((data) => {
+    return data.filter((row) => row[column] === value);
   });
 }
 
-// 排序CSV文件
-function sortCSV(filePath, column) {
-  return parseCSV(filePath).then(records => {
-    return records.sort((a, b) => {
-      return a[column].localeCompare(b[column]);n    });
+// CSV排序
+function sortCSV(file_path, column) {
+  return parseCSV(file_path).then((data) => {
+    return data.sort((a, b) => {
+      if (a[column] < b[column]) {
+        return -1;
+      }
+      if (a[column] > b[column]) {
+        return 1;
+      }
+      return 0;
+    });
   });
 }
 
-// CLI接口
-program.version('1.0.0').description('CSV数据处理工具');
-program.command('convert <input> --format <format>').action((input, format) => {
-  switch (format) {
-    case 'json':
-      csvToJson(input).then(data => {
-        console.log(data);
-      }).catch(err => {
-        console.error(err);
-      });
-      break;
-    case 'markdown':
-      csvToMarkdown(input).then(data => {
-        console.log(data);
-      }).catch(err => {
-        console.error(err);
-      });
-      break;
-    case 'html':
-      csvToHtml(input).then(data => {
-        console.log(data);
-      }).catch(err => {
-        console.error(err);
-      });
-      break;
-  }
-});
-program.command('filter <input> --column <column> --value <value>').action((input, column, value) => {
-  filterCSV(input, column, value).then(data => {
-    console.log(data);
-  }).catch(err => {
-    console.error(err);
-  });
-});
-program.command('sort <input> --column <column>').action((input, column) => {
-  sortCSV(input, column).then(data => {
-    console.log(data);
-  }).catch(err => {
-    console.error(err);
-  });
-});
-program.command('to-table <input> --format <format>').action((input, format) => {
-  switch (format) {
-    case 'markdown':
-      csvToMarkdown(input).then(data => {
-        console.log(data);
-      }).catch(err => {
-        console.error(err);
-      });
-      break;
-    case 'html':
-      csvToHtml(input).then(data => {
-        console.log(data);
-      }).catch(err => {
-        console.error(err);
-      });
-      break;
-  }
-});
-
-program.parse(process.argv);
+module.exports = {
+  parseCSV,
+  generateCSV,
+  csvToJson,
+  csvToMarkdown,
+  csvToHtml,
+  filterCSV,
+  sortCSV
+}

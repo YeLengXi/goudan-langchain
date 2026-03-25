@@ -1,30 +1,46 @@
-const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
+const equal = (actual, expected) => {
+  if (actual === expected) {
+    return true;
+  }
+  if (typeof actual !== 'object' && typeof expected !== 'object') {
+    return false;
+  }
+  if (Array.isArray(actual) && Array.isArray(expected)) {
+    if (actual.length !== expected.length) {
+      return false;
+    }
+    for (let i = 0; i < actual.length; i++) {
+      if (!equal(actual[i], expected[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (Object.keys(actual).length !== Object.keys(expected).length) {
+    return false;
+  }
+  for (let key in actual) {
+    if (!expected.hasOwnProperty(key) || !equal(actual[key], expected[key])) {
+      return false;
+    }
+  }
+  return true;
+}
 
-const describe = (name, fn) => {
-  const suite = {
-    name,
-    tests: [],
-    before: [],
-    after: [],
-  };
+const deepEqual = equal;
 
-  fn(suite);
+const truthy = value => !!value;
+const falsy = value => !value;
 
-  return suite;
-};
+const throws = (fn, error) => {
+  try {
+    fn();
+    return false;
+  } catch (actualError) {
+    return equal(actualError, error);
+  }
+}
 
-const it = (name, fn) => {
-  return suite => {
-    suite.tests.push({ name, fn });
-  }; 
-};
+const contains = (actual, expected) => equal(actual, expected) || actual.includes(expected);
 
-const before = fn => suite => {
-  suite.before.push(fn);
-};
-
-const after = fn => suite => {
-  suite.after.push(fn);
-};
-
-module.exports = { describe, it, before, after, equal, deepEqual, truthy, falsy, throws, contains };
+module.exports = { equal, deepEqual, truthy, falsy, throws, contains };

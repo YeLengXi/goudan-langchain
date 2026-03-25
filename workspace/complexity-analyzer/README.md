@@ -1,8 +1,14 @@
-# Code Complexity Analyzer
+# Complexity Analyzer
 
-## Description
+This tool is designed to analyze the complexity of JavaScript code.
 
-This tool analyzes JavaScript code to calculate its cyclomatic complexity, cognitive complexity, and maintainability index.
+## Features
+
+- Parses JavaScript code
+- Calculates Cyclomatic Complexity
+- Evaluates risk level
+- Generates reports
+- Supports multiple files
 
 ## Usage
 
@@ -10,19 +16,47 @@ To analyze a single file:
 
     node analyzer.js file.js
 
-To analyze a directory of files:
+To analyze a directory:
 
     node analyzer.js src/
 
-Options:
+To generate a JSON report:
 
-    --format json
-    --output report.txt
+    node analyzer.js --format json
 
-## Features
+To output the report to a file:
 
-- Parse JavaScript code
-- Calculate cyclomatic complexity
-- Risk level assessment
-- Generate reports
-- Support multi-file
+    node analyzer.js --output report.txt
+
+## Complexity Calculation
+
+- Cyclomatic Complexity: Based on the number of control flow statements in the function.
+- Cognitive Complexity: Based on the number of functions and variables used in the function.
+
+## Risk Level
+
+- LOW: 1-10
+- MEDIUM: 11-20
+- HIGH: 21-50
+- CRITICAL: 50+
+
+## Output Example
+
+Code Complexity Report
+======================
+
+Function: processData
+- Cyclomatic Complexity: 15
+- Cognitive Complexity: 12
+- Risk Level: ⚠️ MEDIUM
+- Lines: 45
+
+Function: validateInput
+- Cyclomatic Complexity: 4
+- Cognitive Complexity: 2
+- Risk Level: ✅ LOW
+- Lines: 12
+
+Overall: 2 functions analyzed
+1 HIGH risk, 1 LOW risk
+

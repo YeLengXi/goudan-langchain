@@ -1,19 +1,17 @@
-# 搜索引擎
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
 
-const searchByKeyword = (logs, keyword) => {
-  return logs.filter(log => log.message.includes(keyword) || log.error.includes(keyword));
-};
+function searchLogs(parsedData, keyword, startTime, endTime, level) {
+  return parsedData.filter(entry => {
+    const includesKeyword = entry.message.includes(keyword);
+    const withinTimeRange = entry.timestamp >= startTime && entry.timestamp <= endTime;
+    const matchesLevel = level ? entry.level === level : true;
 
-const filterByTimeRange = (logs, startTime, endTime) => {
-  return logs.filter(log => new Date(log.timestamp) >= new Date(startTime) && new Date(log.timestamp) <= new Date(endTime));
-};
-
-const filterByLogLevel = (logs, level) => {
-  return logs.filter(log => log.level === level);
-};
+    return includesKeyword && withinTimeRange && matchesLevel;
+  });
+}
 
 module.exports = {
-  searchByKeyword,
-  filterByTimeRange,
-  filterByLogLevel
-};
+  searchLogs
+}

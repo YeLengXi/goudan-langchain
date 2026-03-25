@@ -1,37 +1,23 @@
-# 错误统计器
+const { parseLog } = require('./log-analyzer.cjs');
 
-// 统计错误数量
-const countErrors = (logs) => {
-  return logs.filter(log => log.level === 'ERROR').length;
-};
-
-// 按类型分组
-const groupErrorsByType = (logs) => {
-  const errorTypes = logs.reduce((acc, log) => {
-    if (log.level === 'ERROR') {
-      acc[log.message] = (acc[log.message] || 0) + 1;
+const countErrors = (logData) => {
+  const errorTypes = logData.reduce((acc, entry) => {
+    if (entry.level === 'ERROR') {
+      acc[entry.stack] = (acc[entry.stack] || 0) + 1;
     }
     return acc;
   }, {});
-  return errorTypes;
-};
 
-// 显示最频繁的错误
-const showMostFrequentError = (logs) => {
-  const errorTypes = groupErrorsByType(logs);
-  let mostFrequentError = '';
-  let maxCount = 0;
-  for (const [error, count] of Object.entries(errorTypes)) {
-    if (count > maxCount) {
-      mostFrequentError = error;
-      maxCount = count;
+  const sortedErrors = Object.entries(errorTypes).sort((a, b) => b[1] - a[1]);
+
+  return sortedErrors.map(error => {
+    return {
+      errorType: error[0],
+      count: error[1]
     }
-  }
-  return mostFrequentError;
+  });
 };
 
 module.exports = {
-  countErrors,
-  groupErrorsByType,
-  showMostFrequentError
-};
+  countErrors
+}

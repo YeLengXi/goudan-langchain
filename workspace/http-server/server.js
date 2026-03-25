@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const PORT = process.argv[2] || 8080;
-const DIR = process.argv[3] || './public';
+const PORT = process.argv.slice(2).find(arg => arg.startsWith('--port')).split('=')[1] || 8080;
+const DIR = process.argv.slice(2).find(arg => arg.startsWith('--dir')).split('=')[1] || './public';
 
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
@@ -29,40 +29,29 @@ const server = http.createServer((req, res) => {
         }
 
         res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(fs.readFileSync(filePath, 'utf-8'));
+        fs.createReadStream(filePath).pipe(res);
       });
     } else {
-      serveFile(filePath, stats, res);
+      const mime = getMime(filePath);
+      res.writeHead(200, { 'Content-Type': mime });
+      fs.createReadStream(filePath).pipe(res);
     }
   });
 });
 
-function serveFile(filePath, stats, res) {
-  const mimeType = getMimeType(filePath);
-  res.writeHead(200, { 'Content-Type': mimeType });
-  const fileStream = fs.createReadStream(filePath);
-  fileStream.pipe(res);
-}
-
-function getMimeType(filePath) {
+function getMime(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   switch (ext) {
-    case '.html':
-      return 'text/html';
-    case '.css':
-      return 'text/css';
-    case '.js':
-      return 'application/javascript';
-    case '.json':
-      return 'application/json';
-    case '.png':
-    case '.jpg':
-    case '.jpeg':
-    case '.gif':
-    case '.svg':
-      return 'image/' + ext.replace(/./, m => m === 'jpeg' ? 'jpg' : m);
-    default:
-      return 'application/octet-stream';
+    case '.html': return 'text/html';
+    case '.css': return 'text/css';
+    case '.js': return 'application/javascript';
+    case '.json': return 'application/json';
+    case '.png': return 'image/png';
+    case '.jpg': return 'image/jpeg';
+    case '.jpeg': return 'image/jpeg';
+    case '.gif': return 'image/gif';
+    case '.svg': return 'image/svg+xml';
+    default: return 'application/octet-stream';
   }
 }
 
@@ -71,6 +60,5 @@ server.listen(PORT, () => {
 - Port: ${PORT}
 - Root: ${DIR}
 - URL: http://localhost:${PORT}
-Press Ctrl+C to stop
 `);
 });

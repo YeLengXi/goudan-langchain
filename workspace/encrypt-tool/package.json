@@ -1,0 +1,12 @@
+{
+  "name": "encrypt-tool",
+  "version": "1.0.0",
+  "description": "A simple text encryption and decryption tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "dependencies": {
+    "crypto": "^1.0.0"
+  }
+}

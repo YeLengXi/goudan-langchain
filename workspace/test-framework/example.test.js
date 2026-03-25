@@ -1,4 +1,6 @@
-const { describe, it, expect } = require('./test.js');
+const { describe, it, expect } = require('./test-framework/test.js');
+
+const { equal, deepEqual, truthy, falsy, throws, contains } = require('./test-framework/assert.js');
 
 const add = (a, b) => a + b;
 const subtract = (a, b) => a - b;
@@ -12,3 +14,8 @@ describe('Math operations', () => {
     expect(subtract(5, 2)).toBe(3);
   });
 });
+
+module.exports = {
+  add,
+  subtract,
+};

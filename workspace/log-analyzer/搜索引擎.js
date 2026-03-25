@@ -1,22 +1,24 @@
-# 搜索引擎
+const { parseLog } = require('./log-analyzer.cjs');
+const { countErrors } = require('./错误统计器.js');
 
-// 按关键词搜索
-const searchByKeyword = (logs, keyword) => {
-  return logs.filter(log => log.message.includes(keyword));
-};
+const searchLogs = (logPath, keywords, timeRange, level) => {
+  const logData = parseLog(logPath);
+  const filteredLogs = logData.filter(entry => {
+    if (keywords && !entry.message.includes(keywords)) {
+      return false;
+    }
+    if (timeRange && entry.timestamp < timeRange.start || entry.timestamp > timeRange.end) {
+      return false;
+    }
+    if (level && entry.level !== level) {
+      return false;
+    }
+    return true;
+  });
 
-// 按时间范围过滤
-const filterByTimeRange = (logs, startTime, endTime) => {
-  return logs.filter(log => new Date(log.timestamp) >= new Date(startTime) && new Date(log.timestamp) <= new Date(endTime));
-};
-
-// 按日志级别过滤
-const filterByLogLevel = (logs, level) => {
-  return logs.filter(log => log.level === level);
+  return filteredLogs;
 };
 
 module.exports = {
-  searchByKeyword,
-  filterByTimeRange,
-  filterByLogLevel
-};
+  searchLogs
+}

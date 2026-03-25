@@ -4,9 +4,13 @@
   "description": "CSV数据处理工具",
   "main": "csv-tool.js",
   "scripts": {
-    "start": "node csv-tool.js"
+    "convert": "node csv-tool.js convert",
+    "filter": "node csv-tool.js filter",
+    "sort": "node csv-tool.js sort",
+    "to-table": "node csv-tool.js to-table"
   },
-  "devDependencies": {
-    "commander": "^8.0.0"
+  "dependencies": {
+    "csv-parser": "^5.0.0",
+    "fs": "^0.0.1-security"
   }
 }
