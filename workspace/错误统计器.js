@@ -1,26 +1,18 @@
-const fs = require('fs');
+const read_file = require('fs').readFileSync;
+
+const countErrors = (parsedLogs) => {
+  const errorTypes = parsedLogs.reduce((acc, log) => {
+    if (log.level === 'ERROR') {
+      acc[log.message] = (acc[log.message] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const sortedErrors = Object.entries(errorTypes).sort((a, b) => b[1] - a[1]);
+
+  return sortedErrors;
+};
 
 module.exports = {
-  countErrors: (logs) => {
-    const errorTypes = {};
-    logs.forEach(log => {
-      if (log.level === 'ERROR') {
-        const errorType = log.message.match(/Error: ([^\n]+)/)[1];
-        errorTypes[errorType] = (errorTypes[errorType] || 0) + 1;
-      }
-    });
-    return errorTypes;
-  },
-
-  getMostFrequentError: (errorTypes) => {
-    let mostFrequentError = null;
-    let maxCount = 0;
-    for (const errorType in errorTypes) {
-      if (errorTypes[errorType] > maxCount) {
-        mostFrequentError = errorType;
-        maxCount = errorTypes[errorType];
-      }
-    }
-    return mostFrequentError;
-  }
+  countErrors
 }
