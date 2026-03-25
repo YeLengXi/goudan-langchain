@@ -1,28 +1,47 @@
-# Color Converter
+# color-converter
 
-This tool allows you to convert between different color formats and perform various color operations.
+This tool is a color converter that supports various color formats.
 
 ## Features
-- Supports multiple color formats: HEX, RGB, HSL, HSV/HSB, CMYK, color names
+
+- Supports multiple color formats
 - Bidirectional conversion
-- Color operations: lighten/darken, saturation adjust, invert, mix colors
+- Color operations
 - Input validation
 - Error handling
 
 ## Usage
 
-To convert a color format to another format:
+To convert a color format to another format, use the following command:
 
 ```bash
-node converter.js "#ff0000" --to rgb
-node converter.js "rgb(255, 0, 0)" --to hex
+node converter.js <color> --to <format>
 ```
 
-To perform color operations:
+Where `<color>` is the color to be converted and `<format>` is the target format.
+
+### Examples
+
+Convert #ff0000 to RGB:
 
 ```bash
-node converter.js "#ff0000" --lighten 20
-node converter.js "red" --to hsl
+node converter.js #ff0000 --to rgb
 ```
 
-For more information, run `node converter.js --help`
+Convert rgb(255, 0, 0) to HEX:
+
+```bash
+node converter.js rgb(255, 0, 0) --to hex
+```
+
+Lighten #ff0000 by 20%:
+
+```bash
+node converter.js #ff0000 --lighten 20
+```
+
+Convert red to HSL:
+
+```bash
+node converter.js red --to hsl
+```

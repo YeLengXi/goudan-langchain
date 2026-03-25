@@ -1,18 +1,14 @@
 {
   "name": "github-auto",
   "version": "1.0.0",
-  "description": "GitHub repository automation tool",
+  "description": "An automation tool for creating GitHub repositories",
   "main": "index.js",
   "scripts": {
     "create": "node index.js create",
     "init": "node index.js init",
     "push": "node index.js push"
   },
-  "keywords": [
-    "github",
-    "automation",
-    "tool"
-  ],
-  "author": "Your Name",
-  "license": "ISC"
+  "dependencies": {
+    "axios": "^0.27.2"
+  }
 }

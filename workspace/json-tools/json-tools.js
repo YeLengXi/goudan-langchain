@@ -1,69 +1,89 @@
 const fs = require('fs');
-const util = require('util');
-const path = require('path');
+const { parse } = require('json2csv');
+const { JSDOM } = require('jsdom');
+const { DOMParser } = require('xmldom');
+const { promisify } = require('util');
+const read_file = promisify(fs.readFile);
+const write_file = promisify(fs.writeFile);
+const exec_command = require('./exec_command');
 
-const readFile = util.promisify(fs.readFile);
-const writeFile = util.promisify(fs.writeFile);
-const JSON.stringify = util.promisify(JSON.stringify);
-const JSON.parse = util.promisify(JSON.parse);
+// Parse command line arguments
+const args = process.argv.slice(2);
+const command = args[0];
+const file_path = args[1];
+const options = args.slice(2);
 
-const format = async (filePath, indent) => {
+// Read JSON from file
+async function readJsonFile(filePath) {
   try {
-    const data = await readFile(filePath, 'utf8');
-    const json = JSON.parse(data);
-    const formatted = JSON.stringify(json, null, indent);
-    await writeFile(filePath, formatted, 'utf8');
-    console.log('JSON formatted successfully.');
+    const data = await read_file(filePath, 'utf8');
+    return JSON.parse(data);
   } catch (error) {
-    console.error('Error formatting JSON:', error);
+    throw new Error('Invalid JSON');
   }
-};
+}
 
-const sort = async (filePath, key) => {
+// Write JSON to file
+async function writeJsonFile(filePath, data) {
   try {
-    const data = await readFile(filePath, 'utf8');
-    const json = JSON.parse(data);
-    json.sort((a, b) => {
-      if (a[key] < b[key]) return -1;
-      if (a[key] > b[key]) return 1;
-      return 0;
-    });
-    const sorted = JSON.stringify(json, null, 2);
-    await writeFile(filePath, sorted, 'utf8');
-    console.log('JSON sorted successfully.');
+    await write_file(filePath, JSON.stringify(data, null, 2), 'utf8');
   } catch (error) {
-    console.error('Error sorting JSON:', error);
+    throw new Error('Failed to write JSON');
   }
-};
+}
 
-const filter = async (filePath, condition) => {
+// Format JSON
+async function format(json) {
+  return JSON.stringify(json, null, 2);
+}
+
+// Sort JSON
+async function sort(json, key) {
+  return JSON.sort(json, key);
+}
+
+// Filter JSON
+async function filter(json, condition) {
+  return JSON.filter(json, condition);
+}
+
+// Merge JSON
+async function merge(json1, json2) {
+  return JSON.merge(json1, json2);
+}
+
+// Execute command
+async function executeCommand(command, filePath, options) {
+  switch (command) {
+    case 'format':
+      const formattedJson = await format(await readJsonFile(filePath));
+      await writeJsonFile(filePath, formattedJson);
+      break;
+    case 'sort':
+      const sortedJson = await sort(await readJsonFile(filePath), options[0]);
+      await writeJsonFile(filePath, sortedJson);
+      break;
+    case 'filter':
+      const filteredJson = await filter(await readJsonFile(filePath), options[0]);
+      await writeJsonFile(filePath, filteredJson);
+      break;
+    case 'merge':
+      const [filePath1, filePath2] = options;
+      const [json1, json2] = await Promise.all([readJsonFile(filePath1), readJsonFile(filePath2)]);
+      const mergedJson = await merge(json1, json2);
+      await writeJsonFile(filePath, mergedJson);
+      break;
+    default:
+      throw new Error('Unknown command');
+  }
+}
+
+// Main
+(async () => {
   try {
-    const data = await readFile(filePath, 'utf8');
-    const json = JSON.parse(data);
-    const filtered = json.filter(item => {
-      return condition(item);
-    });
-    const filteredJson = JSON.stringify(filtered, null, 2);
-    await writeFile(filePath, filteredJson, 'utf8');
-    console.log('JSON filtered successfully.');
+    await executeCommand(command, file_path, options);
+    console.log('Command executed successfully');
   } catch (error) {
-    console.error('Error filtering JSON:', error);
+    console.error(error.message);
   }
-};
-
-const merge = async (filePath1, filePath2, outputFilePath) => {
-  try {
-    const data1 = await readFile(filePath1, 'utf8');
-    const data2 = await readFile(filePath2, 'utf8');
-    const json1 = JSON.parse(data1);
-    const json2 = JSON.parse(data2);
-    const merged = { ...json1, ...json2 };
-    const mergedJson = JSON.stringify(merged, null, 2);
-    await writeFile(outputFilePath, mergedJson, 'utf8');
-    console.log('JSON merged successfully.');
-  } catch (error) {
-    console.error('Error merging JSON:', error);
-  }
-};
-
-module.exports = { format, sort, filter, merge };
+})();

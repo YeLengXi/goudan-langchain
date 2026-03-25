@@ -1,16 +1,30 @@
-const { describe, it, expect } = require('./test.js');
+const describe = (name, callback) => {
+  console.log(`
+${name}`);
+  callback();
+};
 
-module.exports = {
-  describe,
-  it,
-  before: (name, fn) => {
-    beforeHooks.push({ name, fn });
-  },
-  after: (name, fn) => {
-    afterHooks.push({ name, fn });
-  },
-  run: (testPath) => {
-    const tests = require(testPath);
-    testsdescribe();
+const it = (name, callback) => {
+  try {
+    console.log(`  ${name}`);
+    callback();
+    console.log('  ✓ ');
+  } catch (error) {
+    console.error(`  ✗ ${name}
+    ${error}
   }
 };
+
+const before = (callback) => {
+  console.log(`
+before: ${callback.name}`);
+  callback();
+};
+
+const after = (callback) => {
+  console.log(`
+after: ${callback.name}`);
+  callback();
+};
+
+module.exports = { describe, it, before, after };

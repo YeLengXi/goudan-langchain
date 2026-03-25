@@ -1,30 +1,36 @@
 const ProgressBar = require('./progress.js');
 
-const cliProgress = require('cli-progress');
-
-class MultiProgressBar {
-  constructor() {
-    this.bars = [];
-  }
-
-  create(label, total) {
-    const bar = new cliProgress.Single(total, { clearOnComplete: true, hideCursor: true });
-    bar.start();
-    this.bars.push({ bar, label });
-    return bar;
-  }
-
-  update(bars) {
-    bars.forEach(bar => {
-      bar.bar.update(bar.bar.current);
-    });
-  }
-
-  finish() {
-    this.bars.forEach(bar => {
-      bar.bar.finish();
-    });
-  }
+// 创建单个进度条
+function createSingleProgressBar(total, width, complete, incomplete) {
+  const bar = new ProgressBar({
+    total: total,
+    width: width,
+    complete: complete,
+    incomplete: incomplete
+  });
+  return bar;
 }
 
-module.exports = { ProgressBar, MultiProgressBar };
+// 创建多进度条
+function createMultiProgressBar() {
+  const multi = new MultiProgressBar();
+  return multi;
+}
+
+// 更新进度条
+function updateProgressBar(bar, value) {
+  bar.update(value);
+}
+
+// 创建多进度条中的单个进度条
+function createMultiBar(multi, name, total) {
+  const bar = multi.create(name, total);
+  return bar;
+}
+
+module.exports = {
+  createSingleProgressBar,
+  createMultiProgressBar,
+  updateProgressBar,
+  createMultiBar
+};

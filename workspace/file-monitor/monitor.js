@@ -1,50 +1,69 @@
 const fs = require('fs');
+const path = require('path');
 
-const parseConfig = (configPath) => {
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config;
+const configPath = process.argv[2];
+
+const readConfig = () => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(configPath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(JSON.parse(data));
+      }
+    });
+  });
 };
 
 const executeCommand = (command, file) => {
-  const replacedCommand = command.replace('{file}', file);
-  exec(replacedCommand, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行命令出错: ${error}`);
-      return;
-    }
-    console.log(stdout);
-    console.error(stderr);
+  return new Promise((resolve, reject) => {
+    const cmd = command.replace(/{file}/g, file);
+    require('child_process').exec(cmd, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log(stdout);
+        resolve();
+      }
+    });
   });
 };
 
 const monitorDirectory = (config) => {
-  fs.watch(config.watchDir, (eventType, filename) => {
+  const watchDir = config.watchDir;
+  const events = config.events;
+  fs.watch(watchDir, (eventType, filename) => {
     if (eventType === 'rename') {
       if (filename) {
-        const [action, file] = filename.split(/(?<=\.)|(?=\.[^.])/);
-        if (action === 'created') {
-          executeCommand(config.events.create, file);
-        } else if (action === 'deleted') {
-          executeCommand(config.events.delete, file);
+        const file = path.basename(filename);
+        if (events.create) {
+          executeCommand(events.create, file).catch((err) => {
+            console.error(err);
+          });
+        }
+        if (events.delete) {
+          executeCommand(events.delete, file).catch((err) => {
+            console.error(err);
+          });
         }
       }
     } else if (eventType === 'change') {
-      executeCommand(config.events.modify, filename);
+      if (events.modify) {
+        executeCommand(events.modify, filename).catch((err) => {
+          console.error(err);
+        });
+      }
     }
-  }, (err) => {
-    if (err) {
-      console.error(`监控目录出错: ${err}`);
-      return;
-    }
-    console.log('开始监控目录');
   });
 };
 
-const main = () => {
-  const args = process.argv.slice(2);
-  const configPath = args.find(arg => arg.startsWith('--config='))?.split('=')[1] || 'config.json';
-  const config = parseConfig(configPath);
-  monitorDirectory(config);
+const main = async () => {
+  try {
+    const config = await readConfig();
+    monitorDirectory(config);
+  } catch (err) {
+    console.error('Error reading config:', err);
+  }
 };
 
 main();

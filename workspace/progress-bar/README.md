@@ -1,53 +1,42 @@
-# CLI Progress Bar Tool
+# CLI进度条工具
 
-This tool provides a command-line progress bar for displaying the progress of long-running tasks.
+这是一个用于显示长时间运行任务的进度的命令行工具。
 
-## Features
+## 安装
 
-- Dynamic updates
-- Percentage display
-- ETA calculation
-- Support multiple styles
-- Multiple progress bars
-- Colorful output
+首先，你需要安装Node.js和npm（Node.js包管理器）。
 
-## Usage
+然后，将此项目克隆到你的本地机器：
 
-To use the progress bar, require the 'progress.js' module and create a new instance of the ProgressBar class.
+```bash
+git clone https://github.com/your-username/progress-bar-cli.git
 
-```javascript
-const ProgressBar = require('./progress.js');
+cd progress-bar-cli
 
-const bar = new ProgressBar({
-  total: 100,
-  width: 40,
-  complete: '█',
-  incomplete: '░'
-});
-
-for (let i = 0; i <= 100; i++) {
-  bar.update(i);
-  // Do some work
-}
-
-// Multi-progress bar
-const multi = new MultiProgressBar();
-const bar1 = multi.create('Download', 100);
-const bar2 = multi.create('Upload', 100);
+npm install
 ```
 
-## CLI Interface
+## 使用
 
-The CLI interface allows you to specify the style of the progress bar.
+运行以下命令来使用进度条工具：
 
 ```bash
 node demo.js --style standard
+
 node demo.js --style dots
+
 node demo.js --multi
 ```
 
-## Output Example
+## 参数
 
-```
-Processing files... [████████████░░░░░░░░░] 60% | ETA: 0:00:05 | 12/20 files | 2.4 files/s
+- `--style`：指定进度条样式（可选，默认为'standard'）
+
+- `--multi`：创建多个进度条
+
+## 示例
+
+```bash
+Processing files...
+[████████████░░░░░░░░░] 60% | ETA: 0:00:05 | 12/20 files | 2.4 files/s
 ```

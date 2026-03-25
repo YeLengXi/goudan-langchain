@@ -1,41 +1,46 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const readline = require('readline');
 const { parse } = require('minimist');
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
+const API_TESTER_PATH = path.join(__dirname, 'examples', 'requests.json');
 
-async function main() {
-  const args = parse(process.argv.slice(2));
-
-  if (args._[0] === 'GET') {
-    const url = args._[1];
+function fetchApi(method, url, headers, body) {
+  return new Promise((resolve, reject) => {
     const options = {
-      method: 'GET'
-    };
-    const response = await fetch(url, options);
-    console.log(await response.json());
-  }
+      method,
+      headers
+    }
 
-  if (args._[0] === 'POST') {
-    const url = args._[1];
-    const data = JSON.parse(args.data);
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    };
-    const response = await fetch(url, options);
-    console.log(await response.json());
-  }
+    if (body) {
+      options.body = body;
+    }
 
-  // Add more methods and parsing logic here
+    https.get(url, response => {
+      const { statusCode } = response;
+      const headers = response.headers;
+      const chunks = [];
+
+      response.on('data', chunk => {
+        chunks.push(chunk);
+      });
+
+      response.on('end', () => {
+        const body = Buffer.concat(chunks).toString();
+        resolve({ statusCode, headers, body });
+      });
+    }).on('error', error => {
+      reject(error);
+    });
+  });
 }
 
-main().catch(console.error);
+function parseRequestFile(filePath) {
+  const requests = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return requests;
+}
+
+module.exports = {
+  fetchApi,
+  parseRequestFile
+}

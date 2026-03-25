@@ -4,71 +4,88 @@ const util = require('util');
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 const appendFile = util.promisify(fs.appendFile);
+const mkdir = util.promisify(fs.mkdir);
+const stat = util.promisify(fs.stat);
 
 class DB {
-  constructor(filePath) {
-    this.filePath = filePath;
-    this.data = this.load();
+  constructor(file_path) {
+    this.file_path = file_path;
+    this.tables = {};
+    this.init();
   }
 
-  async load() {
+  async init() {
     try {
-      const data = await readFile(this.filePath, { encoding: 'utf8' });
-      return JSON.parse(data);
+      const data = await readFile(this.file_path, { encoding: 'utf8' });
+      this.tables = JSON.parse(data);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        return {};
+        await mkdir(path.dirname(this.file_path), { recursive: true });
+        await writeFile(this.file_path, '{}', { encoding: 'utf8' });
       } else {
         throw error;
       }
     }
   }
 
+  async createTable(table_name) {
+    if (this.tables[table_name]) {
+      throw new Error('Table already exists.');
+    }
+    this.tables[table_name] = [];
+    await writeFile(this.file_path, JSON.stringify(this.tables), { encoding: 'utf8' });
+  }
+
+  async insert(table_name, record) {
+    if (!this.tables[table_name]) {
+      throw new Error('Table does not exist.');
+    }
+    record.id = this.generateId(table_name);
+    this.tables[table_name].push(record);
+    await writeFile(this.file_path, JSON.stringify(this.tables), { encoding: 'utf8' });
+  }
+
+  async find(table_name, query) {
+    if (!this.tables[table_name]) {
+      throw new Error('Table does not exist.');
+    }
+    return this.tables[table_name].filter(record => this.matchesQuery(record, query));
+  }
+
+  async update(table_name, id, data) {
+    if (!this.tables[table_name]) {
+      throw new Error('Table does not exist.');
+    }
+    const index = this.tables[table_name].findIndex(record => record.id === id);
+    if (index === -1) {
+      throw new Error('Record not found.');
+    }
+    Object.assign(this.tables[table_name][index], data);
+    await writeFile(this.file_path, JSON.stringify(this.tables), { encoding: 'utf8' });
+  }
+
+  async delete(table_name, id) {
+    if (!this.tables[table_name]) {
+      throw new Error('Table does not exist.');
+    }
+    const index = this.tables[table_name].findIndex(record => record.id === id);
+    if (index === -1) {
+      throw new Error('Record not found.');
+    }
+    this.tables[table_name].splice(index, 1);
+    await writeFile(this.file_path, JSON.stringify(this.tables), { encoding: 'utf8' });
+  }
+
   async save() {
-    await writeFile(this.filePath, JSON.stringify(this.data, null, 2), { encoding: 'utf8' });
+    await writeFile(this.file_path, JSON.stringify(this.tables), { encoding: 'utf8' });
   }
 
-  async createTable(tableName) {
-    if (!this.data.tables) {
-      this.data.tables = {};
-    }
-    if (!this.data.tables[tableName]) {
-      this.data.tables[tableName] = [];
-    }
-    await this.save();
+  generateId(table_name) {
+    const table = this.tables[table_name];
+    return table.length > 0 ? Math.max(...table.map(record => record.id)) + 1 : 1;
   }
 
-  async insert(tableName, record) {
-    const table = this.data.tables[tableName];
-    record.id = table.length + 1;
-    table.push(record);
-    await this.save();
-  }
-
-  async find(tableName, query) {
-    const table = this.data.tables[tableName];
-    return table.filter(record => this.matchRecord(record, query));
-  }
-
-  async update(tableName, id, data) {
-    const table = this.data.tables[tableName];
-    const index = table.findIndex(record => record.id === id);
-    if (index !== -1) {
-      table[index] = { ...table[index], ...data };
-      await this.save();
-    }
-  }
-
-  async delete(tableName, id) {
-    const table = this.data.tables[tableName];
-    const index = table.findIndex(record => record.id === id);
-    if (index !== -1) {
-      table.splice(index, 1);
-      await this.save();
-    }
-  }
-
-  matchRecord(record, query) {
+  matchesQuery(record, query) {
     return Object.keys(query).every(key => record[key] === query[key]);
   }
 }

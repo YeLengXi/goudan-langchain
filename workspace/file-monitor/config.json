@@ -1,0 +1,1 @@
+{"watchDir": "./watch", "events": {"create": "echo 'Created: {file}'", "modify": "echo 'Modified: {file}'", "delete": "echo 'Deleted: {file}'"}}

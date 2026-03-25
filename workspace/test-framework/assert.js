@@ -1,68 +1,42 @@
-function equal(actual, expected) {
+const equal = (actual, expected) => {
   if (actual !== expected) {
-    throw new Error(
-      "expected: " + expected + 
-      " but got: " + actual
-    );
+    throw new Error(`Expected ${expected}, but got ${actual}`);
   }
-}
-
-function deepEqual(actual, expected) {
-  if (!equal(actual, expected)) {
-    try {
-      equal(JSON.stringify(actual), JSON.stringify(expected));
-    } catch (e) {
-      throw new Error(
-        "expected deep equal: " + expected + 
-        " but got: " + actual
-      );
-    }
-  }
-}
-
-function truthy(actual) {
-  if (!actual) {
-    throw new Error(
-      "expected truthy value, but got: " + actual
-    );
-  }
-}
-
-function falsy(actual) {
-  if (actual) {
-    throw new Error(
-      "expected falsy value, but got: " + actual
-    );
-  }
-}
-
-function throws(block, expectedError) {
-  try {
-    block();
-  } catch (error) {
-    if (error !== expectedError) {
-      throw new Error(
-        "expected to throw: " + expectedError + 
-        " but threw: " + error
-      );
-    }
-  }
-}
-
-function contains(array, item) {
-  if (!array.includes(item)) {
-    throw new Error(
-      "expected to contain: " + item + 
-      " but got: " + array
-    );
-  }
-}
-
-module.exports = {
-  equal,
-  deepEqual,
-  truthy,
-  falsy,
-  throws,
-  contains
 };
+
+const deepEqual = (actual, expected) => {
+  if (!equal(actual, expected)) {
+    throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+  }
+};
+
+const truthy = (value) => {
+  if (!value) {
+    throw new Error('Expected truthy value, but got falsy');
+  }
+};
+
+const falsy = (value) => {
+  if (value) {
+    throw new Error('Expected falsy value, but got truthy');
+  }
+};
+
+const throws = (fn, error) => {
+  try {
+    fn();
+    throw new Error('Expected to throw an error, but did not');
+  } catch (thrownError) {
+    if (thrownError.message !== error.message) {
+      throw new Error(`Expected ${error.message}, but got ${thrownError.message}`);
+    }
+  }
+};
+
+const contains = (actual, expected) => {
+  if (!actual.includes(expected)) {
+    throw new Error(`Expected ${expected} to be contained in ${actual}`);
+  }
+};
+
+module.exports = { equal, deepEqual, truthy, falsy, throws, contains };
