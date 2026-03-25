@@ -1,48 +1,36 @@
-const { CronJob } = require('cron');
+# Cron Scheduler
 
-const taskMap = new Map();
+This is a simple cron scheduler that can execute tasks based on cron expressions.
 
-function parseCronExpression(expression) {
-  // 实现cron表达式解析
-}
+## Features
 
-function addTask(name, cron, command) {
-  const job = new CronJob(cron, command, null, true);
-  job.start();
-  taskMap.set(name, job);
-}
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-function deleteTask(name) {
-  const job = taskMap.get(name);
-  if (job) {
-    job.stop();
-    taskMap.delete(name);
-  }
-}
+## Usage
 
-function scheduleTasks(tasks) {
-  tasks.forEach(task => {
-    addTask(task.name, task.cron, task.command);
-  });
-}
+To use the scheduler, create a JSON configuration file with the following format:
 
-function executeCommand(command) {
-  require('child_process').exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`执行错误: ${error}`);
-      return;
+```json
+{
+  "tasks": [
+    {
+      "name": "task_name",
+      "cron": "cron_expression",
+      "command": "command_to_execute"
+    },
+    {
+      // Another task
     }
-    console.log(`执行输出: ${stdout}`);
-    if (stderr) {
-      console.error(`执行错误: ${stderr}`);
-    }
-  });
+  ]
 }
+```
 
-module.exports = {
-  parseCronExpression,
-  addTask,
-  deleteTask,
-  scheduleTasks,
-  executeCommand
-};
+Then, run the scheduler with the --config option followed by the path to the configuration file:
+
+```bash
+node scheduler.js --config path/to/config.json
+```

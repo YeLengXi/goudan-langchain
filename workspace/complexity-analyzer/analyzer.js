@@ -1,32 +1,28 @@
-const analyzeComplexity = (code) => {
-  // 此函数将解析JavaScript代码并计算其复杂度
+const fs = require('fs');
+
+const analyzeCodeComplexity = (filePath, format, output) => {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const tokens = content.match(/(function|if|else|for|while|do-while|switch|case|catch|三元运算符|逻辑运算符)/g);
+    const complexity = tokens ? tokens.length : 0;
+
+    const report = {
+        functions: [],
+        overall: {
+            totalComplexity: 0,
+            highRisk: 0,
+            lowRisk: 0
+        }
+    }
+
+    // TODO: 实现复杂度计算和报告生成
+
+    if (format === 'json') {
+        console.log(JSON.stringify(report, null, 2));
+    } else if (output) {
+        fs.writeFileSync(output, JSON.stringify(report, null, 2));
+    } else {
+        console.log(report);
+    }
 }
 
-const calculateCyclomaticComplexity = (code) => {
-  // 此函数将计算圈复杂度
-}
-
-const calculateCognitiveComplexity = (code) => {
-  // 此函数将计算认知复杂度
-}
-
-const generateReport = (functions) => {
-  // 此函数将生成报告
-}
-
-const cliInterface = () => {
-  // 此函数将实现CLI接口
-}
-
-const usageExample = () => {
-  // 此函数将添加使用示例
-}
-
-module.exports = {
-  analyzeComplexity,
-  calculateCyclomaticComplexity,
-  calculateCognitiveComplexity,
-  generateReport,
-  cliInterface,
-  usageExample
-}
+module.exports = analyzeCodeComplexity;

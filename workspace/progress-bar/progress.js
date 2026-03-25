@@ -1,44 +1,36 @@
-const ProgressBar = require('cli-progress');
+const ProgressBar = require('./progress.js');
 
 class ProgressBar {
   constructor(options) {
     this.total = options.total || 100;
-    this.width = options.width || 20;
+    this.width = options.width || 40;
     this.complete = options.complete || '█';
-    this.incomplete = options.incomplete || ' ';
-    this.bar = new ProgressBarSingle(this.total, this.width, this.complete, this.incomplete);
+    this.incomplete = options.incomplete || '░';
+    this.progress = 0;
+    this.label = options.label || '';
   }
 
   update(value) {
-    this.bar.update(value);
+    this.progress = value;
+    const completeStr = this.complete.repeat(Math.floor(this.width * this.progress / this.total));
+    const incompleteStr = this.incomplete.repeat(this.width - completeStr.length);
+    const percentage = (this.progress / this.total * 100).toFixed(2);
+    console.log(`${this.label}: [${completeStr}${incompleteStr}] ${percentage}%`);
   }
 
-  render() {
-    this.bar.render();
+  finish() {
+    this.update(this.total);
+    console.log(`
+Finished! Total time: ${this.formatTime(this.total)}
+`);
   }
 
-  reset() {
-    this.bar.reset();
+  formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return [hours, minutes, secs].map(v => v.toString().padStart(2, '0')).join(':');
   }
-
-  setTotal(total) {
-    this.total = total;
-    this.bar.setTotal(total);
-  }
-
-  setWidth(width) {
-    this.width = width;
-    this.bar.setWidth(width);
-  }
-
-  setComplete(complete) {
-    this.complete = complete;
-    this.bar.setComplete(complete);
-  }
-
-  setIncomplete(incomplete) {
-    this.incomplete = incomplete;
-    this.bar.setIncomplete(incomplete);
-  }
-
 }
+
+module.exports = ProgressBar;

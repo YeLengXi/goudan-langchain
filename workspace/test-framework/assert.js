@@ -7,30 +7,30 @@ const equal = (actual, expected) => {
 };
 
 const deepEqual = (actual, expected) => {
-  if (!JSON.stringify(actual) === JSON.stringify(expected)) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
     throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
   }
 };
 
 const truthy = (value) => {
   if (!value) {
-    throw new Error('Expected truthy value, but got falsy value');
+    throw new Error('Expected truthy value, but got falsy');
   }
 };
 
 const falsy = (value) => {
   if (value) {
-    throw new Error('Expected falsy value, but got truthy value');
+    throw new Error('Expected falsy value, but got truthy');
   }
 };
 
-const throws = (func, error) => {
+const throws = (func, expectedError) => {
   try {
     func();
     throw new Error('Expected function to throw an error');
-  } catch (actualError) {
-    if (actualError.message !== error.message) {
-      throw new Error(`Expected ${error.message}, but got ${actualError.message}`);
+  } catch (error) {
+    if (error.message !== expectedError) {
+      throw new Error(`Expected ${expectedError}, but got ${error.message}`);
     }
   }
 };

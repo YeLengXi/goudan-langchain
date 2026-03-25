@@ -1,44 +1,38 @@
+/*
 # CSV数据处理工具
 
-这是一个CSV数据处理工具，可以读取、解析、转换和导出CSV文件。
+一个用于读取、解析、转换和导出CSV文件的Node.js工具。
 
 ## 安装
 
-确保你已经安装了Node.js。
+```bash
+npm install csv-tool
+```
 
-## 使用
-
-### 转换CSV格式
-
-将CSV文件转换为JSON、Markdown表格或HTML表格。
+## 使用示例
 
 ```bash
+# 转换CSV到JSON
 node csv-tool.js convert input.csv --format json
-node csv-tool.js convert input.csv --format markdown
-node csv-tool.js convert input.csv --format html
-```
 
-### 过滤CSV文件
-
-按列和值过滤CSV文件。
-
-```bash
+# 过滤CSV文件中的行
 node csv-tool.js filter input.csv --column "status" --value "active"
-```
 
-### 排序CSV文件
-
-按列排序CSV文件。
-
-```bash
+# 排序CSV文件
 node csv-tool.js sort input.csv --column "date"
-```
 
-### 将CSV转换为表格
-
-将CSV文件转换为Markdown表格或HTML表格。
-
-```bash
+# 将CSV转换为Markdown表格
 node csv-tool.js to-table input.csv --format markdown
-node csv-tool.js to-table input.csv --format html
+
 ```
+
+## 功能
+
+- 读取CSV文件
+- 解析复杂CSV（引号、转义）
+- 转换多种格式
+- 数据过滤和排序
+- 导出功能
+- 错误处理
+
+*/

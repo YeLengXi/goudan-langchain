@@ -1,46 +1,37 @@
-const fs = require('fs');
-const { encrypt, decrypt } = require('./encrypt');
+const { caesarCipher, base64Encode, rot13, xorEncrypt, aesEncrypt } = require('./encrypt');
 
-// 解密函数
-function decrypt(encryptedText, method, key) {
-    switch (method) {
-        case 'caesar':
-            return caesarCipherDec(encryptedText, key);
-        case 'base64':
-            return base64Decode(encryptedText);
-        case 'rot13':
-            return rot13(encryptedText);
-        case 'xor':
-            return xorDecrypt(encryptedText, key);
-        case 'aes':
-            return aesDecrypt(encryptedText, key);
-        default:
-            throw new Error('未知加密方法');
-    }
+// Caesar Cipher
+function caesarDecipher(text, key) {
+  return caesarCipher(text, -key);
 }
 
-// 读取文件内容
-function readFileContent(filePath) {
-    return fs.readFileSync(filePath, 'utf8');
+// Base64 Decoding
+function base64Decode(text) {
+  return Buffer.from(text, 'base64').toString('utf8');
 }
 
-// 写入文件内容
-function writeFileContent(filePath, content) {
-    fs.writeFileSync(filePath, content, 'utf8');
+// ROT13
+function rot13Decipher(text) {
+  return rot13(text, -13);
 }
 
-// 加密文件
-function encryptFile(inputFilePath, outputFilePath, method, key) {
-    const content = readFileContent(inputFilePath);
-    const encryptedContent = encrypt(content, method, key);
-    writeFileContent(outputFilePath, encryptedContent);
+// Simple XOR Decryption
+function xorDecrypt(text, key) {
+  return xorEncrypt(text, -key);
 }
 
-// 解密文件
-function decryptFile(inputFilePath, outputFilePath, method, key) {
-    const encryptedContent = readFileContent(inputFilePath);
-    const decryptedContent = decrypt(encryptedContent, method, key);
-    writeFileContent(outputFilePath, decryptedContent);
+// AES Decryption
+function aesDecrypt(text, key) {
+  const decipher = crypto.createDecipher('aes-256-cbc', key);
+  let decrypted = decipher.update(text, 'hex', 'utf8');
+  decrypted += decipher.final('utf8');
+  return decrypted;
 }
 
-module.exports = { decrypt, encryptFile, decryptFile };
+module.exports = {
+  caesarDecipher,
+  base64Decode,
+  rot13Decipher,
+  xorDecrypt,
+  aesDecrypt
+};

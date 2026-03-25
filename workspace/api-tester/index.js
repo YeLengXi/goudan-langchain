@@ -1,127 +1,74 @@
-// Main program of the API tester
-// This file contains the logic for making HTTP requests and parsing CLI arguments.
-const fetch = require('node-fetch');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-// Parse CLI arguments
-const parseArgs = (args) => {
-  const method = args[0];
-  const url = args[1];
-  let data = null;
-  let headers = {};
-  let requestFile = false;
+async function main() {
+  const args = process.argv.slice(2);
 
-  for (let i = 2; i < args.length; i++) {
-    if (args[i] === '-d') {
-      data = args[i + 1];
-      i++;
-    } else if (args[i] === '-h') {
-      headers = JSON.parse(args[i + 1]);
-      i++;
-    } else if (args[i] === '--request-file') {
-      requestFile = true;
-      break;
-    }
+  if (args.length === 0) {
+    console.log('Usage: api-tester <method> <url> [options]');
+    process.exit(1);
   }
 
-  return {
-    method,
-    url,
-    data,
-    headers,
-    requestFile
-  };
-};
-
-// Read request file
-const readRequestFile = (filePath) => {
-  const content = fs.readFileSync(filePath, 'utf-8');
-  const requests = JSON.parse(content);
-  return requests;
-};
-
-// Make HTTP request
-const makeRequest = async (method, url, data, headers) => {
-  const init = {
-    method,
-    headers
-  };
-
-  if (data) {
-    if (method === 'GET') {
-      throw new Error('Data cannot be sent with a GET request');
+  const [method, url] = args.splice(0, 2);
+  const options = args.reduce((acc, arg) => {
+    if (arg.startsWith('-')) {
+      const [key, value] = arg.split('=');
+      acc[key.slice(1)] = value;
     }
-
-    init.body = data;
-  }
+    return acc;
+  }, {});
 
   try {
-    const response = await fetch(url, init);
-    const responseBody = await response.text();
-    return {
-      status: response.status,
-      headers: response.headers.raw(),
-      body: responseBody
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-// Save response to file
-const saveResponseToFile = (filePath, content) => {
-  fs.writeFileSync(filePath, content, 'utf-8');
-};
-
-// Main function
-const main = async () => {
-  try {
-    const args = process.argv.slice(2);
-    const { method, url, data, headers, requestFile } = parseArgs(args);
-
-    if (requestFile) {
-      const requests = readRequestFile(url);
-      for (const request of requests) {
-        const response = await makeRequest(request.method, request.url, request.data, request.headers);
-        console.log(
-          JSON.stringify(
-            {
-              url: response.url,
-              status: response.status,
-              headers: response.headers,
-              body: response.body
-            },
-            null,
-            2
-          ),
-          '
-        );
-      }
-    } else {
-      const response = await makeRequest(method, url, data, headers);
-      console.log(
-        JSON.stringify(
-          {
-            url: response.url,
-            status: response.status,
-            headers: response.headers,
-            body: response.body
-          },
-          null,
-          2
-        ),
-        '
-      );
-    }
+    const response = await fetchRequest(method, url, options);
+    console.log(JSON.stringify(response, null, 2));
   } catch (error) {
     console.error(error);
   }
+}
+
+async function fetchRequest(method, url, options) {
+  const { headers, body } = options;
+
+  const promise = new Promise((resolve, reject) => {
+    const req = https.request({
+      method,
+      url,
+      headers: headers || {},
+      body: body || null
+    }, res => {
+      let data = '';
+      res.on('data', chunk => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          status: res.statusCode,
+          headers: res.headers,
+          body: JSON.parse(data)
+        });
+      });
+    });
+
+    req.on('error', error => {
+      reject(error);
+    });
+
+    if (body) {
+      req.write(body);
+      req.end();
+    } else {
+      req.end();
+    }
+  });
+
+  return promise;
 }
 
 main();

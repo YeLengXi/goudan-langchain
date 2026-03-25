@@ -2,9 +2,13 @@
 
 This is a simple JavaScript unit testing framework.
 
-## Installation
+## Features
 
-No installation is required. Just require the test.js file in your project.
+- Test organization
+- Assertion functions
+- Async test support
+- Error handling
+- Report generation
 
 ## Usage
 
@@ -20,23 +24,9 @@ describe('Math operations', () => {
     expect(subtract(5, 2)).toBe(3);
   });
 });
-
 ```
 
-## API
-
-- describe(name, callback)
-  - Define a test suite.
-- it(name, callback)
-  - Define a test case.
-- before(callback)
-  - Define a before hook.
-- after(callback)
-  - Define an after hook.
-- expect(value)
-  - Assert the value.
-
-## CLI
+## CLI Interface
 
 ```bash
 node test.js example.test.js
@@ -45,6 +35,12 @@ node test.js --verbose
 node test.js --watch
 ```
 
-## Contributing
+## Output Example
 
-Contributions are welcome. Please follow the contributing guidelines.
+```
+Math operations
+  ✓ should add numbers
+  ✓ should subtract numbers
+
+2 tests passed (0 failures)
+```

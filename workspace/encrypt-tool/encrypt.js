@@ -1,113 +1,53 @@
 const crypto = require('crypto');
 
-// 加密函数
-function encrypt(text, method, key) {
-    switch (method) {
-        case 'caesar':
-            return caesarCipher(text, key);
-        case 'base64':
-            return base64Encode(text);
-        case 'rot13':
-            return rot13(text);
-        case 'xor':
-            return xorEncrypt(text, key);
-        case 'aes':
-            return aesEncrypt(text, key);
-        default:
-            throw new Error('未知加密方法');
-    }
-}
-
-// 解密函数
-function decrypt(encryptedText, method, key) {
-    switch (method) {
-        case 'caesar':
-            return caesarCipher(encryptedText, -key);
-        case 'base64':
-            return base64Decode(encryptedText);
-        case 'rot13':
-            return rot13(encryptedText);
-        case 'xor':
-            return xorDecrypt(encryptedText, key);
-        case 'aes':
-            return aesDecrypt(encryptedText, key);
-        default:
-            throw new Error('未知加密方法');
-    }
-}
-
-// 凯撒密码加密
+// Caesar Cipher
 function caesarCipher(text, key) {
-    return text.split('').map(char => {
-        let code = char.charCodeAt(0);
-        if (code >= 65 && code <= 90) {
-            return String.fromCharCode((code - 65 + key) % 26 + 65);
-        } else if (code >= 97 && code <= 122) {
-            return String.fromCharCode((code - 97 + key) % 26 + 97);
-        }
-        return char;
-    }).join('');
+  return text.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      let charCode = char.charCodeAt(0) + key;
+      if (charCode > 'z'.charCodeAt(0)) charCode -= 26;
+      if (charCode < 'a'.charCodeAt(0)) charCode += 26;
+      return String.fromCharCode(charCode);
+    }
+    return char;
+  }).join('');
 }
 
-// 凯撒密码解密
-function caesarCipherDec(text, key) {
-    return caesarCipher(text, -key);
-}
-
-// Base64编码
+// Base64 Encoding
 function base64Encode(text) {
-    return Buffer.from(text).toString('base64');
-}
-
-// Base64解码
-function base64Decode(encryptedText) {
-    return Buffer.from(encryptedText, 'base64').toString();
+  return Buffer.from(text).toString('base64');
 }
 
 // ROT13
 function rot13(text) {
-    return text.split('').map(char => {
-        let code = char.charCodeAt(0);
-        if (code >= 65 && code <= 77) {
-            return String.fromCharCode(code + 13);
-        } else if (code >= 78 && code <= 90) {
-            return String.fromCharCode(code - 13);
-        } else if (code >= 97 && code <= 109) {
-            return String.fromCharCode(code + 13);
-        } else if (code >= 110 && code <= 122) {
-            return String.fromCharCode(code - 13);
-        }
-        return char;
-    }).join('');
+  return text.split('').map(char => {
+    if (char.match(/[a-z]/i)) {
+      let charCode = char.charCodeAt(0) + 13;
+      if (charCode > 'z'.charCodeAt(0)) charCode -= 26;
+      if (charCode < 'a'.charCodeAt(0)) charCode += 26;
+      return String.fromCharCode(charCode);
+    }
+    return char;
+  }).join('');
 }
 
-// XOR加密
+// Simple XOR Encryption
 function xorEncrypt(text, key) {
-    return text.split('').map((char, index) => {
-        let code = char.charCodeAt(0);
-        return String.fromCharCode(code ^ key[index % key.length]);
-    }).join('');
+  return text.split('').map((char, index) => char.charCodeAt(0) ^ key[index % key.length]).join('');
 }
 
-// XOR解密
-function xorDecrypt(encryptedText, key) {
-    return xorEncrypt(encryptedText, key);
-}
-
-// AES加密
+// AES Encryption
 function aesEncrypt(text, key) {
-    const cipher = crypto.createCipher('aes-256-cbc', key);
-    let encrypted = cipher.update(text, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return encrypted;
+  const cipher = crypto.createCipher('aes-256-cbc', key);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  return encrypted;
 }
 
-// AES解密
-function aesDecrypt(encryptedText, key) {
-    const decipher = crypto.createDecipher('aes-256-cbc', key);
-    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
-}
-
-module.exports = { encrypt, decrypt };
+module.exports = {
+  caesarCipher,
+  base64Encode,
+  rot13,
+  xorEncrypt,
+  aesEncrypt
+};

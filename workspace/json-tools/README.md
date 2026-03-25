@@ -1,23 +1,17 @@
-# JSON数据处理工具
+## json-tools
 
-本工具提供JSON数据的格式化、排序、过滤和合并功能。
+A JSON data processing tool that can format, sort, and filter JSON data.
 
-## 使用方法
+## Features
 
-### 格式化JSON
+- Format JSON data
+- Sort JSON data by key
+- Filter JSON data by condition
+
+## Usage
+
+### Format JSON
 
 ```bash
 node json-tools.js format input.json
-```
-
-### 排序JSON
-
-```bash
-node json-tools.js sort input.json --key name
-```
-
-### 过滤JSON
-
-```bash
-node json-tools.js filter input.json --condition "age > 18"
 ```

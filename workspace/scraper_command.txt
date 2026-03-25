@@ -1,0 +1,1 @@
+node scraper.js http://example.com

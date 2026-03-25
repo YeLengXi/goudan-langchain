@@ -1,66 +1,55 @@
-## color-converter
+Welcome to the Color Converter!
 
-This tool is a color converter that supports various color formats for conversion.
-
-## Features
-
-- Support multiple color formats
-- Bidirectional conversion
-- Color operations (lighten/darken, saturation adjustment, invert, mix colors)
-- Input validation
-- Error handling
+This tool supports various color formats and allows for bidirectional conversions. It also includes color operations such as lightening, darkening, saturation adjustment, inverting, and mixing colors.
 
 ## Usage
 
-### Conversion
+To convert colors, use the following format:
 
-To convert a color format to another format, use the following command:
-
-```bash
+```
 node converter.js <color> --to <format>
 ```
 
 For example:
 
-```bash
+```
 node converter.js #ff0000 --to rgb
-node converter.js rgb(255, 0, 0) --to hex
 ```
 
-### Color Operations
+To perform color operations, use the following format:
 
-To perform color operations, use the following command:
-
-```bash
+```
 node converter.js <color> --<operation> <value>
 ```
 
 For example:
 
-```bash
+```
 node converter.js #ff0000 --lighten 20
-node converter.js red --to hsl
 ```
 
-## CLI Interface
+## Supported Color Formats
 
-The CLI interface supports the following commands:
+- HEX (#RRGGBB)
+- RGB (rgb(r, g, b))
+- HSL (hsl(h, s, l))
+- HSV/HSB
+- CMYK
+- Color names (e.g., red, blue)
 
-- `--to <format>`: Convert the input color to the specified format.
-- `--lighten <value>`: Lighten the color by the specified percentage.
-- `--darken <value>`: Darken the color by the specified percentage.
-- `--saturation <value>`: Adjust the saturation of the color.
-- `--invert`: Invert the color.
-- `--mix <color>`: Mix the color with another color.
+## Supported Operations
 
-## Examples
+- lighten
+- darken
+- saturate
+- desaturate
+- invert
+- mixColors
 
-```bash
-$ node converter.js #ff0000 --to rgb
-Input: #ff0000
-Output: rgb(255, 0, 0)
+## Contributing
 
-$ node converter.js #ff0000 --lighten 20
-Input: #ff0000
-Output: #ff6666 (20% lighter)
-```
+Contributions are welcome! Please file an issue or submit a pull request on GitHub.
+
+## License
+
+MIT

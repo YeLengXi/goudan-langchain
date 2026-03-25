@@ -1,120 +1,149 @@
 const fs = require('fs');
-const path = require('path');
+const { parse, format } = require('csv');
+const { program } = require('commander');
 
-// CSV解析器
-function parseCSV(data) {
-  const rows = data.split('
-');
-  const headers = rows[0].split(',');
-  const parsedRows = rows.slice(1).map(row => {
-    const values = row.split(',').map(value => value.replace(/""/g, '"').replace(/(^"|"$)/g, \"\"));
-    return headers.reduce((obj, header, index) => {
-      obj[header] = values[index];
-      return obj;
-    }, {});
+// 解析CSV文件
+function parseCSV(filePath) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        const records = parse(data, {
+          relax_column_count: true
+        });
+        resolve(records);
+      }
+    });
   });
-  return parsedRows;
 }
 
-// CSV生成器
-function generateCSV(data) {
-  const headers = Object.keys(data[0]);
-  const rows = data.map(row => headers.map(header => row[header]).join(','));
-  return [headers.join(','), ...rows].join('
-');
+// 生成CSV文件
+function generateCSV(records, filePath) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, format(records, {
+      header: true
+    }), 'utf8', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
 }
 
-// CSV转JSON
+// 转换CSV到JSON
 function csvToJson(filePath) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  const jsonData = parseCSV(data);
-  fs.writeFileSync(path.join(__dirname, 'output.json'), JSON.stringify(jsonData, null, 2), 'utf8');
+  return parseCSV(filePath).then(records => {
+    return JSON.stringify(records, null, 2);
+  });
 }
 
-// CSV转Markdown表格
+// 转换CSV到Markdown表格
 function csvToMarkdown(filePath) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  const jsonData = parseCSV(data);
-  const markdownTable = jsonData.map(row => Object.values(row).join('|')).join('
-');
-  fs.writeFileSync(path.join(__dirname, 'output.md'), markdownTable, 'utf8');
+  return parseCSV(filePath).then(records => {
+    let markdown = '| Header 1 | Header 2 |
+    markdown += '|---|---|
+    records.forEach(record => {
+      markdown += '| ' + record.join(' | ') + ' |
+    });
+    return markdown;
+  });
 }
 
-// CSV转HTML表格
+// 转换CSV到HTML表格
 function csvToHtml(filePath) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  const jsonData = parseCSV(data);
-  const htmlTable = jsonData.map(row => Object.values(row).map(value => `<td>${value}</td>`).join('')).join('
-');
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-  <title>CSV Table</title>
-</head>
-<body>
-  <table>
-    <tr>${Object.keys(jsonData[0]).map(key => `<th>${key}</th>`).join('')}</tr>
-    <tr>${htmlTable}</tr>
-  </table>
-</body>
-</html>`;
-  fs.writeFileSync(path.join(__dirname, 'output.html'), html, 'utf8');
+  return parseCSV(filePath).then(records => {
+    let html = '<table>
+      <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+      </tr>
+    </tr>
+    records.forEach(record => {
+      html += ' '<tr>
+        <td>' + record.join('</td><td>') + '</td>
+      </tr>
+    });
+    html += '</table>
+    return html;
+  });
 }
 
-// CSV过滤
-function csvFilter(filePath, column, value) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  const jsonData = parseCSV(data);
-  const filteredData = jsonData.filter(row => row[column] === value);
-  fs.writeFileSync(path.join(__dirname, 'output_filtered.csv'), generateCSV(filteredData), 'utf8');
+// 过滤CSV文件
+function filterCSV(filePath, column, value) {
+  return parseCSV(filePath).then(records => {
+    return records.filter(record => record[column] === value);
+  });
 }
 
-// CSV排序
-function csvSort(filePath, column) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  const jsonData = parseCSV(data);
-  jsonData.sort((a, b) => a[column] > b[column] ? 1 : -1);
-  fs.writeFileSync(path.join(__dirname, 'output_sorted.csv'), generateCSV(jsonData), 'utf8');
+// 排序CSV文件
+function sortCSV(filePath, column) {
+  return parseCSV(filePath).then(records => {
+    return records.sort((a, b) => {
+      return a[column].localeCompare(b[column]);n    });
+  });
 }
 
 // CLI接口
-function cli() {
-  const args = process.argv.slice(2);
-  const command = args[0];
-  const filePath = args[1];
-  const options = args.slice(2);
-
-  switch (command) {
-    case 'convert':
-      const format = options[0];
-      if (format === 'json') {
-        csvToJson(filePath);
-      } else if (format === 'markdown') {
-        csvToMarkdown(filePath);
-      } else if (format === 'html') {
-        csvToHtml(filePath);
-      }
+program.version('1.0.0').description('CSV数据处理工具');
+program.command('convert <input> --format <format>').action((input, format) => {
+  switch (format) {
+    case 'json':
+      csvToJson(input).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err);
+      });
       break;
-    case 'filter':
-      const column = options[0];
-      const value = options[1];
-      csvFilter(filePath, column, value);
+    case 'markdown':
+      csvToMarkdown(input).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err);
+      });
       break;
-    case 'sort':
-      const column = options[0];
-      csvSort(filePath, column);
+    case 'html':
+      csvToHtml(input).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err);
+      });
       break;
-    case 'to-table':
-      const format = options[0];
-      if (format === 'markdown') {
-        csvToMarkdown(filePath);
-      } else if (format === 'html') {
-        csvToHtml(filePath);
-      }
-      break;
-    default:
-      console.log('Unknown command');
   }
-}
+});
+program.command('filter <input> --column <column> --value <value>').action((input, column, value) => {
+  filterCSV(input, column, value).then(data => {
+    console.log(data);
+  }).catch(err => {
+    console.error(err);
+  });
+});
+program.command('sort <input> --column <column>').action((input, column) => {
+  sortCSV(input, column).then(data => {
+    console.log(data);
+  }).catch(err => {
+    console.error(err);
+  });
+});
+program.command('to-table <input> --format <format>').action((input, format) => {
+  switch (format) {
+    case 'markdown':
+      csvToMarkdown(input).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err);
+      });
+      break;
+    case 'html':
+      csvToHtml(input).then(data => {
+        console.log(data);
+      }).catch(err => {
+        console.error(err);
+      });
+      break;
+  }
+});
 
-cli();
+program.parse(process.argv);

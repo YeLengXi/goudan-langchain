@@ -4,15 +4,9 @@
   "description": "CSV数据处理工具",
   "main": "csv-tool.js",
   "scripts": {
-    "convert": "node csv-tool.js convert",
-    "filter": "node csv-tool.js filter",
-    "sort": "node csv-tool.js sort",
-    "to-table": "node csv-tool.js to-table"
+    "start": "node csv-tool.js"
   },
-  "bin": {
-    "csv-tool": "./csv-tool.js"
-  },
-  "dependencies": {
-    "fs": "*
+  "devDependencies": {
+    "commander": "^8.0.0"
   }
 }
