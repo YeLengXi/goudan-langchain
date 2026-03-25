@@ -1,26 +1,36 @@
-## README.md
+# CLI Progress Bar Tool
 
-Welcome to the CLI Progress Bar Tool!
-
-This tool is designed to display the progress of long-running tasks in the command line interface.
+This tool provides a command-line progress bar for long-running tasks.
 
 ## Features
 
 - Dynamic updates
 - Percentage display
 - ETA calculation
-- Support for multiple styles
+- Multiple styles
 - Multiple progress bars
 - Colorful output
 
 ## Usage
 
-To use the tool, you can run the following commands:
+To use this tool, you need to have Node.js installed.
 
-```
-node demo.js --style standard
-node demo.js --style dots
-node demo.js --multi
-```
+### Installation
 
-For more detailed usage instructions, please refer to the [API Documentation](API.md).
+1. Clone the repository:
+   git clone https://github.com/your-username/progress-bar-tool
+2. Navigate to the project directory:
+   cd progress-bar-tool
+3. Install dependencies:
+   npm install
+
+### Running the Tool
+
+To run the tool, use the following commands:
+
+- To run a standard progress bar:
+  node demo.js --style standard
+- To run a dot-style progress bar:
+  node demo.js --style dots
+- To run multiple progress bars:
+  node demo.js --multi

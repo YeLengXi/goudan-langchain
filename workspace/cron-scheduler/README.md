@@ -1,27 +1,22 @@
-## Cron Scheduler
+# cron-scheduler
 
-This document provides instructions on how to use the Cron Scheduler.
+This is a simple cron job scheduler that can execute tasks according to cron expressions.
 
-### Installation
+## Features
 
-1. Clone the repository:
-    git clone [repository-url]
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-2. Navigate to the project directory:
-    cd cron-scheduler
+## Usage
 
-3. Run the scheduler:
-    node scheduler.js --config tasks.json
+1. Create a configuration file (tasks.json)
+2. Run the scheduler: node scheduler.js --config tasks.json
 
-### Configuration
+## Configuration File Example
 
-The configuration file (tasks.json) should be in JSON format and contain an array of tasks. Each task has the following properties:
-
-- `name`: The name of the task.
-- `cron`: The cron expression that determines when the task should be executed.
-- `command`: The command that will be executed by the task.
-
-Example configuration:
 ```json
 {
   "tasks": [

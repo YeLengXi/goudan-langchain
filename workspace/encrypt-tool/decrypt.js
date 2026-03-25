@@ -1,65 +1,127 @@
-const fs = require('fs');
 const { encrypt, decrypt } = require('./encrypt');
+const fs = require('fs');
+const path = require('path');
+const util = require('util');
 
-// 解密函数
-function decrypt(encryptedText, method, key, output) {
-    try {
-        const decryptedText = decrypt(encryptedText, method, key);
-        fs.writeFileSync(output, decryptedText);
-        console.log('解密成功，输出文件：', output);
-    } catch (error) {
-        console.error('解密失败：', error);
-    }
-}
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const stat = util.promisify(fs.stat);
 
-// 加密函数
-function encrypt(text, method, key, output) {
-    try {
-        const encryptedText = encrypt(text, method, key);
-        fs.writeFileSync(output, encryptedText);
-        console.log('加密成功，输出文件：', output);
-    } catch (error) {
-        console.error('加密失败：', error);
-    }
-}
+const methods = {
+  caesar: (text, key) => {
+    return text.split('').map((char) => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0) + key;
+        if (code > 'z'.charCodeAt(0)) code -= 26;
+        if (code < 'a'.charCodeAt(0)) code += 26;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
 
-// 处理命令行参数
-function handleArgs(args) {
-    const { method, text, key, output } = args;
-    if (!method || !text) {
-        console.error('缺少必要的参数：method 和 text');
-        return;
-    }
-    if (method === 'aes' && !key) {
-        console.error('AES加密需要key参数');
-        return;
-    }
-    if (method === 'aes' && !output) {
-        console.error('需要指定输出文件');
-        return;
-    }
-    if (method === 'file' && !output) {
-        console.error('需要指定输出文件');
-        return;
-    }
-    if (method === 'file' && text.includes(' ')) {
-        console.error('文件名不能包含空格');
-        return;
-    }
-    if (method === 'file' && fs.existsSync(text)) {
-        const data = fs.readFileSync(text, 'utf-8');
-        text = data;
-    }
-    if (method === 'aes' && key.length < 32) {
-        key = key.padEnd(32, '0');
-    }
-    encrypt(text, method, key, output);
-}
+  base64: (text) => {
+    return Buffer.from(text).toString('base64');
+  },
 
-// 主函数
-function main() {
-    const args = process.argv.slice(2);
-    handleArgs(args);
-}
+  rot13: (text) => {
+    return text.split('').map((char) => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0) + 13;
+        if (code > 'z'.charCodeAt(0)) code -= 26;
+        if (code < 'a'.charCodeAt(0)) code += 26;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
 
-main();
+  xor: (text, key) => {
+    const keyArray = key.split('').map((char) => char.charCodeAt(0));
+    const textArray = text.split('').map((char) => char.charCodeAt(0));
+    const encryptedArray = textArray.map((char, index) => char ^ keyArray[index % keyArray.length]);
+    return String.fromCharCode(...encryptedArray);
+  },
+
+  aes: (text, key) => {
+    const cipher = crypto.createCipher('aes-256-cbc', key);
+    let encrypted = cipher.update(text, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
+  }
+};
+
+const decryptMethods = {
+  caesar: (text, key) => {
+    return text.split('').map((char) => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0) - key;
+        if (code < 'a'.charCodeAt(0)) code += 26;
+        if (code > 'z'.charCodeAt(0)) code -= 26;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
+
+  base64: (text) => {
+    return Buffer.from(text, 'base64').toString('utf8');
+  },
+
+  rot13: (text) => {
+    return text.split('').map((char) => {
+      if (char.match(/[a-z]/i)) {
+        let code = char.charCodeAt(0) - 13;
+        if (code < 'a'.charCodeAt(0)) code += 26;
+        if (code > 'z'.charCodeAt(0)) code -= 26;
+        return String.fromCharCode(code);
+      }
+      return char;
+    }).join('');
+  },
+
+  xor: (text, key) => {
+    const keyArray = key.split('').map((char) => char.charCodeAt(0));
+    const textArray = text.split('').map((char) => char.charCodeAt(0));
+    const encryptedArray = textArray.map((char, index) => char ^ keyArray[index % keyArray.length]);
+    return String.fromCharCode(...encryptedArray);
+  },
+
+  aes: (text, key) => {
+    const decipher = crypto.createDecipher('aes-256-cbc', key);
+    let decrypted = decipher.update(text, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  }
+};
+
+const encrypt = async (text, method, key, output) => {
+  try {
+    const encryptedText = methods[method](text, key);
+    if (output) {
+      await writeFile(output, encryptedText);
+      console.log(`Encrypted and saved to ${output}`);
+    } else {
+      console.log(encryptedText);
+    }
+  } catch (error) {
+    console.error('Encryption failed:', error);
+  }
+};
+
+const decrypt = async (input, method, key, output) => {
+  try {
+    const encryptedText = await readFile(input, 'utf8');
+    const decryptedText = decryptMethods[method](encryptedText, key);
+    if (output) {
+      await writeFile(output, decryptedText);
+      console.log(`Decrypted and saved to ${output}`);
+    } else {
+      console.log(decryptedText);
+    }
+  } catch (error) {
+    console.error('Decryption failed:', error);
+  }
+};
+
+module.exports = { encrypt, decrypt };

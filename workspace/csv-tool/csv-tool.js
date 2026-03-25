@@ -1,86 +1,99 @@
 const fs = require('fs');
-const { parse, generate } = require('csv-parse/sync');
+const { parse } = require('csv-parse/sync');
 const { StringDecoder } = require('string_decoder');
 
 // CSV解析器
 function parseCSV(file_path) {
   const decoder = new StringDecoder('utf8');
-  const data = [];
-  let buffer = '';
+  let csvData = [];
+  let currentRow = [];
+  let currentField = '';
+  let inQuotes = false;
 
   fs.createReadStream(file_path)
-    .on('data', chunk => {
-      buffer += decoder.write(chunk);
-      const lines = buffer.split('
-');
-      buffer = lines.pop();
-
-      lines.forEach(line => {
-        const record = parse(line, {
-          relax_column_count: true
-        });
-        data.push(record);
-      });
-    })
-    .on('end', () => {
-      if (buffer) {
-        const record = parse(buffer, {
-          relax_column_count: true
-        });
-        data.push(record);
+    .on('data', (chunk) => {
+      const chunkStr = decoder.write(chunk);
+      for (let i = 0; i < chunkStr.length; i++) {
+        const char = chunkStr[i];
+        if (char === '\' && inQuotes) {
+          currentField += char + chunkStr[i + 1];
+          i++;
+        } else if (char === '"' && inQuotes) {
+          inQuotes = false;
+        } else if (char === ',' && !inQuotes) {
+          currentRow.push(currentField);
+          currentField = '';
+        } else if (char === '
+' && !inQuotes) {
+          csvData.push(currentRow);
+          currentRow = [];
+          currentField = '';
+        } else {
+          currentField += char;
+        }
       }
     })
-    .on('error', err => {
-      throw err;
+    .on('end', () => {
+      csvData.push(currentRow);
     });
 
-  return data;
+  return csvData;
 }
 
 // CSV生成器
 function generateCSV(data, file_path) {
-  const csv = data.map(row => row.join(',')).join('
-');
-  fs.writeFileSync(file_path, csv);
+  const csv = [
+    data[0].join(','),
+    ...data.slice(1).map(row => row.join(',')),
+  ];
+
+  fs.writeFileSync(file_path, csv.join('
+'));
 }
 
 // CSV转JSON
-function csvToJson(csv_data) {
-  return JSON.stringify(csv_data, null, 2);
+function csvToJson(csvData) {
+  return csvData.map(row => {
+    return row.reduce((obj, item, index) => {
+      obj[csvData[0][index]] = item;
+      return obj;
+    }, {});
+  });
 }
 
 // CSV转Markdown表格
-function csvToMarkdown(csv_data) {
-  const headers = csv_data[0].map(header => `| ${header} |`).join('
+function csvToMarkdown(csvData) {
+  const headers = csvData[0].join(' | ');
+  const rows = csvData.slice(1).map(row => row.join(' | ')).join('
 ');
-  const rows = csv_data.slice(1).map(row => row.map(cell => `| ${cell} |`).join('
-')).join('
-');
-  return `|---|
-${headers}
-${rows}
-`;n
+
+  return `| ${headers} |
+|---|
+${rows}`;
 }
 
 // CSV转HTML表格
-function csvToHtml(csv_data) {
-  const headers = csv_data[0].map(header => `<th>${header}</th>`).join('
-');n  const rows = csv_data.slice(1).map(row => row.map(cell => `<td>${cell}</td>`).join('
-')).join('
-');n  return `<table>
-  <tr>${headers}</tr>
+function csvToHTML(csvData) {
+  const headers = csvData[0].join(' | ');
+  const rows = csvData.slice(1).map(row => row.join(' | ')).join('
+');
+
+  return `<table>
+  <tr>
+    <th>${headers}</th>
+  </tr>
   <tr>${rows}</tr>
 </table>`;
 }
 
 // CSV过滤
-function filterCSV(csv_data, column, value) {
-  return csv_data.filter(row => row[column] === value);
+function filterCSV(csvData, column, value) {
+  return csvData.filter(row => row[column] === value);
 }
 
 // CSV排序
-function sortCSV(csv_data, column) {
-  return csv_data.sort((a, b) => a[column] > b[column] ? 1 : -1);
+function sortCSV(csvData, column) {
+  return csvData.sort((a, b) => a[column] > b[column] ? 1 : -1);
 }
 
 module.exports = {
@@ -88,7 +101,7 @@ module.exports = {
   generateCSV,
   csvToJson,
   csvToMarkdown,
-  csvToHtml,
+  csvToHTML,
   filterCSV,
   sortCSV
-}
+};

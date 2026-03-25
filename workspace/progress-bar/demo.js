@@ -1,6 +1,5 @@
 const ProgressBar = require('./progress.js');
 
-// Create a single progress bar
 const bar = new ProgressBar({
   total: 100,
   width: 40,
@@ -8,13 +7,17 @@ const bar = new ProgressBar({
   incomplete: '░'
 });
 
-// Update the progress bar
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
-  // Perform some work
+  // Do some work here
 }
 
-// Create multiple progress bars
-const multi = new MultiProgressBar();
+const multi = new ProgressBar.MultiProgressBar();
 const bar1 = multi.create('Download', 100);
 const bar2 = multi.create('Upload', 100);
+
+for (let i = 0; i <= 100; i++) {
+  bar1.update(i);
+  bar2.update(i);
+  // Do some work here
+}

@@ -14,7 +14,7 @@ function sort(json, key) {
     try {
         const data = JSON.parse(json);
         if (!Array.isArray(data)) {
-            throw new Error('Input is not an array');
+            throw new Error('Input is not an array');n
         }
         return data.sort((a, b) => {
             if (typeof a[key] === 'string' && typeof b[key] === 'string') {
@@ -82,7 +82,8 @@ function processJSON(filePath, command, args) {
 // Parse command line arguments
 const args = {
     command: process.argv[2],
-    args: {}
+    args: {
+    }
 };
 process.argv.slice(3).forEach(arg => {
     const [key, value] = arg.split('=');

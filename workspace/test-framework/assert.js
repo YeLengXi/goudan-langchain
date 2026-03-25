@@ -1,41 +1,44 @@
+const expect = require('./test.js');
+
 const equal = (actual, expected) => {
-  if (actual === expected) {
-    return true;
+  if (actual !== expected) {
+    throw new Error(`Expected ${actual} to be equal to ${expected}`);
   }
-  return false;
 };
 
 const deepEqual = (actual, expected) => {
-  if (actual === expected) {
-    return true;
+  if (!JSON.stringify(actual) === JSON.stringify(expected)) {
+    throw new Error(`Expected ${actual} to be deeply equal to ${expected}`);
   }
-  if (typeof actual !== 'object' || typeof expected !== 'object') {
-    return false;
+};
+
+const truthy = (value) => {
+  if (!value) {
+    throw new Error(`Expected ${value} to be truthy`);
   }
-  if (Object.keys(actual).length !== Object.keys(expected).length) {
-    return false;
+};
+
+const falsy = (value) => {
+  if (value) {
+    throw new Error(`Expected ${value} to be falsy`);
   }
-  for (const key in actual) {
-    if (!deepEqual(actual[key], expected[key])) {
-      return false;
+};
+
+const throws = (func, error) => {
+  try {
+    func();
+    throw new Error('Expected function to throw an error');
+  } catch (thrownError) {
+    if (thrownError.message !== error) {
+      throw new Error(`Expected function to throw ${error}, but threw ${thrownError.message}`);
     }
   }
-  return true;
 };
 
-const truthy = value => value !== false && value !== 0 && value !== '' && value !== null && value !== undefined;
-
-const falsy = value => !truthy(value);
-
-const throws = (fn, error) => {
-  try {
-    fn();
-    return false;
-  } catch (thrownError) {
-    return thrownError === error;
+const contains = (actual, expected) => {
+  if (!actual.includes(expected)) {
+    throw new Error(`Expected ${actual} to contain ${expected}`);
   }
 };
-
-const contains = (actual, expected) => actual.includes(expected);
 
 module.exports = { equal, deepEqual, truthy, falsy, throws, contains };

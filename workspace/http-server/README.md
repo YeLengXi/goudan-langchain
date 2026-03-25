@@ -14,18 +14,7 @@ This is a simple HTTP server that serves static files from a specified directory
 
 ## Usage
 
-Start the server with the following command:
-
 ```bash
 node server.js --port 8080 --dir ./public
+node server.js --port 3000 --dir ./dist
 ```
-
-Replace `8080` with the desired port number and `./public` with the path to the directory containing the files to be served.
-
-## Dependencies
-
-No external dependencies are required.
-
-## License
-
-MIT

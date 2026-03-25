@@ -1,41 +1,25 @@
-const fs = require('fs');
-const path = require('path');
-const { parseLog } = require('./日志解析器');
-const { countErrors, getMostFrequentError } = require('./错误统计器');
-const { searchLogs } = require('./搜索引擎');
-const { exportToJson, exportToCsv, generateReport } = require('./报告生成器');
+const read_file = require('fs').readFileSync;
 
-const analyzeLog = (filePath, options) => {
-    const logContent = fs.readFileSync(filePath, 'utf-8');
-    const logs = parseLog(logContent, options.type);
+const reportGenerator = {
+  generateJsonReport: (logs) => {
+    return JSON.stringify(logs, null, 2);
+  },
 
-    if (options.error) {
-        const errorTypes = countErrors(logs);
-        const mostFrequentError = getMostFrequentError(errorTypes);
-        console.log(`Most Frequent Error: ${mostFrequentError}
-Total Errors: ${Object.keys(errorTypes).length}`);
-    }
+  generateCsvReport: (logs) => {
+    const headers = ['Timestamp', 'Level', 'Message'];
+    let csv = headers.join(',') + '\n';
+    logs.forEach((log) => {
+      csv += [log.timestamp, log.level, log.message || log.stackTrace || log.errorType || ''].join(',') + '\n';n    });
+    return csv;
+  },
 
-    if (options.search) {
-        const { keyword, startTime, endTime, level } = options.search;
-        const filteredLogs = searchLogs(logs, keyword, startTime, endTime, level);
-        console.log(filteredLogs);
-    }
-
-    if (options.export) {
-        if (options.export === 'json') {
-            exportToJson(logs);
-            console.log('Exported to JSON');
-        } else if (options.export === 'csv') {
-            exportToCsv(logs);
-            console.log('Exported to CSV');
-        } else if (options.export === 'report') {
-            generateReport(logs);
-            console.log('Generated Report');
-        }
-    }
+  generateStatisticsReport: (logs) => {
+    const errorTypes = errorStatistics.countErrors(logs);
+    let report = 'Error Statistics:\n';
+    for (const errorType in errorTypes) {
+      report += `${errorType}: ${errorTypes[errorType]}\n`;n    }
+    return report;
+  }
 };
 
-module.exports = {
-    analyzeLog
-}
+module.exports = reportGenerator;

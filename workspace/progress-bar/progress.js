@@ -1,49 +1,63 @@
-const ProgressBar = require('./progress.js');
+const ProgressBar = require('cli-progress');
 
-// 创建一个进度条对象
-function createProgressBar(options) {
-  const { total, width, complete, incomplete } = options;
-  let current = 0;
-  let startTime = Date.now();
+class ProgressBar {
+  constructor(options) {
+    this.total = options.total;
+    this.width = options.width || 40;
+    this.complete = options.complete || '█';
+    this.incomplete = options.incomplete || '░';
+    this.style = options.style || 'standard';
+    this.multi = options.multi || false;
+    this bars = [];
+  }
 
-  return {
-    update: (value) => {
-      current = value;
-      const percent = (current / total) * 100;
-      const elapsed = Date.now() - startTime;
-      const eta = elapsed * (total / current) - elapsed;
-      const speed = current / elapsed;
-      const filledLength = Math.round(width * (current / total));
-      const bar = complete.repeat(filledLength) + incomplete.repeat(width - filledLength);
-      const progressString = \[${bar}] ${percent.toFixed(2)}% | ETA: ${eta.toFixed(2)}s | ${current}/${total} items | ${speed.toFixed(2)} items/s\n
-      process.stdout.clearLine();
-      process.stdout.cursorTo(0);
-      process.stdout.write(progressString);
-    },
-    finish: () => {
-      process.stdout.write('\n');
+  create(taskName, total) {
+    if (this.multi) {
+      const bar = new ProgressBar.Standard(this, taskName, total);
+      this.bars.push(bar);
+      return bar;
+    } else {
+      throw new Error('MultiProgressBar is required for single bar');
     }
   }
-}
 
-// 创建一个多进度条对象
-function createMultiProgressBar() {
-  const bars = [];
-  return {
-    create: (name, total) => {
-      const bar = createProgressBar({ total, width: 20, complete: '=', incomplete: ' ' });
-      bars.push({ name, bar });
-      return bar;
-    },
-    update: () => {
-      bars.forEach(bar => {
-        bar.update(bar.name);
+  update(bar, value) {
+    if (this.multi) {
+      bar.update(value);
+    } else {
+      throw new Error('MultiProgressBar is required for single bar update');
+    }
+  }
+
+  render() {
+    if (this.multi) {
+      this.bars.forEach(bar => {
+        console.log(bar.render());
       });
-    },
-    finish: () => {
-      bars.forEach(bar => {
+    } else {
+      throw new Error('MultiProgressBar is required for single bar render');
+    }
+  }
+
+  start() {
+    if (this.multi) {
+      this.bars.forEach(bar => {
+        bar.start();
+      });
+    } else {
+      throw new Error('MultiProgressBar is required for single bar start');
+    }
+  }
+
+  finish() {
+    if (this.multi) {
+      this.bars.forEach(bar => {
         bar.finish();
       });
+    } else {
+      throw new Error('MultiProgressBar is required for single bar finish');
     }
   }
 }
+
+module.exports = ProgressBar;

@@ -1,32 +1,27 @@
-/**
- * 正则表达式测试器
- */
 const readline = require('readline');
-const { exec } = require('child_process');
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-rl.question('请输入正则表达式: ', (pattern) => {
-  rl.question('请输入要测试的文本: ', (text) => {
+rl.question('Enter the regular expression: ', (regex) => {
+  rl.question('Enter the text to be tested: ', (text) => {
     try {
-      const regex = new RegExp(pattern);
-      const match = regex.exec(text);
-
-      if (match) {
-        console.log(`Pattern: ${pattern}`);
+      const pattern = new RegExp(regex, 'g');
+      const matches = text.match(pattern);
+      if (matches) {
+        console.log(`Pattern: ${regex}`);
         console.log(`Text: ${text}`);
-        console.log(`Match: ${match[0]}`);
-        console.log(`Position: ${match.index}-${match.index + match[0].length - 1}`);
+        matches.forEach((match, index) => {
+          console.log(`Match: ${match}`);
+          console.log(`Position: ${text.indexOf(match) + 1}-${text.indexOf(match) + match.length}`);
+        });
       } else {
-        console.log('No match found.');
+        console.log('No matches found.');
       }
     } catch (error) {
       console.error('Error:', error);
     }
-
     rl.close();
   });
 });

@@ -1,5 +1,8 @@
 const fetch = require('node-fetch');
-const { JSDOM } = require('jsdom');
+
+const regexTitle = /<title>(.*?)</title>/i;
+const regexLinks = /<a [^>]*href="(.*?)"/gi;
+const regexImages = /<img [^>]*src="(.*?)"/gi;
 
 const scraper = async (url) => {
   try {
@@ -8,10 +11,10 @@ const scraper = async (url) => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const html = await response.text();
-    const dom = new JSDOM(html);
-    const title = dom.window.document.title;
-    const links = dom.window.document.querySelectorAll('a[href]').map(link => link.href);
-    const images = dom.window.document.querySelectorAll('img[src]').map(img => img.src);
+
+    const title = html.match(regexTitle)[1];
+    const links = html.match(regexLinks).map(link => link.match(/href="(.*?)"/i)[1]);
+    const images = html.match(regexImages).map(image => image.match(/src="(.*?)"/i)[1]);
 
     return {
       title,
@@ -19,7 +22,7 @@ const scraper = async (url) => {
       images
     };
   } catch (error) {
-    console.error('Error fetching the URL:', error);
+    console.error('Error fetching the webpage:', error);
     process.exit(1);
   }
 };

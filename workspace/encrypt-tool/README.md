@@ -1,60 +1,22 @@
-# workspace/encrypt-tool/README.md
+# 加密工具
 
-## 安装
+本工具提供多种文本加密和解密功能。
 
-```bash
-npm install
-```
+### 加密算法
 
-## 使用
+- 凯撒密码 (Caesar Cipher)
+  通过将每个字母移动固定数目的位置来加密文本。
+- Base64编码
+  将文本转换为Base64编码。
+- ROT13
+  将每个字母旋转13个位置进行加密。
+- 简单XOR加密
+  使用密钥对文本进行XOR加密。
+- AES加密
+  使用AES算法进行加密，需要密钥。
 
-### 加密
+### 使用示例
 
-```bash
-node encrypt.js "hello world" --method caesar --key 3
-node encrypt.js "hello" --method base64
-node encrypt.js file.txt --method aes --key mykey --output encrypted.bin
-```
+- 加密文本：`node encrypt.js "hello world" --method caesar --key 3`
+- 解密文件：`node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt`
 
-### 解密
-
-```bash
-node decrypt.js encrypted.bin --method aes --key mykey --output decrypted.txt
-```
-
-## 参数
-
-- --method: 加密或解密方法
-  - caesar: 凯撒密码
-  - base64: Base64编码
-  - rot13: ROT13编码
-  - xor: XOR加密
-  - aes: AES加密
-- --key: 密钥，仅用于AES加密
-- --output: 输出文件名，仅用于文件加密和解密
-
-## 示例
-
-加密文本：
-hello world
-
-加密方法：
-caesar
-
-密钥：
-3
-
-加密后的文本：
-khoor zruog
-
-解密文本：
-khoor zruog
-
-解密方法：
-caesar
-
-密钥：
-3
-
-解密后的文本：
-hello world

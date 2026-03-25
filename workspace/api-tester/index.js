@@ -1,54 +1,38 @@
-// This is the main program of the API tester.
-// It handles the command-line arguments, makes HTTP requests, and formats the responses.
-
 const fetch = require('node-fetch');
-const fs = require('fs');
-const path = require('path');
 
 const parseArgs = require('minimist');
 
-const methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+const readConfig = async () => {
+	// 读取配置文件的逻辑
+};
 
-const apiTester = async (args) => {
-  const { method, url, data, requestFile } = parseArgs(args);
+const sendRequest = async (method, url, headers, body) => {
+	const options = {
+		method,
+		headers,
+		body: method === 'GET' ? null : body
+	};
 
-  if (requestFile) {
-    const requests = JSON.parse(fs.readFileSync(requestFile, 'utf8'));
-    for (const request of requests) {
-      await makeRequest(method, request.url, request.data);
-    }
-  } else {
-    await makeRequest(method, url, data);
-  }
-}
+	try {
+		const response = await fetch(url, options);
+		return response;
+	} catch (error) {
+		throw error;
+	}
+};
 
-const makeRequest = async (method, url, data) => {
-  const headers = {
-    'Content-Type': 'application/json'
-  };
+const formatResponse = (response) => {
+	return response.json();
+};
 
-  if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
-    headers['Content-Type'] = 'application/json';
-  }
+const saveResponseToFile = async (response, filePath) => {
+	const content = JSON.stringify(response, null, 2);
+	await write_file(content, filePath);
+};
 
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: method === 'POST' || method === 'PUT' || method === 'PATCH' ? JSON.stringify(data) : null
-  });
-
-  const responseTime = Date.now() - startTime;
-  const responseJson = await response.json();
-
-  console.log(`Response Time: ${responseTime}ms`);
-  console.log(`Status Code: ${response.status}`);
-  console.log('Headers:', response.headers.raw());
-  console.log('Body:', responseJson);
-
-  fs.writeFileSync(
-    path.join(__dirname, 'responses', `${Date.now()}.json`),
-    JSON.stringify(responseJson, null, 2)
-  );
-}
-
-module.exports = apiTester;
+module.exports = {
+	parseArgs,
+	sendRequest,
+	formatResponse,
+	saveResponseToFile
+};

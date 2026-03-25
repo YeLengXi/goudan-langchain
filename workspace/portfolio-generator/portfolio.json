@@ -1,1 +1,27 @@
-{"name":"","position":"","bio":"","skills":[],"projects":[],"social_links":{}}
+{
+  "name": "John Doe",
+  "position": "Frontend Developer",
+  "bio": "I am a frontend developer with 5 years of experience in building web applications. I am proficient in HTML, CSS, and JavaScript, and have a strong understanding of React and Angular.",
+  "skills": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "React",
+    "Angular"
+  ],
+  "projects": [
+    {
+      "name": "Project 1",
+      "description": "A web application for managing tasks.",n      "url": "https://example.com/project1"
+    },
+    {
+      "name": "Project 2",
+      "description": "A web application for e-commerce.",n      "url": "https://example.com/project2"
+    }
+  ],
+  "social": {
+    "GitHub": "https://github.com/johndoe",
+    "LinkedIn": "https://linkedin.com/in/johndoe",
+    "Email": "johndoe@example.com"
+  }
+}
