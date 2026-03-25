@@ -1,18 +1,1 @@
-{
-  "name": "github-auto",
-  "version": "1.0.0",
-  "description": "A tool for automating GitHub repository creation, initialization, and pushing.",
-  "main": "index.js",
-  "scripts": {
-    "create": "node index.js create",
-    "init": "node index.js init",
-    "push": "node index.js push"
-  },
-  "dependencies": {
-    "axios": "^0.21.1",
-    " invariant": "^2.2.4"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0"
-  }
-}
+{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"create":"./index.js create","init":"./index.js init","push":"./index.js push"},"bin":{"github-auto":"./index.js"},"dependencies":{}]

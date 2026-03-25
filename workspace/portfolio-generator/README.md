@@ -1,23 +1,17 @@
 # Portfolio Generator
 
-This is a static website generator for creating personal portfolios.
+This is a simple portfolio website generator for developers.
 
 ## Features
 
-- Configure personal information
-- Generate complete website
-- Deploy to GitHub Pages
-
-## Installation
-
-1. Clone the repository
-2. Run `npm install`
-3. Run `npm start`
+- Generate a portfolio website from a JSON configuration file.
+- Customize the theme color.
+- Live preview with a local server.
 
 ## Usage
 
-1. Configure your portfolio.json file
-2. Run `npm start`
+1. Create a `portfolio.json` file with your personal information.
+2. Run `npm start` to generate the website.
 
 ## License
 

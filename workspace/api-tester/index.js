@@ -8,65 +8,72 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const fetch = async (url, options) => {
-  try {
-    const response = await https.get(url, options);
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
+async function main() {
+  const args = process.argv.slice(2);
 
-const parseArgs = (args) => {
-  const result = {
-    method: 'GET',
-    url: '',
-    data: null
+  if (args.length === 0) {
+    console.log('Usage: api-tester <method> <url> [options]');
+    process.exit(1);
+  }
+
+  const [method, url] = args.splice(0, 2);
+  const options = args.reduce((acc, arg) => {
+    if (arg.startsWith('-')) {
+      const [key, value] = arg.split('=');
+      acc[key.slice(1)] = value;
+    }
+    return acc;
+  }, {});
+
+  try {
+    const response = await fetchRequest(method, url, options);
+    console.log(JSON.stringify(response, null, 2));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function fetchRequest(method, url, options) {
+  const { headers, body } = options;
+  const isJson = body && typeof body === 'object';
+  const isFormData = body && typeof body === 'string' && body.startsWith('form-data');
+
+  const headersObj = {
+    'Content-Type': isJson ? 'application/json' : isFormData ? 'multipart/form-data' : 'application/x-www-form-urlencoded',
+    ...headers
   };
 
-  args.forEach(arg => {
-    if (arg.startsWith('-')) {
-      if (arg === '-d') {
-        result.data = JSON.parse(args[args.indexOf(arg) + 1]);
-      } else if (arg.startsWith('--')) {
-        const [key, value] = arg.slice(2).split('=');
-        result[key] = value;
-      } else {
-        result.method = arg.toUpperCase();
-      }
-    } else {
-      result.url = arg;
-    }
-  });
-
-  return result;
-};
-
-const main = async () => {
-  const args = process.argv.slice(2);
-  const options = parseArgs(args);
-
-  try {
-    const response = await fetch(options.url, {
-      method: options.method,
-      headers: options.headers || {},
-      body: options.data ? JSON.stringify(options.data) : null
-    });
-
-    console.log(`Status Code: ${response.statusCode}`);
-    console.log(`Response Time: ${new Date().toISOString() - new Date(response.headers.date).getTime()}ms`);
-    console.log(`Headers: ${JSON.stringify(response.headers)}`);
-
-    if (response.statusCode === 200) {
-      console.log(`Body: ${JSON.stringify(await response.json())}`);
-    } else {
-      console.error(`Error: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
+  const requestOptions = {
+    method,
+    headers: headersObj
   }
 
-  rl.close();
-};
+  if (isJson) {
+    requestOptions.body = JSON.stringify(body);
+  } else if (isFormData) {
+    requestOptions.body = body;
+  }
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(url, requestOptions, (res) => {
+      const data = [];
+      res.on('data', (chunk) => data.push(chunk));
+      res.on('end', () => {
+        resolve({
+          status: res.statusCode,
+          headers: res.headers,
+          body: Buffer.concat(data).toString()
+        });
+      });
+    });
+
+    req.on('error', (error) => {
+      reject(error);
+    });
+
+    req.write(requestOptions.body);
+    req.end();
+  });
+}
 
 main();

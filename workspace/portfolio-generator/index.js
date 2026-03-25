@@ -1,33 +1,15 @@
 const fs = require('fs');
-const path = require('path');
-const ejs = require('ejs');
 
-const PORT = 3000;
-const OUTPUT_DIR = './output';
-const TEMPLATE_PATH = './templates/default.html';
-const CONFIG_PATH = './portfolio.json';
+const portfolioJsonPath = 'portfolio.json';
+const templatePath = 'templates/default.html';
+const outputPath = 'output.html';
 
-function generatePortfolio() {
-  const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-  const template = fs.readFileSync(TEMPLATE_PATH, 'utf8');
+const portfolio = JSON.parse(fs.readFileSync(portfolioJsonPath, 'utf-8'));
 
-  const output = ejs.render(template, config);
-  fs.writeFileSync(path.join(OUTPUT_DIR, 'index.html'), output);
-}
+const template = fs.readFileSync(templatePath, 'utf-8').replace(/{{(.*?)}}/g, (match, key) => {
+  return portfolio[key] ? portfolio[key] : '';
+});
 
-function startServer() {
-  if (!fs.existsSync(OUTPUT_DIR)) {
-    fs.mkdirSync(OUTPUT_DIR);
-  }
+fs.writeFileSync(outputPath, template);
 
-  generatePortfolio();
-
-  require('http').createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(fs.readFileSync(path.join(OUTPUT_DIR, 'index.html'), 'utf8'));
-  }).listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
-}
-
-startServer();
+console.log('Website generated at:', outputPath);
