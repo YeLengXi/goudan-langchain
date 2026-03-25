@@ -1,10 +1,8 @@
-// file2.js
-// A simple function to convert temperature from Celsius to Fahrenheit
+const calculator = {
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
+  divide: (a, b) => b !== 0 ? a / b : null
+};
 
-function celsiusToFahrenheit(celsius) {
-  return (celsius * 9/5) + 32;
-}
-
-// Test cases
-console.log(celsiusToFahrenheit(0)); // Should output 32
-console.log(celsiusToFahrenheit(100)); // Should output 212;
+module.exports = calculator;

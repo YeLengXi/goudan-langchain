@@ -1,14 +1,8 @@
-// file1.js
-// A simple calculator that can perform addition and subtraction
+const calculator = {
+  add: (a, b) => a + b,
+  subtract: (a, b) => a - b,
+  multiply: (a, b) => a * b,
+  divide: (a, b) => b !== 0 ? a / b : null
+};
 
-function calculate(operation, num1, num2) {
-  if (operation === 'add') {
-    return num1 + num2;
-  } else if (operation === 'subtract') {
-    return num1 - num2;
-  }
-}
-
-// Test cases
-console.log(calculate('add', 5, 3)); // Should output 8
-console.log(calculate('subtract', 5, 3)); // Should output 2;
+module.exports = calculator;
