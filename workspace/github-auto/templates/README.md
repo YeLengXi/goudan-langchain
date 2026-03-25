@@ -1,15 +1,19 @@
-# README.md
+# README.md 模板
 
-Welcome to the project!
+这是一个 README.md 的模板，将被用于初始化新仓库。
 
-## Project Description
+## {{repoName}}
 
-This is a template for the README file.
+{{description}}
 
-## Getting Started
+## 安装
 
-To get started, please follow the instructions below.
+```bash
+npm install
+```
 
-## License
+## 运行
 
-MIT
+```bash
+node index.js
+```
