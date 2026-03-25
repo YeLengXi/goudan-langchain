@@ -1,32 +1,47 @@
 # GitHub Auto
 
-GitHub Auto is a tool that automates the process of creating, initializing, and pushing GitHub repositories.
+GitHub Auto is a command-line tool that automates the process of creating and initializing GitHub repositories.
 
 ## Features
 
-- Create repositories
-- Initialize repositories
-- Push to GitHub
-
-## Usage
-
-```bash
-github-auto create my-project --public
-github-auto create my-project --private --description "My awesome project"
-github-auto init --template nodejs
-github-auto push
-```
-
-## Configuration
-
-- GitHub Personal Access Token
-
-## Dependencies
-
-- axios
+- Create repositories (public/private)
+- Initialize repositories with README, .gitignore, and LICENSE
+- Push repositories to GitHub
 
 ## Installation
 
 ```bash
-npm install
+npm install -g github-auto
 ```
+
+## Usage
+
+### Create a repository
+
+```bash
+github-auto create my-project --public
+```
+
+```bash
+github-auto create my-project --private --description "My awesome project"
+```
+
+### Initialize a repository
+
+```bash
+github-auto init --template nodejs
+```
+
+### Push a repository
+
+```bash
+github-auto push
+```
+
+## Templates
+
+You can choose different templates for README, .gitignore, and LICENSE.
+
+## Contributing
+
+Contributions are welcome!

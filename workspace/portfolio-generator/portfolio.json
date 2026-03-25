@@ -1,21 +1,23 @@
 {
   "name": "John Doe",
   "position": "Frontend Developer",
-  "bio": "I am a frontend developer with 5 years of experience. I am passionate about building beautiful and responsive websites.",
+  "bio": "I am a frontend developer with 5 years of experience. I specialize in React and Vue.js.",
   "skills": [
+    "React",
+    "Vue.js",
+    "JavaScript",
     "HTML",
-    "CSS",
-    "JavaScript"
+    "CSS"
   ],
   "projects": [
     {
       "name": "Project 1",
-      "description": "A responsive website for a startup company.",n      "image": "project1.jpg"
+      "description": "A project to showcase my skills in React and Vue.js.",n      "link": "https://example.com/project1"
     },
     {
       "name": "Project 2",
-      "description": "A web application for managing tasks.",
-      "image": "project2.jpg"
+      "description": "A project to demonstrate my proficiency in JavaScript and HTML.",
+      "link": "https://example.com/project2"
     }
   ],
   "social_links": {

@@ -12,20 +12,20 @@ This is a template for the README file of a GitHub repository.
 
 ## Features
 
-[List of features here]
+[List the features of your project here]
 
 ## Installation
 
-[Instructions for installation]
+[Instructions on how to install your project]
 
 ## Usage
 
-[Instructions for usage]
+[Instructions on how to use your project]
 
 ## Contributing
 
-[Guidelines for contributing]
+[Instructions on how to contribute to your project]
 
 ## License
 
-[License information]
+[License information here]
