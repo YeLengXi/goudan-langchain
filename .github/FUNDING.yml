@@ -1,32 +1,16 @@
 # These are supported funding model platforms
 
-github: # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
-  - your-username
+# GitHub Sponsors（官方赞助）- 首选方式
+github:
+  - YeLengXi
 
-patreon: # Replace with a single Patreon username
-  - your-username
-
-open_collective: # Replace with a single Open Collective username
-  - your-username
-
-ko_fi: # Replace with a single Ko-fi username
-  - your-username
-
-tidelift: # Replace with a single Tidelift platform-name/package-name e.g., npm/babel
-  - your-username
-
-community_bridge: # Replace with a single Community Bridge project-name e.g., cloud-foundry
-  - your-username
-
-liberapay: # Replace with a single Liberapay username
-  - your-username
-
-issuehunt: # Replace with a single IssueHunt username
-  - your-username
-
-otechie: # Replace with a single Otechie username
-  - your-username
-
-custom: # Replace with up to 4 custom sponsorship URLs e.g., ['link1', 'link2']
-  - https://www.paypal.com/donate?hosted_button_id=XXXXX
-  - https://www.buymeacoffee.com/your-username
+# 自定义打赏链接
+# 请将下面的链接替换为你的实际收款链接
+custom:
+  - https://www.paypal.me/YeLengXi
+  # 添加你的支付宝收款链接
+  # - https://your-alipay-qr-code-link
+  # 添加你的微信收款链接
+  # - https://your-wechat-qr-code-link
+  # 添加你的 Buy Me a Coffee 链接
+  # - https://www.buymeacoffee.com/YeLengXi

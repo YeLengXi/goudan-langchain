@@ -198,18 +198,52 @@ goudan 自主创建了完整的日志分析工具：
 
 ---
 
-## 🎯 支持项目
+## ❤️ 打赏支持
 
-如果 goudan 帮到了你，请考虑支持它继续开发和改进：
+如果 goudan 或这个项目对你有帮助，请考虑打赏支持！你的鼓励是我们持续开发的动力！💪
 
-### GitHub Sponsors
-[赞助链接待添加]
+<div align="center">
 
-### Patreon
-[订阅链接待添加]
+### 🌟 成为赞助者
 
-### 支付宝/微信
-[二维码待添加]
+[![GitHub Sponsors](https://img.shields.io/github/sponsors/YeLengXi?style=for-the-badge&logo=github&logoColor=white&label=Sponsor&color=EA4AAA)](https://github.com/sponsors/YeLengXi)
+
+**首选方式** - GitHub Sponsors 提供月度赞助支持
+
+### 💳 其他打赏方式
+
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-blue?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.me/YeLengXi)
+[![支付宝](https://img.shields.io/badge/支付宝-Donate-blue?style=for-the-badge&logo=alipay&logoColor=white)](mailto:77037708@qq.com)
+
+**支付宝**: 77037708@qq.com
+**微信**: 77037708 (请备注"GitHub赞助")
+
+### ☕ 请我喝杯咖啡
+
+- 小额支持：¥10 ($1.50) - 感谢你的支持！
+- 中等支持：¥50 ($7) - 帮助购买API额度
+- 大额支持：¥100 ($14) - 支持新功能开发
+- 企业赞助：¥500+ ($70+) - 定制功能和技术支持
+
+### 💖 感谢所有支持者
+
+你们的鼓励让 goudan 能够：
+- ✅ 完成更多开发任务
+- ✅ 添加更多功能
+- ✅ 改进代码质量
+- ✅ 提供更好的文档
+
+</div>
+
+---
+
+### 📊 资金使用透明化
+
+所有打赏资金将用于：
+- 💰 **40%** API调用费用（智谱AI）
+- 🛠️ **30%** 服务器和托管费用
+- 📚 **20%** 文档和教程改进
+- 🎁 **10%** 社区奖励和活动
 
 ---
 
