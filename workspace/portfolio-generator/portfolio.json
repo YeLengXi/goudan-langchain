@@ -1,28 +1,28 @@
 {
   "name": "John Doe",
-  "position": "Frontend Developer",
-  "bio": "I am a frontend developer with 5 years of experience. I specialize in React and Redux.",
+  "position": "Software Developer",
+  "bio": "I am a passionate software developer with 5 years of experience in web development. I enjoy building scalable and efficient web applications.",
   "skills": [
-    "React",
-    "Redux",
+    "HTML",
+    "CSS",
     "JavaScript",
-    "HTML"
+    "React",
+    "Node.js"
   ],
   "projects": [
     {
-      "name": "Project 1",
-      "description": "A project about ...",
-      "link": "https://example.com/project1"
+      "name": "Portfolio Website",
+      "description": "A personal portfolio website to showcase my work.",n      "link": "https://john-doe-portfolio.com"
     },
     {
-      "name": "Project 2",
-      "description": "A project about ...",
-      "link": "https://example.com/project2"
+      "name": "E-commerce Website",
+      "description": "An e-commerce website built with React and Node.js.",
+      "link": "https://john-doe-ecommerce.com"
     }
   ],
   "social_links": {
-    "GitHub": "https://github.com/johndoe",
-    "LinkedIn": "https://linkedin.com/in/johndoe",
-    "Email": "johndoe@example.com"
+    "GitHub": "https://github.com/john-doe",
+    "LinkedIn": "https://linkedin.com/in/john-doe",
+    "Email": "john.doe@example.com"
   }
 }

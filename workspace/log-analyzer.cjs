@@ -1,65 +1,33 @@
-# log-analyzer.cjs
+const fs = require('fs');
+const path = require('path');
 
-const read_file = require('./read_file');
-const write_file = require('./write_file');
-const exec_command = require('./exec_command');
-const list_directory = require('./list_directory');
+const appLogPath = path.join(__dirname, './app.log');
+const appLog = fs.readFileSync(appLogPath, 'utf8');
 
-// 日志解析器
-const parser = {
-  parseAppLog: (log) => {
-    // 解析应用日志
-  },
-  parseAccessLog: (log) => {
-    // 解析访问日志
-  },
-  parseErrorLog: (log) => {
-    // 解析错误日志
-  }
+const logLines = appLog.split('\n');
+
+const parseLog = (logLine) => {
+  const logRegex = /^\[(.*?)\] (\w+) - (.*?)$/;
+  const match = logLine.match(logRegex);
+
+  if (!match) return null;
+
+  return {
+    timestamp: match[1],
+    level: match[2],
+    message: match[3]
+  };
 };
 
-// 错误统计器
-const errorStats = {
-  countErrors: (logs) => {
-    // 统计错误数量
-  },
-  groupByType: (logs) => {
-    // 按类型分组
-  },
-  showMostFrequent: (logs) => {
-    // 显示最频繁的错误
-  }
-};
+const parsedLogs = logLines.map(parseLog);
 
-// 搜索引擎
-const searchEngine = {
-  searchByKeyword: (logs, keyword) => {
-    // 按关键词搜索
-  },
-  filterByTimeRange: (logs, startTime, endTime) => {
-    // 按时间范围过滤
-  },
-  filterByLogLevel: (logs, level) => {
-    // 按日志级别过滤
-  }
-};
-
-// 报告生成器
-const reportGenerator = {
-  exportToJson: (logs) => {
-    // 导出为 JSON
-  },
-  exportToCsv: (logs) => {
-    // 导出为 CSV
-  },
-  generateStatisticsReport: (logs) => {
-    // 生成统计报告
-  }
-};
+const errorStats = parsedLogs.filter(log => log.level === 'ERROR').reduce((acc, log) => {
+  const errorType = log.message.match(/^(.*?):/)[1];
+  acc[errorType] = (acc[errorType] || 0) + 1;
+  return acc;
+}, {});
 
 module.exports = {
-  parser,
-  errorStats,
-  searchEngine,
-  reportGenerator
+  parsedLogs,
+  errorStats
 };
