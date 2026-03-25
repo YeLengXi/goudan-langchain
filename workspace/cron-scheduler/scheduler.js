@@ -1,40 +1,77 @@
 # Cron Scheduler
 
-This is a simple cron scheduler that can execute tasks according to cron expressions.
+const fs = require('fs');
+const path = require('path');
+const { parse } = require('cron-parser');
+const { exec } = require('child_process');
 
-### Features
+class CronScheduler {
+  constructor(configPath) {
+    this.configPath = configPath;
+    this.tasks = [];
+    this.loadConfig();
+  }
 
-- Parse cron expressions
-- Schedule and execute tasks
-- Support multiple tasks
-- Task execution history
-- Error handling and retry
-
-### Configuration File
-
-The configuration file is in JSON format and should be named `tasks.json`. Here is an example:
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
+  loadConfig() {
+    try {
+      const config = fs.readFileSync(this.configPath, 'utf8');
+      const parsedConfig = JSON.parse(config);
+      this.tasks = parsedConfig.tasks;
+    } catch (error) {
+      console.error('Error loading configuration:', error);
     }
-  ]
+  }
+
+  addTask(name, cron, command) {
+    const task = { name, cron, command };
+    this.tasks.push(task);
+    this.saveConfig();
+  }
+
+  deleteTask(name) {
+    this.tasks = this.tasks.filter(task => task.name !== name);
+    this.saveConfig();
+  }
+
+  saveConfig() {
+    try {
+      const config = JSON.stringify({ tasks: this.tasks }, null, 2);
+      fs.writeFileSync(this.configPath, config, 'utf8');
+    } catch (error) {
+      console.error('Error saving configuration:', error);
+    }
+  }
+
+  start() {
+    this.tasks.forEach(task => {
+      const parser = parse(task.cron);
+      const interval = setInterval(() => {
+        const now = new Date();
+        if (parser.hasNext(now)) {
+          exec(task.command, (error, stdout, stderr) => {
+            if (error) {
+              console.error(`Error executing task ${task.name}: ${error}`);
+              return;
+            }
+            if (stderr) {
+              console.error(`Stderr for task ${task.name}: ${stderr}`);
+              return;
+            }
+            console.log(`Task ${task.name} executed successfully`);
+          });
+        }
+      }, 1000);
+    });
+  }
 }
-```
 
-### Usage
+const args = process.argv.slice(2);
+const configPath = args.find(arg => arg.startsWith('--config='))?.split('=')[1];
 
-To use the scheduler, run the following command:
+if (!configPath) {
+  console.error('Configuration file path is required');
+  process.exit(1);
+}
 
-```bash
-node scheduler.js --config tasks.json
-```
+const scheduler = new CronScheduler(configPath);
+scheduler.start();

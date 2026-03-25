@@ -1,23 +1,23 @@
 const fs = require('fs');
-const { program } = require('commander');
+const util = require('util');
 
 // 读取文件内容
-const read_file = (file_path) => {
+function read_file(file_path) {
     return new Promise((resolve, reject) => {
         fs.readFile(file_path, 'utf8', (err, data) => {
             if (err) {
                 reject(err);
             } else {
-                resolve(data);
+                resolve(JSON.parse(data));
             }
         });
     });
-};
+}
 
 // 写入文件内容
-const write_file = (file_path, content) => {
+function write_file(file_path, content) {
     return new Promise((resolve, reject) => {
-        fs.writeFile(file_path, content, 'utf8', (err) => {
+        fs.writeFile(file_path, JSON.stringify(content, null, 2), 'utf8', (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -25,17 +25,16 @@ const write_file = (file_path, content) => {
             }
         });
     });
-};
+}
 
 // 格式化JSON
-const format = (json, indent) => {
-    return JSON.stringify(JSON.parse(json), null, indent);
-};
+function format(json, indent) {
+    return JSON.stringify(json, null, indent);
+}
 
 // 排序JSON
-const sort = (json, key) => {
-    const data = JSON.parse(json);
-    data.sort((a, b) => {
+function sort(json, key) {
+    return json.sort((a, b) => {
         if (a[key] < b[key]) {
             return -1;
         }
@@ -44,73 +43,19 @@ const sort = (json, key) => {
         }
         return 0;
     });
-    return JSON.stringify(data, null, 4);
-};
+}
 
 // 过滤JSON
-const filter = (json, condition) => {
-    const data = JSON.parse(json);
-    return JSON.stringify(data.filter(item => eval(condition)), null, 4);
-};
+function filter(json, condition) {
+    return json.filter(item => {
+        const evalCondition = new Function('item', `return ${condition};`);
+        return evalCondition(item);
+    });
+}
 
 // 合并JSON
-const merge = (json1, json2) => {
-    return JSON.stringify(JSON.parse(json1).concat(JSON.parse(json2)), null, 4);
-};
+function merge(json1, json2) {
+    return JSON.stringify({ ...json1, ...json2 }, null, 2);
+}
 
-// 主程序
-const main = () => {
-    program
-        .command('format <file>')
-        .description('格式化JSON文件')
-        .action((file) => {
-            read_file(file).then(data => {
-                const formatted = format(data, 4);
-                console.log(formatted);
-            }).catch(err => {
-                console.error(err);
-            });
-        });
-
-        .command('sort <file> --key <key>')
-        .description('排序JSON文件')
-        .action((file, options) => {
-            read_file(file).then(data => {
-                const sorted = sort(data, options.key);
-                console.log(sorted);
-            }).catch(err => {
-                console.error(err);
-            });
-        });
-
-        .command('filter <file> --condition <condition>')
-        .description('过滤JSON文件')
-        .action((file, options) => {
-            read_file(file).then(data => {
-                const filtered = filter(data, options.condition);
-                console.log(filtered);
-            }).catch(err => {
-                console.error(err);
-            });
-        });
-
-        .command('merge <file1> <file2>')
-        .description('合并JSON文件')
-        .action((file1, file2) => {
-            Promise.all([read_file(file1), read_file(file2)]).then(values => {
-                const [data1, data2] = values;
-                const merged = merge(data1, data2);
-                console.log(merged);
-            }).catch(err => {
-                console.error(err);
-            });
-        });
-
-        .parse(process.argv);
-
-        .on('error', (err) => {
-            console.error(err.message);
-        });
-    }
-
-    main();
+module.exports = { read_file, write_file, format, sort, filter, merge };

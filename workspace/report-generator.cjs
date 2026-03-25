@@ -1,25 +1,24 @@
-const { parseLog } = require('./log-analyzer');
+const fs = require('fs');
+const path = require('path');
+const logAnalyzer = require('./log-analyzer');
+const errorCounter = require('./error-counter');
+const searchLogs = require('./search-logs');
 
-const exportToJson = (logs) => {
-    const jsonLogs = logs.map(log => {
-        return {
-            timestamp: log.timestamp,
-            level: log.level,
-            message: log.message
-        }
-    });
-    return JSON.stringify(jsonLogs, null, 2);
+const reportGenerator = {
+  generateReport: (parsedLogs, format) => {
+    let content = '';
+    switch (format) {
+      case 'json':
+        content = JSON.stringify(parsedLogs, null, 2);
+        break;
+      case 'csv':
+        content = parsedLogs.map(log => [log.timestamp, log.level, log.message].join(', ')).join('\n');
+        break;
+      default:
+        throw new Error('Unsupported format');
+    }
+    fs.writeFileSync('report.' + format, content);
+  }
 };
 
-const exportToCsv = (logs) => {
-    const csvLogs = logs.map(log => {
-        return `${log.timestamp},${log.level},${log.message}`
-    }).join('
-');
-    return csvLogs;
-};
-
-module.exports = {
-    exportToJson,
-    exportToCsv
-}
+module.exports = reportGenerator;

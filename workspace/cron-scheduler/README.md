@@ -1,18 +1,17 @@
-## Cron Scheduler
+# Cron Scheduler
 
-This is a simple cron scheduler that can execute tasks according to cron expressions.
+This is a simple cron scheduler that can execute tasks based on cron expressions.
 
-### Features
+## Installation
 
-- Parse cron expressions
-- Schedule and execute tasks
-- Support multiple tasks
-- Task execution history
-- Error handling and retry
+Make sure you have Node.js installed.
 
-### Configuration File
+## Usage
 
-The configuration file is in JSON format and should be named `tasks.json`. Here is an example:
+1. Create a configuration file, for example `tasks.json`.
+2. Run `node scheduler.js --config tasks.json`.
+
+## Configuration File Example
 
 ```json
 {
@@ -31,9 +30,7 @@ The configuration file is in JSON format and should be named `tasks.json`. Here 
 }
 ```
 
-### Usage
-
-To use the scheduler, run the following command:
+## CLI Interface
 
 ```bash
 node scheduler.js --config tasks.json
