@@ -1,27 +1,33 @@
-# README Template
+# README.md
 
-This is a template for the README file of a GitHub repository.
+Welcome to github-auto!
 
-## Project Description
-
-[Insert project description here]
-
-## Features
-
-[List project features here]
+This repository contains the source code for the github-auto tool. The tool automates the creation, initialization, and pushing of GitHub repositories.
 
 ## Installation
 
-[Provide installation instructions here]
+To use github-auto, you need to install it locally.
+
+```bash
+cnpm install -g github-auto
+```
 
 ## Usage
 
-[Provide usage instructions here]
+To create a new repository:
 
-## Contributing
+```bash
+github-auto create <repository-name> --[public|private] [--description <description>]
+```
 
-[Provide contribution guidelines here]
+To initialize a local repository:
 
-## License
+```bash
+github-auto init --template <template>
+```
 
-[Insert license information here]
+To push to GitHub:
+
+```bash
+github-auto push
+```

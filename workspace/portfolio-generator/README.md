@@ -4,16 +4,20 @@ This is a static website generator for creating personal portfolios.
 
 ## Features
 
-- Configurable personal information
-- Responsive design
-- Modern UI
-- Customizable theme color
+- Configure personal information
+- Generate complete website
+- Deploy to GitHub Pages
+
+## Installation
+
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm start`
 
 ## Usage
 
-1. Create a `portfolio.json` file with your personal information.
-2. Run `npm install` to install dependencies.
-3. Run `npm start` to generate the website.
+1. Configure your portfolio.json file
+2. Run `npm start`
 
 ## License
 

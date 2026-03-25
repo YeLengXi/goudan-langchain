@@ -7,46 +7,110 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
       background-color: #f4f4f4;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      overflow: hidden;
+    }
+    header {
+      background: #50b3a2;
+      color: #fff;
+      padding-top: 30px;
+      min-height: 70px;
+      border-bottom: #e8491d 3px solid;
+    }
+    header a {
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: 16px;
+    }
+    header ul {
+      padding: 0;
+      list-style: none;
+    }
+    header li {
+      float: left;
+      display: inline;
+      padding: 0 20px 0 20px;
+    }
+    header #branding {
+      float: left;
+    }
+    header #branding h1 {
+      margin: 0;
+    }
+    header nav {
+      float: right;
+      margin-top: 10px;
+    }
+    header .highlight, header .current a {
+      color: #e8491d;
+      font-weight: bold;
+    }
+    header a:hover {
+      color: #ffffff;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>{{ name }}</h1>
-    <p>{{ position }}</p>
+    <div class="container">
+      <div id="branding">
+        <h1><span class="highlight">John</span> Doe</h1>
+      </div>
+      <nav>
+        <ul>
+          <li class="current"><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Portfolio</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
   </header>
-  <section>
-    <h2>About Me</h2>
-    <p>{{ bio }}</p>
+
+  <section id="about">
+    <div class="container">
+      <h1>About Me</h1>
+      <p>I am a frontend developer with 5 years of experience. I am passionate about building beautiful and responsive websites.</p>
+    </div>
   </section>
-  <section>
-    <h2>Skills</h2>
-    <ul>
-      {{#each skills}}
-        <li>{{ this }}</li>
-      {{/each}}
-    </ul>
+
+  <section id="skills">
+    <div class="container">
+      <h1>Skills</h1>
+      <ul>
+        <li>HTML</li>
+        <li>CSS</li>
+        <li>JavaScript</li>
+      </ul>
+    </div>
   </section>
-  <section>
-    <h2>Projects</h2>
-    <ul>
-      {{#each projects}}
-        <li>
-          <h3>{{ name }}</h3>
-          <p>{{ description }}</p>
-          <a href="{{ link }}">Visit</a>
-        </li>
-      {{/each}}
-    </ul>
+
+  <section id="portfolio">
+    <div class="container">
+      <h1>Portfolio</h1>
+      <ul>
+        <li><a href="#">Project 1</a></li>
+        <li><a href="#">Project 2</a></li>
+      </ul>
+    </div>
   </section>
-  <section>
-    <h2>Social Links</h2>
-    <ul>
-      {{#each social_links}}
-        <li><a href="{{ this }}">{{ key }}</a></li>
-      {{/each}}
-    </ul>
+
+  <section id="contact">
+    <div class="container">
+      <h1>Contact</h1>
+      <p>Email: johndoe@example.com</p>
+      <p>LinkedIn: [LinkedIn](https://linkedin.com/in/johndoe)</p>
+      <p>GitHub: [GitHub](https://github.com/johndoe)</p>
+    </div>
   </section>
+
 </body>
 </html>

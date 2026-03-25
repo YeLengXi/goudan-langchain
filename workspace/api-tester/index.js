@@ -1,56 +1,72 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const util = require('util');
 const readline = require('readline');
-const { parseArgs } = require('minimist');
-const { promisify } = require('util');
-const writeFile = promisify(fs.writeFile);
-const readFile = promisify(fs.readFile);
-const exec = promisify(exec_command);
 
-const API_TESTER_PATH = path.join(__dirname, '../', 'api-tester');
-const EXAMPLES_PATH = path.join(__dirname, '../', 'api-tester/examples');
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
-const requests = require(path.join(EXAMPLES_PATH, 'requests.json'));
-
-async function main() {
-  const args = parseArgs(process.argv.slice(2));
-
-  if (args._[0] === '--request-file') {
-    const requestFile = args._[1];
-    const content = await readFile(requestFile, 'utf8');
-    const requestsData = JSON.parse(content);
-    requests = requestsData.requests;
+const fetch = async (url, options) => {
+  try {
+    const response = await https.get(url, options);
+    return response;
+  } catch (error) {
+    throw error;
   }
+};
 
-  requests.forEach(async (request) => {
-    const { method, url, body } = request;
-    const options = {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
+const parseArgs = (args) => {
+  const result = {
+    method: 'GET',
+    url: '',
+    data: null
+  };
+
+  args.forEach(arg => {
+    if (arg.startsWith('-')) {
+      if (arg === '-d') {
+        result.data = JSON.parse(args[args.indexOf(arg) + 1]);
+      } else if (arg.startsWith('--')) {
+        const [key, value] = arg.slice(2).split('=');
+        result[key] = value;
+      } else {
+        result.method = arg.toUpperCase();
       }
-    }
-
-    if (body) {
-      options.body = JSON.stringify(body);
-    }
-
-    const start = Date.now();
-    try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      const endTime = Date.now();
-      console.log(`Response time: ${endTime - start}ms`);
-      console.log('Status Code:', response.status);
-      console.log('Headers:', response.headers.raw());
-      console.log('Data:', data);
-      await writeFile(path.join(API_TESTER_PATH, 'responses', `response-${Date.now()}.json`), JSON.stringify(data, null, 2), 'utf8');
-    } catch (error) {
-      console.error('Error:', error);
+    } else {
+      result.url = arg;
     }
   });
-}
+
+  return result;
+};
+
+const main = async () => {
+  const args = process.argv.slice(2);
+  const options = parseArgs(args);
+
+  try {
+    const response = await fetch(options.url, {
+      method: options.method,
+      headers: options.headers || {},
+      body: options.data ? JSON.stringify(options.data) : null
+    });
+
+    console.log(`Status Code: ${response.statusCode}`);
+    console.log(`Response Time: ${new Date().toISOString() - new Date(response.headers.date).getTime()}ms`);
+    console.log(`Headers: ${JSON.stringify(response.headers)}`);
+
+    if (response.statusCode === 200) {
+      console.log(`Body: ${JSON.stringify(await response.json())}`);
+    } else {
+      console.error(`Error: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
+
+  rl.close();
+};
 
 main();
