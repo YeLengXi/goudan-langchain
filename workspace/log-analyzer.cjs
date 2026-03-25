@@ -1,73 +1,55 @@
 const read_file = require('fs').readFileSync;
 
-const parseAppLog = (logContent) => {
-  const lines = logContent.split('
+const appLog = read_file('./app.log', 'utf8');
+
+const parser = {
+  parseAppLog: (log) => {
+    const lines = log.split('
 ');
-  const parsedLogs = [];
+    const parsedLogs = lines.map(line => {
+      const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)[0];
+      const level = line.match(/INFO|WARN|ERROR/)[0];
+      const message = line.match(/(?:INFO|WARN|ERROR).*/)[0];
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  },
 
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/);
-    const level = line.match(/INFO|WARN|ERROR/);
-    const message = line.match(/.+/);
+  parseApacheLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const timestamp = line.match(/\d{2}/)[0] + '-' + line.match(/\d{2}/)[1] + '-' + line.match(/\d{4}/)[0] + ' ' + line.match(/\d{2}:\d{2}:\d{2}/)[0];
+      const level = 'ACCESS';
+      const message = line;
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  },
 
-    if (timestamp && level && message) {
-      parsedLogs.push({
-        timestamp: timestamp[0],
-        level: level[0],
-        message: message[0]
-      });
-    }
-  });
-
-  return parsedLogs;
+  parseErrorLog: (log) => {
+    const lines = log.split('
+');
+    const parsedLogs = lines.map(line => {
+      const timestamp = 'Unknown';
+      const level = 'ERROR';
+      const message = line;
+      return {
+        timestamp,
+        level,
+        message
+      }
+    });
+    return parsedLogs;
+  }
 };
 
-const parseApacheLog = (logContent) => {
-  const lines = logContent.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const timestamp = line.match(/\d{2}/);
-    const ip = line.match(/(\d{1,3}\.){3}\d{1,3}/);
-    const method = line.match(/(GET|POST|PUT|DELETE)/);
-    const url = line.match(/\/);
-    const status = line.match(/\d{3}/);
-
-    if (timestamp && ip && method && url && status) {
-      parsedLogs.push({
-        timestamp: timestamp[0],
-        ip: ip[0],
-        method: method[0],
-        url: url[0],
-        status: status[0]
-      });
-    }
-  });
-
-  return parsedLogs;
-};
-
-const parseErrorLog = (logContent) => {
-  const lines = logContent.split('
-');
-  const parsedLogs = [];
-
-  lines.forEach(line => {
-    const stackTrace = line.match(/at .+/);
-
-    if (stackTrace) {
-      parsedLogs.push({
-        stackTrace: stackTrace[0]
-      });
-    }
-  });
-
-  return parsedLogs;
-};
-
-module.exports = {
-  parseAppLog,
-  parseApacheLog,
-  parseErrorLog
-}
+module.exports = parser;

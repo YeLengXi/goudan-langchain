@@ -1,22 +1,29 @@
-# 日志解析器
+const fs = require('fs');
+const parser = require('../log-analyzer.cjs');
 
-// 解析应用日志
-const parseAppLog = (log) => {
-  // 实现应用日志解析逻辑
+const readAppLog = (filePath) => {
+  const appLog = fs.readFileSync(filePath, 'utf8');
+  const parsedLogs = parser.parseAppLog(appLog);
+  return parsedLogs;
 };
 
-// 解析访问日志
-const parseAccessLog = (log) => {
-  // 实现访问日志解析逻辑
+const readApacheLog = (filePath) => {
+  const apacheLog = fs.readFileSync(filePath, 'utf8');
+  const parsedLogs = parser.parseApacheLog(apacheLog);
+  return parsedLogs;
 };
 
-// 解析错误日志
-const parseErrorLog = (log) => {
-  // 实现错误日志解析逻辑
+const searchLogs = (logs, keyword, timeRange, level) => {
+  return logs.filter(log => {
+    return log.message.includes(keyword) &&
+           log.timestamp >= timeRange[0] &&
+           log.timestamp <= timeRange[1] &&
+           (!level || log.level === level);
+  });
 };
 
 module.exports = {
-  parseAppLog,
-  parseAccessLog,
-  parseErrorLog
-};
+  readAppLog,
+  readApacheLog,
+  searchLogs
+}

@@ -1,21 +1,23 @@
 {
   "name": "John Doe",
-  "position": "Software Developer",
-  "bio": "I am a passionate software developer with 5 years of experience in building web applications. I am proficient in JavaScript, React, and Node.js.",
+  "position": "Software Engineer",
+  "bio": "I am a passionate software engineer with 5 years of experience in building web applications. I am skilled in JavaScript, React, and Node.js.",
   "skills": [
     "JavaScript",
     "React",
     "Node.js",
-    "HTML"
+    "HTML",
+    "CSS"
   ],
   "projects": [
     {
       "name": "Project 1",
-      "description": "A web application for managing tasks.",n      "link": "https://example.com/project1"
+      "description": "A web application for managing tasks.",n      "link": "https://project1.com"
     },
     {
       "name": "Project 2",
-      "description": "A web application for e-commerce.",n      "link": "https://example.com/project2"
+      "description": "A mobile app for tracking fitness goals.",
+      "link": "https://project2.com"
     }
   ],
   "social": {
