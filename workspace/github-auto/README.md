@@ -14,37 +14,22 @@ npm install
 
 ```bash
 github-auto create my-project --public
-```
 
-创建一个公开的仓库。
-
-```bash
 github-auto create my-project --private --description "My awesome project"
 ```
 
-创建一个私有的仓库，并添加描述。
-
-### 初始化本地仓库
+### 初始化
 
 ```bash
 github-auto init --template nodejs
 ```
 
-使用 Node.js 模板初始化本地仓库。
-
-### 推送到 GitHub
+### 推送
 
 ```bash
 github-auto push
 ```
 
-将本地仓库推送到 GitHub。
-
 ## 配置
 
-- `githubToken`: 你的 GitHub Personal Access Token
-
-## 注意
-
-- 确保你已经安装了 npm
-- 确保你的 GitHub Personal Access Token 有足够的权限
+- `YOUR_GITHUB_TOKEN`: 你的 GitHub 个人访问令牌

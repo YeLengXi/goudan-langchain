@@ -1,29 +1,27 @@
-# README.md
+# README.md模板
 
-Welcome to the project!
+这是一个README文件的模板，你可以根据需要进行修改。
 
-## Project Description
+## 项目描述
 
-This is the README file for the project.
+在这里添加你的项目描述。
 
-## Getting Started
-
-To get started with the project, follow these steps:
-
-1. Clone the repository
-
-2. Install dependencies
+## 安装
 
 ```bash
 npm install
 ```
 
-3. Run the project
+## 使用
 
 ```bash
 node index.js
 ```
 
+## Contributing
+
+请遵循以下贡献指南。
+
 ## License
 
-MIT License
+[MIT License](https://github.com/996icu/996.ICU/blob/master/LICENSE)
