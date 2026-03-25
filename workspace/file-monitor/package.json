@@ -7,7 +7,8 @@
     "start": "node monitor.js"
   },
   "devDependencies": {
-    "@types/node": "^14.0.27",
-    "typescript": "^4.0.5"
+    "child_process": "^1.0.0",
+    "fs": "^0.0.1-security",
+    "json-parse-better-errors": "^1.0.0"
   }
 }
