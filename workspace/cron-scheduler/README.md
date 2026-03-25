@@ -1,61 +1,36 @@
-## 定时任务调度器
+## Cron Scheduler
 
-本调度器可以根据cron表达式定时执行任务。
+This is a simple cron scheduler that can execute tasks based on cron expressions.
 
-## 使用说明
+### Features
 
-1. 创建一个配置文件，例如 tasks.json，内容如下：
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
+
+### Usage
+
+To use the scheduler, create a JSON configuration file with the following format:
 
 ```json
 {
   "tasks": [
     {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
+      "name": "task_name",
+      "cron": "cron_expression",
+      "command": "command_to_execute"
     },
     {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
+      // More tasks
     }
   ]
 }
 ```
 
-2. 运行调度器：
+Then, run the scheduler with the following command:
 
-   ```bash
-   node scheduler.js --config tasks.json
-   ```
-
-3. 查看帮助：
-
-   ```bash
-   node scheduler.js --help
-   ```
-
-## CLI接口
-
-   ```bash
-   node scheduler.js --config <config_file>
-   ```
-
-## 配置文件示例
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
-    }
-  ]
-}
+```bash
+node scheduler.js --config path_to_config_file
 ```

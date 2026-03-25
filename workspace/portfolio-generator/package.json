@@ -1,1 +1,1 @@
-{"name":"portfolio-generator","version":"1.0.0","description":"A static website generator for creating personal portfolios.","main":"index.js","scripts":{"start":"node index.js"},"devDependencies":{}}
+{"name": "portfolio-generator", "version": "1.0.0", "description": "A static website generator for creating personal portfolio websites.", "main": "index.js", "scripts": {"build": "node index.js"}, "dependencies": {"express": "^4.17.1"}, "devDependencies": {"npm": "^6.14.15"}}, "author": "Your Name", "license": "MIT"}

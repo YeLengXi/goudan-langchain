@@ -1,74 +1,93 @@
 const fs = require('fs');
 const path = require('path');
+const { promisify } = require('util');
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+const stat = promisify(fs.stat);
+const listDirectory = promisify(fs.readdir);
+const { green, red, yellow, blue } = require('chalk');
 
-const diffFiles = (file1, file2, format = 'unified', color = false) => {
-  const content1 = fs.readFileSync(file1, 'utf8');
-  const content2 = fs.readFileSync(file2, 'utf8');
+const diffFiles = async (file1, file2, format = 'unified', color = false) => {
+  const content1 = await readFile(file1, 'utf8');
+  const content2 = await readFile(file2, 'utf8');
 
-  const differences = computeDifferences(content1, content2);
-  const formattedDiff = formatDifferences(differences, format, color);
-
-  console.log(formattedDiff);
-};
-
-const computeDifferences = (content1, content2) => {
   const lines1 = content1.split('
 ');
   const lines2 = content2.split('
 ');
 
-  let differences = [];
-  let i = 0;
-  let j = 0;
+  let diff = [];
+  let additions = 0;
+  let deletions = 0;
 
-  while (i < lines1.length || j < lines2.length) {
-    if (i < lines1.length && j < lines2.length && lines1[i] === lines2[j]) {
-      i++;
-      j++;
-    } else if (i < lines1.length && lines1[i] !== lines2[j]) {
-      differences.push({ type: 'deleted', line: lines1[i] });
-      i++;
-    } else if (j < lines2.length && lines2[j] !== lines1[i]) {
-      differences.push({ type: 'added', line: lines2[j] });
-      j++;
-    }
-  }
-
-  return differences;
-};
-
-const formatDifferences = (differences, format, color) => {
-  if (format === 'unified') {
-    return formatUnified(differences, color);
-  } else if (format === 'context') {
-    return formatContext(differences, color);
-  } else if (format === 'side-by-side') {
-    return formatSideBySide(differences, color);
-  }
-};
-
-const formatUnified = (differences, color) => {
-  let result = "--- ${file1}
-+++ ${file2}
-";
-  differences.forEach(diff => {
-    if (diff.type === 'deleted') {
-      result += "- ${diff.line}
-";
-    } else if (diff.type === 'added') {
-      result += "+ ${diff.line}
-";
+  lines1.forEach((line, index) => {
+    if (!lines2.includes(line)) {
+      diff.push({ type: 'deleted', line });
+      deletions++;
     }
   });
-  return result;
+
+  lines2.forEach((line, index) => {
+    if (!lines1.includes(line)) {
+      diff.push({ type: 'added', line });
+      additions++;
+    }
+  });
+
+  diff.forEach(({ type, line }) => {
+    if (type === 'deleted') {
+      diff.push({ type: 'context', line });
+    }
+  });
+
+  if (format === 'unified') {
+    diff = diff.map(({ type, line }) => {
+      if (type === 'deleted') {
+        return '- ' + line;
+      } else if (type === 'added') {
+        return '+ ' + line;
+      } else if (type === 'context') {
+        return blue('@@ -1,3 +1,3 @@');
+      }
+    });
+  }
+
+  if (color) {
+    diff = diff.map(line => {
+      if (line.startsWith('-')) {
+        return red(line);
+      } else if (line.startsWith('+')) {
+        return green(line);
+      }
+    });
+  }
+
+  return { diff, additions, deletions };
 };
 
-const formatContext = (differences, color) => {
-  // Implement context format
+const diffDirectories = async (dir1, dir2, format = 'unified', color = false) => {
+  const files1 = await listDirectory(dir1);
+  const files2 = await listDirectory(dir2);
+
+  let diff = [];
+  let additions = 0;
+  let deletions = 0;
+
+  files1.forEach(file => {
+    if (!files2.includes(file)) {
+      diff.push({ type: 'deleted', file });
+      deletions++;
+    }
+  });
+
+  files2.forEach(file => {
+    if (!files1.includes(file)) {
+      diff.push({ type: 'added', file });
+      additions++;
+    }
+  });
+
+  return { diff, additions, deletions };
 };
 
-const formatSideBySide = (differences, color) => {
-  // Implement side-by-side format
-};
-
-module.exports = { diffFiles };
+module.exports = { diffFiles, diffDirectories };

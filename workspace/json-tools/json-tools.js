@@ -1,75 +1,118 @@
 const fs = require('fs');
 const { program } = require('commander');
 
-const format = (json, indent) => {
-  try {
-    const formattedJson = JSON.stringify(JSON.parse(json), null, indent);
-    return formattedJson;
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-};
+// Function to format JSON
+function format(json, indent) {
+    return JSON.stringify(json, null, indent);
+}
 
-const sort = (json, key) => {
-  try {
-    const data = JSON.parse(json);
-    data.sort((a, b) => {
-      if (a[key] < b[key]) return -1;
-      if (a[key] > b[key]) return 1;
-      return 0;
+// Function to sort JSON
+function sort(json, key) {
+    return JSON.sort(json, (a, b) => {
+        if (a[key] < b[key]) return -1;
+        if (a[key] > b[key]) return 1;
+        return 0;
     });
-    return JSON.stringify(data, null, 2);
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-};
+}
 
-const filter = (json, condition) => {
-  try {
-    const data = JSON.parse(json);
-    return JSON.stringify(data.filter(item => eval(condition)), null, 2);
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-};
+// Function to filter JSON
+function filter(json, condition) {
+    return json.filter(item => {
+        try {
+            return eval(condition)(item);
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
+    });
+}
 
-const merge = (json1, json2) => {
-  try {
-    const obj1 = JSON.parse(json1);
-    const obj2 = JSON.parse(json2);
-    return JSON.stringify(Object.assign({}, obj1, obj2), null, 2);
-  } catch (error) {
-    throw new Error('Invalid JSON');
-  }
-};
+// Function to merge JSON
+function merge(json1, json2) {
+    return JSON.stringify(JSON.concat(json1, json2), null, 2);
+}
 
-program
-  .command('format <json> [indent]')
-  .description('Format JSON data')
-  .action((json, indent) => {
-    console.log(format(json, indent || 2));
-  })
-  .option('--indent <number>', 'specify the indent number');
+// Read JSON from file
+function readJsonFromFile(filePath) {
+    try {
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
 
-program
-  .command('sort <json> --key <key>')
-  .description('Sort JSON data by key')
-  .action((json, key) => {
-    console.log(sort(json, key));
-  });
+// Write JSON to file
+function writeJsonToFile(filePath, data) {
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+    } catch (error) {
+        console.error(error);
+    }
+}
 
-program
-  .command('filter <json> --condition <condition>')
-  .description('Filter JSON data by condition')
-  .action((json, condition) => {
-    console.log(filter(json, condition));
-  });
+// Main function
+function main() {
+    program
+        .command('format <filePath>')
+        .description('Format JSON file')
+        .action(filePath => {
+            const json = readJsonFromFile(filePath);
+            if (json) {
+                writeJsonToFile(filePath, format(json, 2));
+            } else {
+                console.error('Invalid JSON file');
+            }
+        })
+        .option('--indent <number>', 'Number of spaces for indentation', parseInt)
+        .on('--help', () => {
+            console.log(`
+Usage: ${process.argv[0]} ${process.argv[1]} format <filePath> --indent <number>
 
-program
-  .command('merge <json1> <json2>')
-  .description('Merge two JSON data')
-  .action((json1, json2) => {
-    console.log(merge(json1, json2));
-  });
+  Options:
+    --indent <number>  Number of spaces for indentation
+`);
+        })
+        .command('sort <filePath>')
+        .description('Sort JSON file by key')
+        .action(filePath => {
+            const json = readJsonFromFile(filePath);
+            if (json) {
+                writeJsonToFile(filePath, sort(json, program.args.key));
+            } else {
+                console.error('Invalid JSON file');
+            }
+        })
+        .option('--key <key>', 'Key to sort by', String)
+        .on('--help', () => {
+            console.log(`
+Usage: ${process.argv[0]} ${process.argv[1]} sort <filePath> --key <key>
 
-program.parse(process.argv);
+  Options:
+    --key <key>  Key to sort by
+`);
+        })
+        .command('filter <filePath>')
+        .description('Filter JSON file by condition')
+        .action(filePath => {
+            const json = readJsonFromFile(filePath);
+            if (json) {
+                writeJsonToFile(filePath, filter(json, program.args.condition));
+            } else {
+                console.error('Invalid JSON file');
+            }
+        })
+        .option('--condition <condition>', 'Condition to filter by', String)
+        .on('--help', () => {
+            console.log(`
+Usage: ${process.argv[0]} ${process.argv[1]} filter <filePath> --condition <condition>
+
+  Options:
+    --condition <condition>  Condition to filter by
+`);
+        })
+        .parse(process.argv);
+}
+
+main();

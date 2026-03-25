@@ -1,96 +1,87 @@
-// This is the main program of the API tester.
-// It provides the functionality to send HTTP requests and handle the responses.
-const fetch = require('node-fetch');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-// Parse command-line arguments
 const parseArgs = require('minimist');
+const { readFileSync } = require('fs');
+const { yellow, blue, green, red } = require('chalk');
 
-// Read configuration file
-const readConfig = (filePath) => {
-  try {
-    const data = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading configuration file:', error);
-    return {};
+const configFilePath = path.join(__dirname, 'config.json');
+
+// Load configuration
+let config = {};
+try {
+  config = JSON.parse(readFileSync(configFilePath, 'utf8'));
+} catch (error) {
+  console.error(red(`Error reading configuration file: ${error.message}`));
+}
+
+// Parse command line arguments
+const args = parseArgs(process.argv.slice(2));
+
+// Define HTTP methods
+const httpMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+// Function to perform HTTP request
+async function performHttpRequest(method, url, headers = {}, body = null) {
+  const options = {
+    method,
+    headers
   }
-};
 
-// Write response to file
-const writeResponseToFile = (filePath, content) => {
-  fs.writeFileSync(filePath, content, 'utf8');
-};
+  if (body) {
+    if (headers['Content-Type'] === 'application/json') {
+      body = JSON.stringify(body);
+    }
+    options.body = body;
+  }
 
-// Format JSON response
-const formatResponse = (response) => {
-  return JSON.stringify(response, null, 2);
-};
-
-// Send HTTP request
-const sendHttpRequest = async (method, url, headers, body) => {
   try {
-    const options = {
-      method,
-      headers,
-    }
-
-    if (body) {
-      if (headers['Content-Type'] === 'application/json') {
-        options.body = JSON.stringify(body);
-      } else if (headers['Content-Type'] === 'multipart/form-data') {
-        // TODO: Implement form-data handling
-      }
-    }
-
     const startTime = Date.now();
     const response = await fetch(url, options);
     const endTime = Date.now();
     const responseTime = endTime - startTime;
 
-    return {
-      status: response.status,
-      headers: response.headers.raw(),
-      body: await response.text(),
-      responseTime
-    ];
+    console.log(green(`Status Code: ${response.status}`));
+    console.log(blue(`Response Time: ${responseTime}ms`));
+    console.log(yellow(`Headers:`));
+    console.log(JSON.stringify(response.headers.raw(), null, 2));
+
+    const data = await response.json();
+    console.log(green(`Data:`));
+    console.log(JSON.stringify(data, null, 2));
+
+    return data;
   } catch (error) {
-    console.error('Error sending HTTP request:', error);
-    return {
-      error: error.message
-    ];
+    console.error(red(`Error: ${error.message}`));
   }
-};
+}
 
-// Main function
-const main = async () => {
-  const args = parseArgs(process.argv.slice(2));
-  const config = readConfig(path.join(__dirname, 'config.json'));
-
-  if (args._[0]) {
-    const method = args._[0].toUpperCase();
-    const url = args._[1];
-    const headers = args.headers || {};
-    const body = args.body ? JSON.parse(args.body) : null;
-
-    const response = await sendHttpRequest(method, url, headers, body);
-    console.log(formatResponse(response));
+// CLI interface
+async function cliInterface() {
+  if (args._.length === 0) {
+    console.log(red('No command specified.'));
+    return;
   }
 
-  if (args.requestFile) {
-    const requestFilePath = path.join(__dirname, args.requestFile);
-    const requests = readConfig(requestFilePath);
-    for (const request of requests) {
-      const response = await sendHttpRequest(request.method, request.url, request.headers, request.body);
-      console.log(formatResponse(response));
-    }
+  const method = args._[0].toUpperCase();
+  const url = args._[1];
+
+  if (!httpMethods.includes(method)) {
+    console.log(red(`Invalid HTTP method: ${method}`));
+    return;
   }
 
-  if (args.config) {
-    console.log(JSON.stringify(config, null, 2));
+  let body = null;
+  if (args.d) {
+    body = JSON.parse(args.d);
   }
-};
 
-// Run the main function
-main();
+  if (args.f) {
+    body = JSON.parse(readFileSync(args.f, 'utf8'));
+  }
+
+  await performHttpRequest(method, url, {}, body);
+}
+
+cliInterface();

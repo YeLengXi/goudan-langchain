@@ -1,6 +1,6 @@
 # Portfolio Generator
 
-This is a static website generator for creating personal portfolios.
+This is a static website generator for creating personal portfolio websites.
 
 ## Features
 
@@ -11,16 +11,15 @@ This is a static website generator for creating personal portfolios.
 
 ## Installation
 
-To install the generator, run:
-
-```bash
-npm install
-```
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm run build`
 
 ## Usage
 
-To generate the website, run:
+1. Create a `portfolio.json` file with your personal information
+2. Run `npm run build`
 
-```bash
-npm start
-```
+## License
+
+MIT

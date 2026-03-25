@@ -1,0 +1,12 @@
+ {
+  "name": "json-tools",
+  "version": "1.0.0",
+  "description": "A JSON data processing tool.",
+  "main": "json-tools.js",
+  "scripts": {
+    "start": "node json-tools.js"
+  },
+  "dependencies": {
+    "commander": "^9.0.0"
+  }
+}

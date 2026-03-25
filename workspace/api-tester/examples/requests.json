@@ -1,13 +1,8 @@
 [
   {
-    "method": "GET",
-    "url": "https://api.example.com/users"
-  },
-  {
-    "method": "POST",
     "url": "https://api.example.com/users",
-    "body": {
-      "name": "John"
-    }
+    "method": "GET",
+    "headers": {},
+    "body": {}
   }
 ]

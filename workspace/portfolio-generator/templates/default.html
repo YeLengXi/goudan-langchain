@@ -7,30 +7,70 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    header {
+      background-color: #333;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+    }
+    p {
+      margin: 0;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>John Doe</h1>
-  <h2>Software Engineer</h2>
-  <p>I am a passionate software engineer with 5 years of experience in developing web applications.</p>
-  <h3>Skills</h3>
-  <ul>
-    <li>JavaScript</li>
-    <li>React</li>
-    <li>Node.js</li>
-  </ul>
-  <h3>Projects</h3>
-  <ul>
-    <li>Project 1: This is my first project.</li>
-    <li>Project 2: This is my second project.</li>
-  </ul>
-  <h3>Social Links</h3>
-  <ul>
-    <li><a href="https://github.com/johndoe">GITHUB</a></li>
-    <li><a href="https://linkedin.com/in/johndoe">LINKEDIN</a></li>
-    <li><a href="johndoe@example.com">EMAIL</a></li>
-  </ul>
+  <div class="container">
+    <header>
+      <h1>{{name}}</h1>
+      <p>{{position}}</p>
+    </header>
+    <section>
+      <h2>About</h2>
+      <p>{{bio}}</p>
+    </section>
+    <section>
+      <h2>Skills</h2>
+      <ul>
+        {{#each skills}}
+          <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </section>
+    <section>
+      <h2>Projects</h2>
+      <ul>
+        {{#each projects}}
+          <li>
+            <h3>{{name}}</h3>
+            <p>{{description}}</p>
+            <a href="{{link}}">View Project</a>
+          </li>
+        {{/each}}
+      </ul>
+    </section>
+    <section>
+      <h2>Social Links</h2>
+      <ul>
+        {{#each social_links}}
+          <li>
+            <a href="{{this}}">{{this}}</a>
+          </li>
+        {{/each}}
+      </ul>
+    </section>
+  </div>
 </body>
 </html>

@@ -1,61 +1,39 @@
-# 定时任务调度器
+const { parse } = require('node-cron');
 
-本调度器可以根据cron表达式定时执行任务。
+const tasks = [];
 
-## 使用说明
-
-1. 创建一个配置文件，例如 tasks.json，内容如下：
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
-    }
-  ]
+function addTask(name, cron, command) {
+  tasks.push({
+    name,
+    cron,
+    command
+  });
 }
-```
 
-2. 运行调度器：
-
-   ```bash
-   node scheduler.js --config tasks.json
-   ```
-
-3. 查看帮助：
-
-   ```bash
-   node scheduler.js --help
-   ```
-
-## CLI接口
-
-   ```bash
-   node scheduler.js --config <config_file>
-   ```
-
-## 配置文件示例
-
-```json
-{
-  "tasks": [
-    {
-      "name": "backup",
-      "cron": "0 2 * * *",
-      "command": "node backup.js"
-    },
-    {
-      "name": "cleanup",
-      "cron": "0 */6 * * *",
-      "command": "node cleanup.js"
-    }
-  ]
+function deleteTask(name) {
+  tasks = tasks.filter(task => task.name !== name);
 }
-```
+
+function executeTask(task) {
+  console.log(`Executing task: ${task.name} at ${new Date().toISOString()}`);
+  require('child_process').exec(task.command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Error executing task: ${task.name}`, error);
+      return;
+    }
+    if (stderr) {
+      console.error(`Error output from task: ${task.name}`, stderr);
+      return;
+    }
+    console.log(`Task ${task.name} executed successfully`);
+  });
+}
+
+function scheduleTasks() {
+  tasks.forEach(task => {
+    const job = parse(task.cron, () => executeTask(task), true);
+    job.start();
+  });
+}
+
+module.exports = { addTask, deleteTask, scheduleTasks };
