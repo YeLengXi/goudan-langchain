@@ -1,73 +1,116 @@
+// This is the main program of the GitHub automation tool.
+//
+// Dependencies:
+// - axios
+
 const axios = require('axios');
-const dotenv = require('dotenv');
-const { program } = require('commander');
 const fs = require('fs');
 const path = require('path');
 
-dotenv.config();
-
+// GitHub API URL
 const GITHUB_API_URL = 'https://api.github.com';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-program
-  .command('create <repoName> [isPrivate] [description]')
-  .description('Create a new GitHub repository')
-  .action((repoName, isPrivate, description) => {
-    createRepository(repoName, isPrivate, description);
-  });
+// Read configuration from file
+const readConfig = (filePath) => {
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading configuration:', error);
+    process.exit(1);
+  }
+};
 
-program
-  .command('init [template]')
-  .description('Initialize a new project')
-  .action((template) => {
-    initializeProject(template);
-  });
+// Write configuration to file
+const writeConfig = (filePath, data) => {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
+  } catch (error) {
+    console.error('Error writing configuration:', error);
+    process.exit(1);
+  }
+};
 
-program
-  .command('push')
-  .description('Push the current project to GitHub')
-  .action(() => {
-    pushToGitHub();
-  });
-
-program.parse(process.argv);
-
-async function createRepository(repoName, isPrivate, description) {
+// Create GitHub repository
+const createRepository = async (token, name, privateRepo, description) => {
   try {
     const response = await axios.post(`${GITHUB_API_URL}/user/repos`, {
-      name: repoName,
-      private: isPrivate || false,
-      description: description || '',
+      name,
+      private: privateRepo,
+      description
     }, {
       headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-      },
+        'Authorization': `token ${token}
+      }
     });
-    console.log(`Repository created: ${response.data.html_url}`);
+    return response.data;
   } catch (error) {
-    console.error('Error creating repository:', error);
+    console.error('Error creating GitHub repository:', error);
+    process.exit(1);
   }
-}
+};
 
-async function initializeProject(template) {
-  const projectPath = path.join(__dirname, '..', 'projects', repoName);
-  fs.mkdirSync(projectPath, { recursive: true });
-
-  const files = {
-    'README.md': require.resolve('./templates/README.md'),
-    '.gitignore': require.resolve('./templates/gitignore'),
-    'LICENSE': require.resolve('./templates/LICENSE'),
-  };
-
-  for (const [file, templatePath] of Object.entries(files)) {
-    const content = fs.readFileSync(templatePath, 'utf-8');
-    fs.writeFileSync(path.join(projectPath, file), content);
+// Initialize local repository
+const initializeLocalRepository = async (repoUrl, template) => {
+  // Clone repository
+  try {
+    await exec_command(`git clone ${repoUrl}`);
+  } catch (error) {
+    console.error('Error cloning repository:', error);
+    process.exit(1);
   }
 
-  console.log(`Project initialized in ${projectPath}`);
-}
+  // Change directory to repository
+  try {
+    await exec_command('cd $(git rev-parse --show-toplevel)');n
+  } catch (error) {
+    console.error('Error changing directory:', error);
+    process.exit(1);
+  }
 
-async function pushToGitHub() {
-  // Implementation for pushing to GitHub
-  console.log('Pushing to GitHub...');
-}
+  // Initialize git
+  try {
+    await exec_command('git init');
+  } catch (error) {
+    console.error('Error initializing git:', error);
+    process.exit(1);
+  }
+
+  // Create project structure
+  // Add initial files
+  // First commit
+
+  // Add .gitignore and LICENSE
+  //
+};
+
+// Push to GitHub
+const pushToGitHub = async (repoUrl, branch) => {
+  // Add remote
+  // Push to main branch
+  // Set default branch
+
+};
+
+// Execute command
+const exec_command = (command) => {
+  return new Promise((resolve, reject) => {
+    const { spawn } = require('child_process');
+    const process = spawn(command, { stdio: 'inherit' });
+    process.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Command failed with code ${code}`));
+      }
+    });
+  });
+};
+
+// Export functions
+module.exports = {
+  createRepository,
+  initializeLocalRepository,
+  pushToGitHub,
+  exec_command
+};
