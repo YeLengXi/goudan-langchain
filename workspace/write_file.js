@@ -1,16 +1,16 @@
-# read_file.js
+# write_file.js
 
 const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-  read_file: (file_path) => {
+  write_file: (file_path, content) => {
     return new Promise((resolve, reject) => {
-      fs.readFile(file_path, 'utf8', (err, data) => {
+      fs.writeFile(file_path, content, 'utf8', (err) => {
         if (err) {
           reject(err);
         } else {
-          resolve(data);
+          resolve();
         }
       });
     });

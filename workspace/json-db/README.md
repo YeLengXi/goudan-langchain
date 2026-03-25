@@ -1,77 +1,97 @@
-## JSON数据库工具
+## README.md
 
-这个工具是一个基于JSON文件的简单数据库，支持CRUD操作和查询。
+欢迎使用 JSON 数据库工具！
 
-## 文件结构
+本工具基于 JSON 文件实现了一个简单的数据库，支持 CRUD 操作和查询。
 
-- `database.js`: 数据库主程序
-- `README.md`: 使用文档
-- `test.js`: 测试文件
+### 安装
 
-## 安装
+确保您已安装 Node.js。
 
-确保你已经安装了Node.js。
+### 使用方法
 
-## 使用方法
-
-1. 初始化数据库
+1. 创建数据库文件：
+   
    ```bash
    node database.js init
    ```
 
-2. 创建表
+2. 创建表：
+   
    ```bash
-   node database.js create [table_name]
+   node database.js create <table_name>
    ```
 
-3. 插入数据
+3. 插入数据：
+   
    ```bash
-   node database.js insert [table_name] --data '[data]'
+   node database.js insert <table_name> --data '<json_data>'
    ```
 
-4. 查询数据
+4. 查询数据：
+   
    ```bash
-   node database.js find [table_name] --query '[query]'
+   node database.js find <table_name> --query '<json_query>'
    ```
 
-5. 更新数据
+5. 更新数据：
+   
    ```bash
-   node database.js update [table_name] --id [id] --data '[data]'
+   node database.js update <table_name> --id <id> --data '<json_data>'
    ```
 
-6. 删除数据
+6. 删除数据：
+   
    ```bash
-   node database.js delete [table_name] --id [id]
+   node database.js delete <table_name> --id <id>
    ```
 
-7. 保存数据
+7. 保存数据：
+   
    ```bash
    node database.js save
    ```
 
-## 示例
+### 示例
 
-```javascript
-const DB = require('./database');
+创建数据库文件：
 
-// 初始化
-const db = new DB('./data.json');
+```bash
+node database.js init
+```
 
-// 创建表
-db.createTable('users');
+创建表：
 
-// 插入
-db.insert('users', { name: 'Alice', age: 30 });
+```bash
+node database.js create users
+```
 
-// 查询
-const users = db.find('users', { age: 30 });
+插入数据：
 
-// 更新
-db.update('users', 1, { age: 31 });
+```bash
+node database.js insert users --data '{\"name\":\"Alice\",\"age\":30}'
+```
 
-// 删除
-db.delete('users', 1);
+查询数据：
 
-// 保存
-db.save();
+```bash
+node database.js find users --query '{\"age\":30}'
+```
+
+更新数据：
+
+```bash
+node database.js update users --id 1 --data '{\"age\":31}'
+```
+
+删除数据：
+
+```bash
+node database.js delete users --id 1
+```
+
+保存数据：
+
+```bash
+node database.js save
 ```

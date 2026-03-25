@@ -1,16 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+# exec_command.js
+
+const { exec } = require('child_process');
 
 module.exports = {
-    exec_command: function(command) {
-        return new Promise((resolve, reject) => {
-            require('child_process').exec(command, (err, stdout, stderr) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve({stdout, stderr});
-                }
-            });
-        });
-    }
-}
+  exec_command: (command) => {
+    return new Promise((resolve, reject) => {
+      exec(command, (err, stdout, stderr) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ stdout, stderr });
+        }
+      });
+    });
+  }
+};

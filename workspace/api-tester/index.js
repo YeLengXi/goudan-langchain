@@ -1,59 +1,90 @@
-const fetch = require('node-fetch');
-
-const parseArgs = require('minimist');
-
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
+const { promisify } = require('util');
+const readFileAsync = promisify(fs.readFile);
+const writeFileAsync = promisify(fs.writeFile);
+const appendFileAsync = promisify(fs.appendFile);
 
-const requestsDir = path.join(__dirname, 'examples');
-
-const DEFAULT_REQUEST_FILE = 'requests.json';
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const args = process.argv.slice(2);
 
-  let method = args._[0];
-  let url = args._[1];
-  let data = args.d || args.data;
-  let requestFile = args.r || args.requestFile || DEFAULT_REQUEST_FILE;
-
-  if (!method || !url) {
-    console.error('Usage: api-tester <method> <url> [-d <data>] [--request-file <file>]
-');    return;
+  if (args.length === 0) {
+    console.log('Usage: api-tester <method> <url> [options]');
+    process.exit(1);
   }
 
-  if (args.h) {
-    console.log('Available methods: GET, POST, PUT, DELETE, PATCH');
-    console.log('Available options: -d <data>, --data <data>, -h, --help, --request-file <file>');    return;
+  const [method, url] = args.splice(0, 2);
+  const options = args.reduce((acc, arg) => {
+    if (arg.startsWith('-')) {
+      acc.options.push(arg);
+    } else if (arg.startsWith('-d')) {
+      acc.data = arg.substring(2);
+    } else {
+      acc.url = arg;
+    }
+    return acc;
+  }, {
+    method: method,
+    url: url,
+    data: null,
+    options: []
+  });
+
+  try {
+    const response = await fetchRequest(options);
+    console.log(response);
+  } catch (error) {
+    console.error(error);
+  }
+
+  rl.close();
+}
+
+async function fetchRequest({ method, url, data, options }) {
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+
+  if (data) {
+    const body = JSON.stringify(data);
+    headers.append('Content-Length', body.length);
+  }
+
+  const init = {
+    method: method,
+    headers: headers
+  }
+
+  if (data) {
+    init.body = data;
   }
 
   try {
-    const request = JSON.parse(data);
-    data = request;
-  } catch (e) {
-    // data is not in JSON format
-  }
+    const startTime = Date.now();
+    const response = await fetch(url, init);
+    const endTime = Date.now();
+    const responseTime = endTime - startTime;
 
-  const response = await fetch(url, {
-    method: method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  }).then(response => {
-    console.log('Response time:', response.headers.get('X-Response-Time'));    console.log('Status code:', response.status);
-    console.log('Headers:', response.headers);
-    return response.json();
-  }).catch(error => {
-    console.error('Error:', error);
-  });
+    console.log(`Response Time: ${responseTime}ms`);
+    console.log(`Status Code: ${response.status}`);
+    console.log(`Headers: ${JSON.stringify(response.headers.raw())}`);
 
-  console.log('Response:', response);
+    if (response.ok) {
+      const responseBody = await response.json();
+      console.log('Response Body:', responseBody);
+    } else {
+      console.error('Error:', response.statusText);
+    }
 
-  if (args.o) {
-    const responseFile = args.o;
-    fs.writeFileSync(responseFile, JSON.stringify(response, null, 2), 'utf8');
-    console.log(`Response saved to ${responseFile}`);
+    return response;
+  } catch (error) {
+    throw error;
   }
 }
 

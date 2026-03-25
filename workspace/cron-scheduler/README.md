@@ -1,51 +1,61 @@
-## 定时任务调度器
+# Cron Scheduler
 
-这是一个简单的定时任务调度器，可以按照cron表达式执行任务。
+This is a simple cron scheduler that can execute tasks based on cron expressions.
 
-### 安装
+## Features
 
-1. 克隆仓库
+- Parse cron expressions
+- Schedule and execute tasks
+- Support multiple tasks
+- Task execution history
+- Error handling and retry
 
-   git clone https://github.com/your-username/cron-scheduler
+## Usage
 
-2. 进入目录
+To use the scheduler, create a configuration file in JSON format with the following structure:
 
-   cd cron-scheduler
+```json
+{
+  "tasks": [
+    {
+      "name": "task_name",
+      "cron": "cron_expression",
+      "command": "command_to_execute"
+    },
+    {
+      "name": "another_task",
+      "cron": "another_cron_expression",
+      "command": "another_command"
+    }
+  ]
+}
+```
 
-3. 安装依赖
+Then, run the scheduler with the following command:
 
-   npm install
+```bash
+node scheduler.js --config path_to_config_file
+```
 
-### 使用
+## Example
 
-1. 创建配置文件
+Create a file named `tasks.json` with the following content:
 
-   创建一个名为tasks.json的文件，内容如下：
+```json
+{
+  "tasks": [
+    {
+      "name": "backup",
+      "cron": "0 2 * * *",
+      "command": "node backup.js"
+    },
+    {
+      "name": "cleanup",
+      "cron": "0 */6 * * *",
+      "command": "node cleanup.js"
+    }
+  ]
+}
+```
 
-   ```json
-   {
-     "tasks": [
-       {
-         "name": "backup",
-         "cron": "0 2 * * *",
-         "command": "node backup.js"
-       },
-       {
-         "name": "cleanup",
-         "cron": "0 */6 * * *",
-         "command": "node cleanup.js"
-       }
-     ]
-   }
-   ```
-
-2. 运行调度器
-
-   node scheduler.js --config tasks.json
-
-### 配置文件说明
-
-- tasks: 任务列表
-  - name: 任务名称
-  - cron: cron表达式
-  - command: 执行命令
+This will schedule the `backup` task to run every day at 2 AM and the `cleanup` task to run every 6 hours.

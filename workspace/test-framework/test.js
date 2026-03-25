@@ -8,17 +8,23 @@ const it = (name, callback) => {
   try {
     console.log(`  ${name}`);
     callback();
-  } catch (error) { 
-    console.error(`  ✖ ${name} - ${error.message}`);
+    console.log('  ✓');
+  } catch (error) {
+    console.error(`  ✗ ${name}
+    ${error}
   }
 };
 
 const before = (callback) => {
-  console.log(`  Before: ${callback.name}`);
+  console.log(`
+before: ${callback.name}`);
   callback();
 };
 
 const after = (callback) => {
-  console.log(`  After: ${callback.name}`);
+  console.log(`
+after: ${callback.name}`);
   callback();
 };
+
+module.exports = { describe, it, before, after };

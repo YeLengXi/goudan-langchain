@@ -1,19 +1,11 @@
-# JSON 数据处理工具
+## JSON Tools
 
-这是一个JSON数据处理工具，可以格式化、排序、过滤JSON数据。
+This package provides functions to format, sort, filter, and merge JSON data.
 
-## 功能
+### Installation
 
-- 格式化：美化JSON输出
-- 排序：按字母或数值排序
-- 过滤：支持条件表达式
-- 合并：深度合并对象
-
-## 使用方法
+To use this package, you need to have Node.js installed.
 
 ```bash
-node json-tools.js format input.json
-node json-tools.js sort input.json --key name
-node json-tools.js filter input.json --condition "age > 18"
-node json-tools.js merge input.json input2.json
+npm install json-tools
 ```

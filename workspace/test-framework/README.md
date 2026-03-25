@@ -4,19 +4,12 @@ This is a simple JavaScript unit testing framework.
 
 ## Installation
 
-To use this framework, you need to install it in your project.
-
-```bash
-npm install test-framework
-```
+No installation is required. Just require the test.js file in your project.
 
 ## Usage
 
-To write a test, you need to require the test framework and assert library.
-
 ```javascript
-const { describe, it, expect } = require('test-framework');
-const { equal, deepEqual, truthy, falsy, throws, contains } = require('assert');
+const { describe, it, expect } = require('./test.js');
 
 describe('Math operations', () => {
   it('should add numbers', () => {
@@ -27,4 +20,31 @@ describe('Math operations', () => {
     expect(subtract(5, 2)).toBe(3);
   });
 });
+
 ```
+
+## API
+
+- describe(name, callback)
+  - Define a test suite.
+- it(name, callback)
+  - Define a test case.
+- before(callback)
+  - Define a before hook.
+- after(callback)
+  - Define an after hook.
+- expect(value)
+  - Assert the value.
+
+## CLI
+
+```bash
+node test.js example.test.js
+node test.js tests/
+node test.js --verbose
+node test.js --watch
+```
+
+## Contributing
+
+Contributions are welcome. Please follow the contributing guidelines.

@@ -1,8 +1,10 @@
 # README.md
 
-欢迎使用 GitHub 自动化工具！
+这是一个 README 模板的示例。
 
-该工具可以帮助您自动创建、初始化和推送 GitHub 仓库。
+## 项目描述
+
+这里是项目的描述。
 
 ## 安装
 
@@ -12,25 +14,8 @@ npm install
 
 ## 使用
 
-### 创建仓库
+这里是项目的使用说明。
 
-```bash
-github-auto create my-project --public
+## 贡献
 
-github-auto create my-project --private --description "My awesome project"
-
-```
-
-### 初始化
-
-```bash
-github-auto init --template nodejs
-
-```
-
-### 推送
-
-```bash
-github-auto push
-
-```
+欢迎贡献代码！

@@ -1,40 +1,52 @@
-# Regex Tester
+# 正则表达式测试器
 
-This tool is a regex tester and debugger. It allows you to test regex patterns, extract capture groups, replace text, split text, and validate common patterns like email, phone number, URL, IP address, and date format.
+这是一个简单的正则表达式测试和调试工具。
 
-## Usage
+## 安装
 
-To use the tool, run the following command:
+首先，确保你已经安装了Node.js。
 
-```bash
-node tester.js <pattern> --<option> <value>
-```
+然后，将此工具克隆到你的本地目录：
+cd your-local-directory
 
-Where <pattern> is the regex pattern you want to test, <option> is the option you want to use (match, capture, replace, split, email, phone, url, ip, date), and <value> is the value you want to test.
+git clone https://github.com/your-username/regex-tester.git
 
-## Options
+进入工具目录：
+cd regex-tester
 
-- match: Test if the pattern matches the text.
-- capture: Extract capture groups from the text.
-- replace: Replace matched text with a specified value.
-- split: Split the text by the pattern.
-- email: Validate email address.
-- phone: Validate phone number.
-- url: Validate URL.
-- ip: Validate IP address.
-- date: Validate date format.
+安装依赖：
+npm install
 
-## Examples
+## 使用
+
+运行以下命令来测试正则表达式：
 
 ```bash
-$ node tester.js "/\d+/" --text "hello 123 world"
-Pattern: /\d+/
-Text: hello 123 world
-Match: 123
-Position: 6-9
-
-$ node tester.js --email "test@example.com"
-Pattern: /^[\w\.-]+@[\w\.-]+\.[a-z]{2,6}$/
-Input: test@example.com
-Valid: ✅ true
+node tester.js <command> <args>
 ```
+
+支持的命令包括：
+
+- match
+- capture
+- replace
+- split
+- email
+- phone
+- url
+- ip
+- date
+
+例如：
+
+```bash
+node tester.js match /\d+/ --text "hello 123 world"
+```
+
+## 常用正则库
+
+- 邮箱验证
+- 手机号验证
+- URL验证
+- IP地址验证
+- 日期格式

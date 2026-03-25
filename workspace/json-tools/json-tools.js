@@ -1,60 +1,29 @@
-const fs = require('fs');
-const util = require('util');
-const path = require('path');
-const { promisify } = require('util');
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-const appendFile = promisify(fs.appendFile);
-const stat = promisify(fs.stat);
+# json-tools.js
 
-const jsonTools = {
-  format: async (filePath, indent = 2) => {
-    try {
-      const data = await readFile(filePath, 'utf8');
-      const parsedData = JSON.parse(data);
-      const formattedData = JSON.stringify(parsedData, null, indent);
-      return formattedData;
-    } catch (error) {
-      throw new Error('Invalid JSON or file not found');
-    }
-  },
+This is a JSON processing tool that can format, sort, filter, and merge JSON data.
 
-  sort: async (filePath, key) => {
-    try {
-      const data = await readFile(filePath, 'utf8');
-      const parsedData = JSON.parse(data);
-      parsedData.sort((a, b) => {
-        if (a[key] < b[key]) return -1;
-        if (a[key] > b[key]) return 1;
-        return 0;
-      });
-      return JSON.stringify(parsedData, null, 2);
-    } catch (error) {
-      throw new Error('Invalid JSON or file not found');
-    }
-  },
+## Functions
 
-  filter: async (filePath, condition) => {
-    try {
-      const data = await readFile(filePath, 'utf8');
-      const parsedData = JSON.parse(data);
-      return JSON.stringify(parsedData.filter(item => eval(condition)), null, 2);
-    } catch (error) {
-      throw new Error('Invalid JSON or file not found');
-    }
-  },
+### format(json, indent)
 
-  merge: async (filePath1, filePath2) => {
-    try {
-      const data1 = await readFile(filePath1, 'utf8');
-      const data2 = await readFile(filePath2, 'utf8');
-      const parsedData1 = JSON.parse(data1);
-      const parsedData2 = JSON.parse(data2);
-      return JSON.stringify(Object.assign({}, parsedData1, parsedData2), null, 2);
-    } catch (error) {
-      throw new Error('Invalid JSON or file not found');
-    }
-  }
-};
+Formats the JSON data with the specified indentation.
 
-module.exports = jsonTools;
+### sort(json, key)
+
+Sorts the JSON data by the specified key.
+
+### filter(json, condition)
+
+Filters the JSON data based on the specified condition.
+
+### merge(json1, json2)
+
+Merges two JSON objects deeply.
+
+## Usage
+
+```bash
+node json-tools.js format input.json
+node json-tools.js sort input.json --key name
+node json-tools.js filter input.json --condition "age > 18"
+```

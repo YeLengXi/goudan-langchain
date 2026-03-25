@@ -1,14 +1,1 @@
-{
-  "name": "file-monitor",
-  "version": "1.0.0",
-  "description": "A file monitoring tool.",
-  "main": "monitor.js",
-  "scripts": {
-    "start": "node monitor.js"
-  },
-  "dependencies": {
-    "child_process": "^1.0.0",
-    "fs": "^0.0.1",
-    "path": "^0.0.1"
-  }
-}
+{"name":"file-monitor","version":"1.0.0"}

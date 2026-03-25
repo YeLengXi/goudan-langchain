@@ -1,1 +1,1 @@
-{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"create":"./index.js create","init":"./index.js init","push":"./index.js push"},"repository":{"type":"git","url":"git+https://github.com/username/github-auto.git"},"keywords":["github","auto","tool"],"author":"Your Name <yourname@example.com>"}
+{"name":"github-auto","version":"1.0.0","description":"GitHub 仓库自动化工具","main":"index.js","scripts":{"start":"node index.js"},"dependencies":{}]

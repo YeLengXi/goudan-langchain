@@ -1,32 +1,62 @@
-# progress-bar
+# CLI进度条工具
 
-This package provides a CLI progress bar tool.
+## 目标
 
-## Installation
+创建一个命令行进度条工具，用于显示长时间运行任务的进度。
 
-To use this package, you need to install it first.
+## 必须创建的文件
 
-```bash
-npm install progress-bar
-```
+1. progress.js - 进度条主程序
+2. README.md - 使用文档
+3. demo.js - 演示程序
 
-## Usage
+## 工作流程
 
-To create a progress bar, you can use the `ProgressBar` class.
+立即执行以下操作：
+
+1. 实现进度条显示：
+   - 百分比显示
+   - 进度条图形（[====>     ]）
+   - ETA计算
+   - 速度显示
+2. 实现多种样式：
+   - 标准进度条
+   - 圆形进度
+   - 点状进度（.....）
+   - 箭头进度（>>>>）
+3. 实现多进度条（同时显示多个）
+4. 实现日志输出（不干扰进度条）
+5. 添加使用示例
+
+## 功能要求
+
+- 动态更新
+- 百分比显示
+- ETA计算
+- 支持多种样式
+- 多进度条
+- 彩色输出
+
+## API接口
 
 ```javascript
-const ProgressBar = require('progress-bar');
+const ProgressBar = require('./progress.js');
 
-const bar = new ProgressBar({ total: 100, width: 40, complete: '█', incomplete: ' ' });
+// 单个进度条
+const bar = new ProgressBar({
+  total: 100,
+  width: 40,
+  complete: '█',
+  incomplete: '░'
+});
 
 for (let i = 0; i <= 100; i++) {
   bar.update(i);
-  // Do some work
+  // 做一些工作
 }
 
-// To render the progress bar, you can call the `render` method.
-bar.render();
-
-// To reset the progress bar, you can call the `reset` method.
-bar.reset();
+// 多进度条
+const multi = new MultiProgressBar();
+const bar1 = multi.create('Download', 100);
+const bar2 = multi.create('Upload', 100);
 ```

@@ -1,15 +1,19 @@
-const read_file = require('fs').readFileSync;
+# 搜索引擎
 
-const searchLogs = (parsedLogs, keyword, startTime, endTime, level) => {
-  return parsedLogs.filter(log => {
-    const matchesKeyword = log.message.includes(keyword);
-    const withinTimeRange = log.timestamp >= startTime && log.timestamp <= endTime;
-    const matchesLevel = level ? log.level === level : true;
+const searchByKeyword = (logs, keyword) => {
+  return logs.filter(log => log.message.includes(keyword) || log.error.includes(keyword));
+};
 
-    return matchesKeyword && withinTimeRange && matchesLevel;
-  });
+const filterByTimeRange = (logs, startTime, endTime) => {
+  return logs.filter(log => new Date(log.timestamp) >= new Date(startTime) && new Date(log.timestamp) <= new Date(endTime));
+};
+
+const filterByLogLevel = (logs, level) => {
+  return logs.filter(log => log.level === level);
 };
 
 module.exports = {
-  searchLogs
-}
+  searchByKeyword,
+  filterByTimeRange,
+  filterByLogLevel
+};
