@@ -1,13 +1,10 @@
 import dotenv from 'dotenv';
-import { ZhipuAI } from '@zhipuai/sdk';
-import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { Tool } from '@langchain/core/tools';
-import { StateGraph, END } from '@langchain/langgraph';
-import { MemorySaver } from '@langchain/langgraph';
 import fs from 'fs/promises';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import axios from 'axios';
+import crypto from 'crypto';
 
 const execAsync = promisify(exec);
 
@@ -41,7 +38,7 @@ async function log(message, level = 'info') {
 }
 
 // 工具：读取文件
-class ReadFileTool extends Tool {
+class ReadFileTool {
   name = 'readFile';
   description = '读取文件内容。输入文件路径。';
 
@@ -58,7 +55,7 @@ class ReadFileTool extends Tool {
 }
 
 // 工具：写入文件
-class WriteFileTool extends Tool {
+class WriteFileTool {
   name = 'writeFile';
   description = '写入文件内容。输入文件路径和内容（格式：路径|内容）。';
 
@@ -83,7 +80,7 @@ class WriteFileTool extends Tool {
 }
 
 // 工具：执行命令
-class ExecTool extends Tool {
+class ExecTool {
   name = 'exec';
   description = '执行命令行命令。输入命令。';
 
@@ -108,7 +105,7 @@ class ExecTool extends Tool {
 }
 
 // 工具：列出文件
-class ListFilesTool extends Tool {
+class ListFilesTool {
   name = 'listFiles';
   description = '列出目录中的文件。输入目录路径。';
 
@@ -127,12 +124,6 @@ class ListFilesTool extends Tool {
 // Goudan Agent
 class GoudanAgent {
   constructor() {
-    this.llm = new ZhipuAI({
-      apiKey: CONFIG.apiKey,
-      baseURL: CONFIG.baseUrl,
-      model: CONFIG.model,
-    });
-
     this.tools = {
       readFile: new ReadFileTool(),
       writeFile: new WriteFileTool(),
@@ -142,6 +133,68 @@ class GoudanAgent {
 
     this.taskQueue = [];
     this.currentTask = null;
+  }
+
+  // 调用智谱AI API
+  async callZhipuAI(messages) {
+    try {
+      const token = await this.generateToken(CONFIG.apiKey);
+
+      const response = await axios.post(
+        `${CONFIG.baseUrl}chat/completions`,
+        {
+          model: CONFIG.model,
+          messages: messages.map(msg => ({
+            role: msg.constructor.name === 'SystemMessage' ? 'system' : 'user',
+            content: msg.content
+          }))
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      return {
+        content: response.data.choices[0].message.content
+      };
+    } catch (error) {
+      await log(`智谱AI调用失败: ${error.message}`, 'error');
+      throw error;
+    }
+  }
+
+  // 生成JWT token（智谱AI要求）
+  async generateToken(apiKey) {
+    try {
+      const [id, secret] = apiKey.split('.');
+      const now = Date.now();
+      const payload = {
+        api_key: id,
+        exp: now + 3600 * 1000,
+        timestamp: now
+      };
+
+      const header = {
+        alg: 'HS256',
+        sign_type: 'SIGN'
+      };
+
+      const headerEncoded = Buffer.from(JSON.stringify(header)).toString('base64url');
+      const payloadEncoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+
+      const signature = crypto
+        .createHmac('sha256', secret)
+        .update(`${headerEncoded}.${payloadEncoded}`)
+        .digest('base64url');
+
+      return `${headerEncoded}.${payloadEncoded}.${signature}`;
+    } catch (error) {
+      await log(`Token生成失败: ${error.message}`, 'error');
+      throw error;
+    }
   }
 
   // 获取可用工具列表
@@ -240,7 +293,9 @@ class GoudanAgent {
 
   // 处理单个任务
   async processTask(task) {
-    const systemPrompt = `你是 goudan，一个 AI 开发者 agent。
+    const systemMessage = {
+      constructor: { name: 'SystemMessage' },
+      content: `你是 goudan，一个 AI 开发者 agent。
 
 你的任务：
 ${task.content}
@@ -264,19 +319,20 @@ ${task.content}
 - 遇到问题尝试解决
 - 完成后报告结果
 
-工作目录：${CONFIG.workspaceDir}`;
+工作目录：${CONFIG.workspaceDir}`
+    };
 
-    const userPrompt = `请完成以下任务：
+    const userMessage = {
+      constructor: { name: 'HumanMessage' },
+      content: `请完成以下任务：
 
 ${task.content}
 
-请使用可用的工具来完成这个任务。`;
+请使用可用的工具来完成这个任务。`
+    };
 
     try {
-      const response = await this.llm.invoke([
-        new SystemMessage(systemPrompt),
-        new HumanMessage(userPrompt),
-      ]);
+      const response = await this.callZhipuAI([systemMessage, userMessage]);
 
       await log(`AI 响应: ${response.content.substring(0, 500)}...`);
 
@@ -334,11 +390,8 @@ async function main() {
     await log(`  - ${tool.name}: ${tool.description}`);
   }
 
-  // 开始运行
-  await agent.run();
-
-  // 或者使用持续模式：
-  // await agent.startContinuousMode();
+  // 开始运行（使用持续模式）
+  await agent.startContinuousMode();
 }
 
 // 运行

@@ -1,16 +1,20 @@
-const { describe, it, expect } = require('./test.js');
+// example.test.js
+const { describe, it, expect } = require('./test-framework/test.js');
+const { equal } = require('./test-framework/assert.js');
 
-const { equal, deepEqual, truthy, falsy, throws, contains } = require('./assert.js');
-
-const add = (a, b) => a + b;
-const subtract = (a, b) => a - b;
+function add(a, b) {
+  return a + b;
+}
+function subtract(a, b) {
+  return a - b;
+}
 
 describe('Math operations', () => {
   it('should add numbers', () => {
-    expect(add(1, 2)).toBe(3);
+    equal(add(1, 2), 3);
   });
 
   it('should subtract numbers', () => {
-    expect(subtract(5, 2)).toBe(3);
+    equal(subtract(5, 2), 3);
   });
 });
